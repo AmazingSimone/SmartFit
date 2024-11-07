@@ -20,8 +20,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.smartfit.components.CustomButton
+import com.example.smartfit.components.CustomCheckBox
 import com.example.smartfit.components.CustomOutlinedTextInput
 import com.example.smartfit.components.CustomTextButton
+
 import com.example.smartfit.ui.theme.SmartFitTheme
 
 class MainActivity : ComponentActivity() {
@@ -111,12 +113,11 @@ fun Greeting() {
                     )
             }
 
-
+            CustomCheckBox(
+                text = "Trenersky profil"
+            )
         }
-
-
     }
-
 }
 
 @Preview(showBackground = true)
