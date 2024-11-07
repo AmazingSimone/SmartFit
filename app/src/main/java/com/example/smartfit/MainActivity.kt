@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.CustomCheckBox
 import com.example.smartfit.components.CustomLargeIconButton
+import com.example.smartfit.components.CustomOnlineStateIndicator
 import com.example.smartfit.components.CustomOutlinedTextInput
 import com.example.smartfit.components.CustomSwitch
 import com.example.smartfit.components.CustomTextButton
@@ -128,6 +129,10 @@ fun Greeting() {
             CustomLargeIconButton(
                 onClick = {},
                 icon = Icons.Filled.Add
+            )
+
+            CustomOnlineStateIndicator(
+                onClick = {}
             )
 
         }

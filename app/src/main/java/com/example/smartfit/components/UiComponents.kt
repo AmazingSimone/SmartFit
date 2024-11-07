@@ -6,14 +6,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -312,6 +316,52 @@ fun CustomLargeIconButton(
                 contentDescription = "Icon of button",
                 modifier = Modifier.size(iconSize),
                 tint = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+@Composable
+fun CustomOnlineStateIndicator(
+    icon: ImageVector = Icons.Filled.Watch,
+    text: String = "",
+    indicatorColor: Color = MaterialTheme.colorScheme.error,
+    onClick: () -> Unit,
+    size: Dp = 23.dp
+) {
+    Box(
+        modifier = Modifier
+            .wrapContentSize()
+            .clip(RoundedCornerShape(25.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .clickable(onClick = onClick)
+            .padding(10.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+
+            if (text.isNotEmpty()) {
+                Text(
+                    text = text,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    fontWeight = FontWeight.Bold
+
+                )
+            } else {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = "Icon of indicator",
+                    modifier = Modifier.size(size)
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .size(size)
+                    .clip(CircleShape)
+                    .background(indicatorColor)
             )
         }
     }
