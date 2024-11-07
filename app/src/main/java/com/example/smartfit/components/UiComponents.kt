@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Watch
@@ -363,6 +364,55 @@ fun CustomOnlineStateIndicator(
                     .clip(CircleShape)
                     .background(indicatorColor)
             )
+        }
+    }
+}
+
+//TODO - Tu treba samozrejme dorobit cestu k fotke a veci s tym...
+@Composable
+fun CustomProfilePictureFrame(
+    frameColor: Color = Color.Magenta,
+    enabled: Boolean = true,
+    editOption: Boolean = false,
+    onClick: () -> Unit = {},
+    frameSize: Dp = 50.dp,
+    profilePicRatio: Float = 0.80f
+) {
+
+    Box (
+        modifier = Modifier.clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.TopEnd
+    ) {
+
+        Box(
+            modifier = Modifier
+                .clip(CircleShape)
+                .size(frameSize)
+                .background(frameColor),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(frameSize * profilePicRatio)
+                    .background(Color.Gray)
+            )
+        }
+        if(editOption) {
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(frameSize * (profilePicRatio / 2.3f))
+                    .background(frameColor),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Edit,
+                    contentDescription = "Icon for edit profile option",
+                    tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size((frameSize * (profilePicRatio / 2.6f)) * profilePicRatio)
+                )
+            }
         }
     }
 }

@@ -25,6 +25,7 @@ import com.example.smartfit.components.CustomCheckBox
 import com.example.smartfit.components.CustomLargeIconButton
 import com.example.smartfit.components.CustomOnlineStateIndicator
 import com.example.smartfit.components.CustomOutlinedTextInput
+import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.CustomSwitch
 import com.example.smartfit.components.CustomTextButton
 
@@ -134,6 +135,8 @@ fun Greeting() {
             CustomOnlineStateIndicator(
                 onClick = {}
             )
+
+            CustomProfilePictureFrame()
 
         }
     }
