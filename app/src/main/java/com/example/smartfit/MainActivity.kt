@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.CustomCheckBox
 import com.example.smartfit.components.CustomOutlinedTextInput
+import com.example.smartfit.components.CustomSwitch
 import com.example.smartfit.components.CustomTextButton
 
 import com.example.smartfit.ui.theme.SmartFitTheme
@@ -116,6 +117,11 @@ fun Greeting() {
             CustomCheckBox(
                 text = "Trenersky profil"
             )
+
+            CustomSwitch(
+                text = "Profil Trenera"
+            )
+
         }
     }
 }
