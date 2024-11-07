@@ -1,14 +1,18 @@
 package com.example.smartfit
 
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -22,14 +26,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.CustomCheckBox
+import com.example.smartfit.components.CustomInfoCardFromDevice
 import com.example.smartfit.components.CustomLargeIconButton
 import com.example.smartfit.components.CustomOnlineStateIndicator
 import com.example.smartfit.components.CustomOutlinedTextInput
 import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.CustomSwitch
 import com.example.smartfit.components.CustomTextButton
-
-
 import com.example.smartfit.ui.theme.SmartFitTheme
 
 class MainActivity : ComponentActivity() {
@@ -53,7 +56,10 @@ fun Greeting() {
         modifier = Modifier.fillMaxSize()
     ) {
 
-        Column {
+        Column (
+            modifier = Modifier.verticalScroll(rememberScrollState())
+        )
+        {
 
             //experimental udajne
             val (login, password) = remember { FocusRequester.createRefs() }
@@ -137,6 +143,15 @@ fun Greeting() {
             )
 
             CustomProfilePictureFrame()
+
+            CustomInfoCardFromDevice(
+                heading = "Kalorie",
+                data = 15,
+                goal = 105,
+
+                unit = "kcal",
+                icon = Icons.Filled.MonitorHeart
+            )
 
         }
     }

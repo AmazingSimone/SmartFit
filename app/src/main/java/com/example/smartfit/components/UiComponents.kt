@@ -4,8 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -16,12 +19,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +51,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -58,7 +64,7 @@ fun NormalText(
 ) {
     Text(
         text = text,
-        modifier = Modifier.fillMaxWidth(),
+        //modifier = Modifier.fillMaxWidth(),
         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
         fontWeight = fontWeight,
         textAlign = textAlign
@@ -73,7 +79,7 @@ fun Heading1(
 ) {
     Text(
         text = text,
-        modifier = Modifier.fillMaxWidth(),
+        //modifier = Modifier.fillMaxWidth(),
         fontSize = MaterialTheme.typography.titleLarge.fontSize,
         fontWeight = fontWeight,
         textAlign = textAlign
@@ -88,7 +94,7 @@ fun Heading2(
 ) {
     Text(
         text = text,
-        modifier = Modifier.fillMaxWidth(),
+        //modifier = Modifier.fillMaxWidth(),
         fontSize = MaterialTheme.typography.titleMedium.fontSize,
         fontWeight = fontWeight,
         textAlign = textAlign
@@ -103,7 +109,7 @@ fun Heading3(
 ) {
     Text(
         text = text,
-        modifier = Modifier.fillMaxWidth(),
+        //modifier = Modifier.fillMaxWidth(),
         fontSize = MaterialTheme.typography.titleSmall.fontSize,
         fontWeight = fontWeight,
         textAlign = textAlign
@@ -118,8 +124,8 @@ fun HeadlineText(
 ) {
     Text(
         text = text,
-        modifier = Modifier.fillMaxWidth(),
-        fontSize = MaterialTheme.typography.headlineMedium.fontSize,
+        //modifier = Modifier.fillMaxWidth(),
+        fontSize = MaterialTheme.typography.headlineLarge.fontSize,
         fontWeight = fontWeight,
         textAlign = textAlign
     )
@@ -379,7 +385,7 @@ fun CustomProfilePictureFrame(
     profilePicRatio: Float = 0.80f
 ) {
 
-    Box (
+    Box(
         modifier = Modifier.clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.TopEnd
     ) {
@@ -398,7 +404,7 @@ fun CustomProfilePictureFrame(
                     .background(Color.Gray)
             )
         }
-        if(editOption) {
+        if (editOption) {
             Box(
                 modifier = Modifier
                     .clip(CircleShape)
@@ -415,4 +421,68 @@ fun CustomProfilePictureFrame(
             }
         }
     }
+}
+
+//TODO - este niesom velmi isty na 100% s designom
+@Composable
+fun CustomInfoCardFromDevice(
+    heading: String,
+    data: Int,
+    goal: Int = 0,
+    unit: String = "",
+    icon: ImageVector
+) {
+    ElevatedCard(
+        modifier = Modifier.height(150.dp)
+    ) {
+        Box {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)) {
+                Heading1(heading)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        HeadlineText(data.toString(), fontWeight = FontWeight.Bold)
+                        if (goal > 0) HeadlineText(" / ${goal.toString()}", fontWeight = FontWeight.Bold)
+                        HeadlineText(unit.toString(), fontWeight = FontWeight.Bold)
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = "Device info card icon",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CardPreview() {
+    CustomInfoCardFromDevice(
+        heading = "Srdcovy tep",
+        data = 20,
+
+        unit = "t/m",
+        icon = Icons.Filled.MonitorHeart
+    )
 }
