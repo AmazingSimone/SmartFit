@@ -1,15 +1,19 @@
 package com.example.smartfit
 
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MonitorHeart
@@ -24,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.CustomCheckBox
 import com.example.smartfit.components.CustomInfoCardFromDevice
@@ -33,6 +38,7 @@ import com.example.smartfit.components.CustomOutlinedTextInput
 import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.CustomSwitch
 import com.example.smartfit.components.CustomTextButton
+import com.example.smartfit.components.CustomTrainingInfoCardWithDate
 import com.example.smartfit.ui.theme.SmartFitTheme
 
 class MainActivity : ComponentActivity() {
@@ -48,6 +54,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@SuppressLint("NewApi")
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Greeting() {
@@ -151,6 +158,15 @@ fun Greeting() {
 
                 unit = "kcal",
                 icon = Icons.Filled.MonitorHeart
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+
+            CustomTrainingInfoCardWithDate(
+                trainingType = "Beh",
+                numberOfParticipants = 3,
+                trainingIcon = Icons.AutoMirrored.Filled.DirectionsRun
             )
 
         }

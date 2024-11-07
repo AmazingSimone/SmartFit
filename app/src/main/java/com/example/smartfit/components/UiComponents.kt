@@ -1,16 +1,20 @@
 package com.example.smartfit.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,19 +22,21 @@ import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -54,17 +60,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 
 @Composable
 fun NormalText(
     text: String,
+    color: Color = Color.Unspecified,
     fontWeight: FontWeight? = null,
-    textAlign: TextAlign? = TextAlign.Center
+    textAlign: TextAlign? = TextAlign.Center,
 ) {
     Text(
         text = text,
-        //modifier = Modifier.fillMaxWidth(),
+        color = color,
         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
         fontWeight = fontWeight,
         textAlign = textAlign
@@ -74,12 +84,13 @@ fun NormalText(
 @Composable
 fun Heading1(
     text: String,
+    color: Color = Color.Unspecified,
     fontWeight: FontWeight? = null,
-    textAlign: TextAlign? = TextAlign.Center
+    textAlign: TextAlign? = TextAlign.Center,
 ) {
     Text(
         text = text,
-        //modifier = Modifier.fillMaxWidth(),
+        color = color,
         fontSize = MaterialTheme.typography.titleLarge.fontSize,
         fontWeight = fontWeight,
         textAlign = textAlign
@@ -89,12 +100,14 @@ fun Heading1(
 @Composable
 fun Heading2(
     text: String,
+    color: Color = Color.Unspecified,
     fontWeight: FontWeight? = null,
-    textAlign: TextAlign? = TextAlign.Center
-) {
+    textAlign: TextAlign? = TextAlign.Center,
+
+    ) {
     Text(
         text = text,
-        //modifier = Modifier.fillMaxWidth(),
+        color = color,
         fontSize = MaterialTheme.typography.titleMedium.fontSize,
         fontWeight = fontWeight,
         textAlign = textAlign
@@ -104,12 +117,13 @@ fun Heading2(
 @Composable
 fun Heading3(
     text: String,
+    color: Color = Color.Unspecified,
     fontWeight: FontWeight? = null,
     textAlign: TextAlign? = TextAlign.Center
 ) {
     Text(
         text = text,
-        //modifier = Modifier.fillMaxWidth(),
+        color = color,
         fontSize = MaterialTheme.typography.titleSmall.fontSize,
         fontWeight = fontWeight,
         textAlign = textAlign
@@ -119,12 +133,13 @@ fun Heading3(
 @Composable
 fun HeadlineText(
     text: String,
+    color: Color = Color.Unspecified,
     fontWeight: FontWeight? = null,
     textAlign: TextAlign? = TextAlign.Center
 ) {
     Text(
         text = text,
-        //modifier = Modifier.fillMaxWidth(),
+        color = color,
         fontSize = MaterialTheme.typography.headlineLarge.fontSize,
         fontWeight = fontWeight,
         textAlign = textAlign
@@ -423,7 +438,8 @@ fun CustomProfilePictureFrame(
     }
 }
 
-//TODO - este niesom velmi isty na 100% s designom
+//TODO - este niesom velmi isty na 100% s designom plus by som farby mohol nastavit podla typu
+// nameranych dat nejake urcit...
 @Composable
 fun CustomInfoCardFromDevice(
     heading: String,
@@ -439,7 +455,8 @@ fun CustomInfoCardFromDevice(
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .padding(10.dp)) {
+                    .padding(10.dp)
+            ) {
                 Heading1(heading)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -453,8 +470,11 @@ fun CustomInfoCardFromDevice(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         HeadlineText(data.toString(), fontWeight = FontWeight.Bold)
-                        if (goal > 0) HeadlineText(" / ${goal.toString()}", fontWeight = FontWeight.Bold)
-                        HeadlineText(unit.toString(), fontWeight = FontWeight.Bold)
+                        if (goal > 0) HeadlineText(
+                            " / ${goal}",
+                            fontWeight = FontWeight.Bold
+                        )
+                        HeadlineText(unit, fontWeight = FontWeight.Bold)
                     }
 
                     Box(
@@ -475,14 +495,115 @@ fun CustomInfoCardFromDevice(
     }
 }
 
+//TODO - treba daky enum na treningy spravit a pozor na anotacie
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun CustomTrainingInfoCardWithDate(
+    trainingType: String,
+    timeLength: LocalTime = LocalTime.of(1, 20, 34),
+    timeOfTraining: LocalTime = LocalTime.now(),
+    numberOfParticipants: Int = 0,
+    date: LocalDate = LocalDate.now(),
+    trainingIcon: ImageVector
+) {
+
+    Column(
+
+    ) {
+
+        Heading2(date.format(DateTimeFormatter.ofPattern("E, d.M")))
+        Spacer(modifier = Modifier.height(8.dp)) // Add spacing here
+
+        OutlinedCard(
+            modifier = Modifier.height(150.dp),
+            colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+        ) {
+            Box {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                ) {
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Absolute.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (numberOfParticipants > 1) Heading1("Skupinovy trening") else Heading1("Trening")
+
+                        Icon(
+                            imageVector = trainingIcon,
+                            contentDescription = "Device info card icon",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(1f)
+                        ) {
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .weight(1f),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+
+                                ) {
+                                HeadlineText(
+                                    trainingType,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                //if (goal > 0) HeadlineText(" / ${goal.toString()}", fontWeight = FontWeight.Bold)
+                                HeadlineText(
+                                    timeLength.toString(),
+                                    color = MaterialTheme.colorScheme.tertiary
+                                )
+                            }
+
+                            if (numberOfParticipants > 1) NormalText(
+                                "$numberOfParticipants ucastnici",
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(1f),
+                            contentAlignment = Alignment.BottomEnd
+                        ) {
+                            Column {
+
+
+                                Heading1(timeOfTraining.format(DateTimeFormatter.ofPattern("HH:mm")))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+}
+
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
-fun CardPreview() {
-    CustomInfoCardFromDevice(
-        heading = "Srdcovy tep",
-        data = 20,
+fun Preview() {
+    CustomTrainingInfoCardWithDate(
+        trainingType = "Beh",
 
-        unit = "t/m",
-        icon = Icons.Filled.MonitorHeart
+        trainingIcon = Icons.AutoMirrored.Filled.DirectionsRun
     )
 }
