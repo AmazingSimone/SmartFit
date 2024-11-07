@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -98,9 +99,9 @@ fun CustomOutlinedTextInput(
     keyBoardType: KeyboardType,
     enterButtonAction: ImeAction,
     isPassword: Boolean = false,
-    errorText: String = "",
-    isError: Boolean = false
-) {
+    isError: Boolean = false,
+    errorText: String = ""
+    ) {
     val inputText = remember { mutableStateOf("") }
     val passwordVisible = remember {
         mutableStateOf(false)
@@ -150,13 +151,13 @@ fun CustomOutlinedTextInput(
 
 @Composable
 fun CustomButton(
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
     outlined: Boolean = false,
     buttonText: String,
     enabled: Boolean = true,
     textColor: Color =  ButtonDefaults.buttonColors().contentColor,
     containerColor: Color = ButtonDefaults.buttonColors().containerColor,
-    modifier: Modifier = Modifier
 ) {
     if (outlined) {
         OutlinedButton(
@@ -176,5 +177,23 @@ fun CustomButton(
         ) {
             Text(text = buttonText)
         }
+    }
+}
+
+@Composable
+fun CustomTextButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    buttonText: String,
+    enabled: Boolean = true,
+    textColor: Color =  ButtonDefaults.textButtonColors().contentColor
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        enabled = enabled,
+        colors = ButtonDefaults.elevatedButtonColors(contentColor = textColor)
+    ) {
+        Text(text = buttonText)
     }
 }

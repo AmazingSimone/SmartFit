@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.smartfit.Components.CustomButton
 import com.example.smartfit.Components.CustomOutlinedTextInput
+import com.example.smartfit.Components.CustomTextButton
 import com.example.smartfit.Components.Heading1
 import com.example.smartfit.Components.Heading2
 import com.example.smartfit.Components.Heading3
@@ -103,6 +104,25 @@ fun Greeting() {
                     modifier = Modifier.weight(1f)
                 )
 
+            }
+
+            Row{
+
+                CustomTextButton(
+                    onClick = {},
+                    buttonText = "Registracia",
+                    enabled = true,
+                    textColor = Color.Blue,
+                    modifier = Modifier.weight(1f)
+                    )
+
+                CustomTextButton(
+                    onClick = {},
+                    buttonText = "Registracia",
+                    enabled = true,
+                    textColor = Color.Blue,
+                    modifier = Modifier.weight(1f)
+                    )
             }
 
 
