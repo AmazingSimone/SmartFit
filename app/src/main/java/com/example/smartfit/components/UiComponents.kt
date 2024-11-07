@@ -1,8 +1,13 @@
 package com.example.smartfit.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -35,9 +41,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+
 
 @Composable
-fun NormalText(text: String, fontWeight: FontWeight? = null, textAlign: TextAlign? = TextAlign.Center) {
+fun NormalText(
+    text: String,
+    fontWeight: FontWeight? = null,
+    textAlign: TextAlign? = TextAlign.Center
+) {
     Text(
         text = text,
         modifier = Modifier.fillMaxWidth(),
@@ -48,7 +61,11 @@ fun NormalText(text: String, fontWeight: FontWeight? = null, textAlign: TextAlig
 }
 
 @Composable
-fun Heading1(text: String, fontWeight: FontWeight? = null, textAlign: TextAlign? = TextAlign.Center) {
+fun Heading1(
+    text: String,
+    fontWeight: FontWeight? = null,
+    textAlign: TextAlign? = TextAlign.Center
+) {
     Text(
         text = text,
         modifier = Modifier.fillMaxWidth(),
@@ -59,7 +76,11 @@ fun Heading1(text: String, fontWeight: FontWeight? = null, textAlign: TextAlign?
 }
 
 @Composable
-fun Heading2(text: String, fontWeight: FontWeight? = null, textAlign: TextAlign? = TextAlign.Center) {
+fun Heading2(
+    text: String,
+    fontWeight: FontWeight? = null,
+    textAlign: TextAlign? = TextAlign.Center
+) {
     Text(
         text = text,
         modifier = Modifier.fillMaxWidth(),
@@ -70,7 +91,11 @@ fun Heading2(text: String, fontWeight: FontWeight? = null, textAlign: TextAlign?
 }
 
 @Composable
-fun Heading3(text: String, fontWeight: FontWeight? = null, textAlign: TextAlign? = TextAlign.Center) {
+fun Heading3(
+    text: String,
+    fontWeight: FontWeight? = null,
+    textAlign: TextAlign? = TextAlign.Center
+) {
     Text(
         text = text,
         modifier = Modifier.fillMaxWidth(),
@@ -81,7 +106,11 @@ fun Heading3(text: String, fontWeight: FontWeight? = null, textAlign: TextAlign?
 }
 
 @Composable
-fun HeadlineText(text: String, fontWeight: FontWeight? = null, textAlign: TextAlign? = TextAlign.Center) {
+fun HeadlineText(
+    text: String,
+    fontWeight: FontWeight? = null,
+    textAlign: TextAlign? = TextAlign.Center
+) {
     Text(
         text = text,
         modifier = Modifier.fillMaxWidth(),
@@ -102,7 +131,7 @@ fun CustomOutlinedTextInput(
     isPassword: Boolean = false,
     isError: Boolean = false,
     errorText: String = ""
-    ) {
+) {
     val inputText = remember { mutableStateOf("") }
     val passwordVisible = remember {
         mutableStateOf(false)
@@ -112,7 +141,7 @@ fun CustomOutlinedTextInput(
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(currentFocusRequester),
-            //.width(250.dp),
+        //.width(250.dp),
         value = inputText.value,
         onValueChange = { inputText.value = it },
         label = { Text(text = label) },
@@ -157,7 +186,7 @@ fun CustomButton(
     outlined: Boolean = false,
     buttonText: String,
     enabled: Boolean = true,
-    textColor: Color =  ButtonDefaults.buttonColors().contentColor,
+    textColor: Color = ButtonDefaults.buttonColors().contentColor,
     containerColor: Color = ButtonDefaults.buttonColors().containerColor,
 ) {
     if (outlined) {
@@ -174,7 +203,10 @@ fun CustomButton(
             onClick = onClick,
             modifier = modifier.fillMaxWidth(),
             enabled = enabled,
-            colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = textColor)
+            colors = ButtonDefaults.buttonColors(
+                containerColor = containerColor,
+                contentColor = textColor
+            )
         ) {
             Text(text = buttonText)
         }
@@ -187,7 +219,7 @@ fun CustomTextButton(
     onClick: () -> Unit,
     buttonText: String,
     enabled: Boolean = true,
-    textColor: Color =  ButtonDefaults.textButtonColors().contentColor
+    textColor: Color = ButtonDefaults.textButtonColors().contentColor
 ) {
     TextButton(
         onClick = onClick,
@@ -206,11 +238,11 @@ fun CustomCheckBox(
     enabled: Boolean = true
 ) {
 
-    Row (
+    Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
-    ){
+    ) {
 
         val checkedState = remember { mutableStateOf(false) }
 
@@ -235,11 +267,11 @@ fun CustomSwitch(
     enabled: Boolean = true
 ) {
 
-    Row (
+    Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround
-    ){
+    ) {
 
         val switchedState = remember { mutableStateOf(false) }
 
@@ -258,3 +290,29 @@ fun CustomSwitch(
     }
 }
 
+@Composable
+fun CustomLargeIconButton(
+    onClick: () -> Unit,
+    icon: ImageVector,
+    iconSize: Dp = 200.dp
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(iconSize)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.3f))
+                .clickable(onClick = onClick)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = "Icon of button",
+                modifier = Modifier.size(iconSize),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}

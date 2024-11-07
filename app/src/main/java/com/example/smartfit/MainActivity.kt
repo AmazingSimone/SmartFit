@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Surface
@@ -21,9 +22,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.CustomCheckBox
+import com.example.smartfit.components.CustomLargeIconButton
 import com.example.smartfit.components.CustomOutlinedTextInput
 import com.example.smartfit.components.CustomSwitch
 import com.example.smartfit.components.CustomTextButton
+
 
 import com.example.smartfit.ui.theme.SmartFitTheme
 
@@ -120,6 +123,11 @@ fun Greeting() {
 
             CustomSwitch(
                 text = "Profil Trenera"
+            )
+
+            CustomLargeIconButton(
+                onClick = {},
+                icon = Icons.Filled.Add
             )
 
         }
