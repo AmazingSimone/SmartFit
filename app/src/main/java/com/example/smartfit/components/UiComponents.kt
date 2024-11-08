@@ -22,13 +22,13 @@ import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedCard
@@ -592,8 +592,30 @@ fun CustomTrainingInfoCardWithDate(
             }
         }
     }
+}
 
+@Composable
+fun CustomTrainingInfoDisplayCard(
+    modifier: Modifier = Modifier.padding(40.dp),
+    title: String,
+    timeData: LocalTime? = null,
+    data: Float = 0f,
+    unit: String = ""
+) {
+    Card {
+        Column (
+            modifier = modifier,
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            Heading1(title)
 
+            Row {
+                if (timeData != null) HeadlineText(timeData.toString(), color = MaterialTheme.colorScheme.primary) else HeadlineText(data.toString(), color = MaterialTheme.colorScheme.primary)
+                HeadlineText(unit, color = MaterialTheme.colorScheme.secondary)
+            }
+        }
+    }
 }
 
 
@@ -601,9 +623,10 @@ fun CustomTrainingInfoCardWithDate(
 @Preview(showBackground = true)
 @Composable
 fun Preview() {
-    CustomTrainingInfoCardWithDate(
-        trainingType = "Beh",
-
-        trainingIcon = Icons.AutoMirrored.Filled.DirectionsRun
+    CustomTrainingInfoDisplayCard(
+        title = "Vzdialenost",
+        data = 1.1f,
+        unit = "km"
     )
 }
+

@@ -39,6 +39,7 @@ import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.CustomSwitch
 import com.example.smartfit.components.CustomTextButton
 import com.example.smartfit.components.CustomTrainingInfoCardWithDate
+import com.example.smartfit.components.CustomTrainingInfoDisplayCard
 import com.example.smartfit.ui.theme.SmartFitTheme
 
 class MainActivity : ComponentActivity() {
@@ -167,6 +168,12 @@ fun Greeting() {
                 trainingType = "Beh",
                 numberOfParticipants = 3,
                 trainingIcon = Icons.AutoMirrored.Filled.DirectionsRun
+            )
+
+            CustomTrainingInfoDisplayCard(
+                title = "Vzdialenost",
+                data = 1.1f,
+                unit = "km"
             )
 
         }
