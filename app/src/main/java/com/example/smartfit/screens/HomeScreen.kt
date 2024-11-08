@@ -33,6 +33,8 @@ fun HomeScreen() {
             CustomInfoCardFromDevice("Heading1", 0, unit = " --", icon = Icons.Filled.ErrorOutline)
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
             CustomInfoCardFromDevice("Heading1", 0, unit = " --", icon = Icons.Filled.ErrorOutline)
+            Spacer(modifier = Modifier.padding(vertical = 8.dp))
+
         }
     }
 

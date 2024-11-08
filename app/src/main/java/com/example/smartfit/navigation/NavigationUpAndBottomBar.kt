@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.History
@@ -30,17 +31,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomIconButton
 import com.example.smartfit.components.CustomOnlineStateIndicator
 import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.HeadlineText
+import com.example.smartfit.screens.ActivityScreen
+import com.example.smartfit.screens.FriendsScreen
+import com.example.smartfit.screens.HomeScreen
 
 @Composable
 fun NavigationUpAndBottomBar() {
 
-    var selectedItem by remember { mutableIntStateOf(1) }
+    var selectedItem by remember { mutableIntStateOf(0) }
     val navBarItemsStrings = listOf("Domov", "Aktivita", "Priatelia")
     val navBarSelectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Person)
     val navBarUnselectedIcons =
@@ -94,7 +99,10 @@ fun NavigationUpAndBottomBar() {
             },
 
             bottomBar = {
-                NavigationBar {
+                NavigationBar (
+                    tonalElevation = 8.dp
+
+                ) {
 
                     navBarItemsStrings.forEachIndexed { index, item ->
                         NavigationBarItem(
@@ -113,13 +121,22 @@ fun NavigationUpAndBottomBar() {
             }
         ) {
 
-            Surface(modifier = Modifier
-                .fillMaxSize()
-                .padding(it)) {
+            Surface(
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(it)
+        .clip(RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp))
+) {
 
+    if (selectedItem == 0) {
+        HomeScreen()
+    } else if (selectedItem == 1) {
+        ActivityScreen()
+    } else {
+        FriendsScreen()
+    }
 
-
-            }
+}
         }
     }
 }

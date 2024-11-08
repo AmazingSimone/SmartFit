@@ -351,7 +351,7 @@ fun CustomOnlineStateIndicator(
     text: String = "",
     indicatorColor: Color = MaterialTheme.colorScheme.error,
     onClick: () -> Unit,
-    size: Dp = 23.dp
+    size: Dp = 16.dp
 ) {
     Box(
         modifier = Modifier
@@ -618,7 +618,7 @@ fun CustomTrainingInfoCardWithDate(
 
 @Composable
 fun CustomTrainingInfoDisplayCard(
-    modifier: Modifier = Modifier.padding(40.dp),
+    modifier: Modifier = Modifier,
     title: String,
     timeData: LocalTime? = null,
     data: Float = 0f,
@@ -626,7 +626,7 @@ fun CustomTrainingInfoDisplayCard(
 ) {
     Card {
         Column (
-            modifier = modifier,
+            modifier = modifier.padding(40.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ){
