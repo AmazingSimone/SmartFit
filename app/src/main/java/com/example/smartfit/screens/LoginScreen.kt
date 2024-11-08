@@ -1,6 +1,5 @@
 package com.example.smartfit.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,7 +14,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.R
 import com.example.smartfit.components.CustomButton
-import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.Heading2
 import com.example.smartfit.components.HeadlineText
 
@@ -53,6 +51,6 @@ fun LoginScreen() {
 
 @Preview
 @Composable
-fun Preview() {
+fun PreviewLogin() {
     LoginScreen()
 }
