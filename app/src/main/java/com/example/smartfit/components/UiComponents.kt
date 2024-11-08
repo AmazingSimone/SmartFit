@@ -34,6 +34,8 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
@@ -437,6 +439,26 @@ fun CustomProfilePictureFrame(
         }
     }
 }
+
+@Composable
+fun CustomIconButton(
+    onClick: () -> Unit,
+    icon: ImageVector,
+    size: Dp = 50.dp,
+    enabled: Boolean = true,
+    color: IconButtonColors = IconButtonDefaults.iconButtonColors()
+) {
+
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier.size(size),
+        enabled = enabled,
+        colors = color
+    ) {
+        Icon(imageVector = icon, contentDescription = "Icon Of Button", modifier = Modifier.size(size - 10.dp))
+    }
+}
+
 
 //TODO - este niesom velmi isty na 100% s designom plus by som farby mohol nastavit podla typu
 // nameranych dat nejake urcit...
