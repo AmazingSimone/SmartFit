@@ -40,6 +40,7 @@ import com.example.smartfit.components.CustomSwitch
 import com.example.smartfit.components.CustomTextButton
 import com.example.smartfit.components.CustomTrainingInfoCardWithDate
 import com.example.smartfit.components.CustomTrainingInfoDisplayCard
+import com.example.smartfit.navigation.NavigationUpAndBottomBar
 import com.example.smartfit.ui.theme.SmartFitTheme
 
 class MainActivity : ComponentActivity() {
@@ -48,7 +49,7 @@ class MainActivity : ComponentActivity() {
         //enableEdgeToEdge()
         setContent {
             SmartFitTheme {
-                Greeting()
+                NavigationUpAndBottomBar()
 
             }
         }
