@@ -1,6 +1,7 @@
 package com.example.smartfit.components
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +23,8 @@ import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -31,7 +34,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,9 +50,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,9 +72,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 
 @Composable
@@ -154,47 +166,60 @@ fun CustomOutlinedTextInput(
     currentFocusRequester: FocusRequester,
     onNext: (KeyboardActionScope.() -> Unit)? = null,
     label: String,
-    trailingIcon: ImageVector,
-    keyBoardType: KeyboardType,
-    enterButtonAction: ImeAction,
-    isPassword: Boolean = false,
+    value: String = "",
+    defaultText: String = "",
+    onTextChanged: (String) -> Unit,
+    trailingIcon: @Composable() (() -> Unit)? = null,
+    suffix: @Composable() (() -> Unit)? = null,
+    keyBoardType: KeyboardType = KeyboardType.Text,
+    enterButtonAction: ImeAction = ImeAction.Default,
+    readOnly: Boolean = false,
     isError: Boolean = false,
-    errorText: String = ""
+    errorText: String = "",
+    singleLine: Boolean = true,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    minLines: Int = 1
 ) {
-    val inputText = remember { mutableStateOf("") }
-    val passwordVisible = remember {
-        mutableStateOf(false)
+
+    val textValue = remember {
+        mutableStateOf(defaultText)
     }
 
     OutlinedTextField(
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(currentFocusRequester),
-        //.width(250.dp),
-        value = inputText.value,
-        onValueChange = { inputText.value = it },
+        value = if (value.isNotEmpty()) value else textValue.value,
+        onValueChange = {
+            textValue.value = it
+            onTextChanged(it)
+        },
         label = { Text(text = label) },
-        singleLine = true,
+        readOnly = readOnly,
+        singleLine = singleLine,
+        minLines = minLines,
+        maxLines = maxLines,
         trailingIcon = {
 
-            if (isPassword) {
-                val iconImage = if (passwordVisible.value) {
-                    Icons.Filled.Visibility
-                } else {
-                    Icons.Filled.VisibilityOff
+            if (trailingIcon != null) {
+                trailingIcon()
+            } else if (textValue.value.isNotEmpty()) {
+                IconButton(
+                    onClick = {
+                        textValue.value = ""
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Clear,
+                        contentDescription = "Clear input icon"
+                    )
                 }
-
-                IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
-                    Icon(imageVector = iconImage, contentDescription = "Password visibility")
-                }
-            } else {
-                Icon(
-                    imageVector = trailingIcon,
-                    contentDescription = "Trailing Icon"
-                )
             }
 
+
         },
+        suffix = suffix,
         keyboardOptions = KeyboardOptions(
             keyboardType = keyBoardType,
             imeAction = enterButtonAction
@@ -202,10 +227,118 @@ fun CustomOutlinedTextInput(
         keyboardActions = KeyboardActions(
             onNext = onNext
         ),
-        visualTransformation = if (!passwordVisible.value && isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        visualTransformation = visualTransformation,
         supportingText = { Text(text = errorText) },
-        isError = isError
+        isError = isError,
+
+        )
+}
+
+@Composable
+fun CustomPasswordOutlineInput(
+    currentFocusRequester: FocusRequester,
+    label: String,
+    onPasswordChange: (String) -> Unit
+) {
+
+    val password = remember {
+        mutableStateOf("")
+    }
+    val passwordVisible = remember {
+        mutableStateOf(false)
+    }
+
+    CustomOutlinedTextInput(
+        currentFocusRequester = currentFocusRequester,
+        label = label,
+        onTextChanged = {
+            password.value = it
+            onPasswordChange(it)
+        },
+        trailingIcon = {
+            val iconImage = if (passwordVisible.value) {
+                Icons.Filled.Visibility
+            } else {
+                Icons.Filled.VisibilityOff
+            }
+
+            IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+                Icon(imageVector = iconImage, contentDescription = "Password visibility")
+            }
+        },
+        visualTransformation = if (!passwordVisible.value) PasswordVisualTransformation() else VisualTransformation.None
     )
+}
+
+@Composable
+fun CustomDateOutlineInput(
+    currentFocusRequester: FocusRequester,
+    defaultDate: String = "",
+    label: String,
+    onDateChanged: (Long?) -> Unit
+) {
+    var selectedDate by remember { mutableStateOf<Long?>(null) }
+    var showModal by remember { mutableStateOf(false) }
+    Log.d("Datum", "${selectedDate}")
+    CustomOutlinedTextInput(
+        currentFocusRequester = currentFocusRequester,
+        defaultText = defaultDate,
+        value = selectedDate?.let { convertMillisToDate(it) } ?: defaultDate,
+        label = label,
+        readOnly = true,
+        trailingIcon = {
+            IconButton(
+                onClick = {
+                    showModal = true
+                }
+            ) {
+                Icon(Icons.Default.DateRange, contentDescription = "Select date")
+            }
+        },
+        onTextChanged = { }
+    )
+    if (showModal) {
+        DatePickerModal(
+            onDateSelected = {
+                selectedDate = it
+                onDateChanged(it)
+            },
+            onDismiss = { showModal = false }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePickerModal(
+    onDateSelected: (Long?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState()
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                onDateSelected(datePickerState.selectedDateMillis)
+                onDismiss()
+            }) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    ) {
+        DatePicker(state = datePickerState)
+    }
+}
+
+fun convertMillisToDate(millis: Long): String {
+    val formatter = SimpleDateFormat("d.M.yyyy", Locale.getDefault())
+    return formatter.format(Date(millis))
 }
 
 @Composable
@@ -449,51 +582,67 @@ fun CustomProfileInfoTable(
     favouriteTraining: String
 ) {
 
-        Column (Modifier.fillMaxWidth()) {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Heading3("Priem. doba aktivity")
-                HorizontalDivider(Modifier.weight(1f).padding(horizontal = 8.dp))
+    Column(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Heading3("Priem. doba aktivity")
+            HorizontalDivider(
+                Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+            )
 
-                Heading3(avgTimeOfActivity)
-            }
-
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Heading3("Priem. pocet krokov")
-                HorizontalDivider(Modifier.weight(1f).padding(horizontal = 8.dp))
-
-                Heading3(avgCountOfSteps.toString())
-            }
-
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Heading3("Priem. pocet spal. kalorii")
-                HorizontalDivider(Modifier.weight(1f).padding(horizontal = 8.dp))
-
-                Heading3(avgBurnedCalories.toString())
-            }
-
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Heading3("Oblub. trening")
-                HorizontalDivider(Modifier.weight(1f).padding(horizontal = 8.dp))
-
-                Heading3(favouriteTraining)
-            }
+            Heading3(avgTimeOfActivity)
         }
+
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Heading3("Priem. pocet krokov")
+            HorizontalDivider(
+                Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+            )
+
+            Heading3(avgCountOfSteps.toString())
+        }
+
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Heading3("Priem. pocet spal. kalorii")
+            HorizontalDivider(
+                Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+            )
+
+            Heading3(avgBurnedCalories.toString())
+        }
+
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Heading3("Oblub. trening")
+            HorizontalDivider(
+                Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+            )
+
+            Heading3(favouriteTraining)
+        }
+    }
 
 }
 
@@ -512,7 +661,11 @@ fun CustomIconButton(
         enabled = enabled,
         colors = color
     ) {
-        Icon(imageVector = icon, contentDescription = "Icon Of Button", modifier = Modifier.size(size - 10.dp))
+        Icon(
+            imageVector = icon,
+            contentDescription = "Icon Of Button",
+            modifier = Modifier.size(size - 10.dp)
+        )
     }
 }
 
@@ -682,15 +835,18 @@ fun CustomTrainingInfoDisplayCard(
     unit: String = ""
 ) {
     Card {
-        Column (
+        Column(
             modifier = modifier.padding(40.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
-        ){
+        ) {
             Heading1(title)
 
             Row {
-                if (timeData != null) HeadlineText(timeData.toString(), color = MaterialTheme.colorScheme.primary) else HeadlineText(data.toString(), color = MaterialTheme.colorScheme.primary)
+                if (timeData != null) HeadlineText(
+                    timeData.toString(),
+                    color = MaterialTheme.colorScheme.primary
+                ) else HeadlineText(data.toString(), color = MaterialTheme.colorScheme.primary)
                 HeadlineText(unit, color = MaterialTheme.colorScheme.secondary)
             }
         }
@@ -702,11 +858,6 @@ fun CustomTrainingInfoDisplayCard(
 @Preview(showBackground = true)
 @Composable
 fun PreviewComponents() {
-    CustomProfileInfoTable(
-        avgTimeOfActivity = (1 * 60 + 40).toString() + "min",
-        avgCountOfSteps = 2447,
-        avgBurnedCalories = 548,
-        favouriteTraining = "Beh"
-    )
+
 }
 
