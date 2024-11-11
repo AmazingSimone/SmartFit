@@ -32,6 +32,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
@@ -441,6 +442,62 @@ fun CustomProfilePictureFrame(
 }
 
 @Composable
+fun CustomProfileInfoTable(
+    avgTimeOfActivity: String,
+    avgCountOfSteps: Int,
+    avgBurnedCalories: Int,
+    favouriteTraining: String
+) {
+
+        Column (Modifier.fillMaxWidth()) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Heading3("Priem. doba aktivity")
+                HorizontalDivider(Modifier.weight(1f).padding(horizontal = 8.dp))
+
+                Heading3(avgTimeOfActivity)
+            }
+
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Heading3("Priem. pocet krokov")
+                HorizontalDivider(Modifier.weight(1f).padding(horizontal = 8.dp))
+
+                Heading3(avgCountOfSteps.toString())
+            }
+
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Heading3("Priem. pocet spal. kalorii")
+                HorizontalDivider(Modifier.weight(1f).padding(horizontal = 8.dp))
+
+                Heading3(avgBurnedCalories.toString())
+            }
+
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Heading3("Oblub. trening")
+                HorizontalDivider(Modifier.weight(1f).padding(horizontal = 8.dp))
+
+                Heading3(favouriteTraining)
+            }
+        }
+
+}
+
+@Composable
 fun CustomIconButton(
     onClick: () -> Unit,
     icon: ImageVector,
@@ -644,11 +701,12 @@ fun CustomTrainingInfoDisplayCard(
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
-fun Preview() {
-    CustomTrainingInfoDisplayCard(
-        title = "Vzdialenost",
-        data = 1.1f,
-        unit = "km"
+fun PreviewComponents() {
+    CustomProfileInfoTable(
+        avgTimeOfActivity = (1 * 60 + 40).toString() + "min",
+        avgCountOfSteps = 2447,
+        avgBurnedCalories = 548,
+        favouriteTraining = "Beh"
     )
 }
 
