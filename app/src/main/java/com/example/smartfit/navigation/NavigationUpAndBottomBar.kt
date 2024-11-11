@@ -92,7 +92,6 @@ fun NavigationUpAndBottomBar() {
                             } else {
                                 CustomIconButton(onClick = {}, icon = Icons.Filled.Search)
                             }
-
                         }
                     }
                 }
