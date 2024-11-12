@@ -15,9 +15,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MonitorHeart
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -25,8 +24,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomButton
@@ -34,13 +31,12 @@ import com.example.smartfit.components.CustomCheckBox
 import com.example.smartfit.components.CustomInfoCardFromDevice
 import com.example.smartfit.components.CustomLargeIconButton
 import com.example.smartfit.components.CustomOnlineStateIndicator
-import com.example.smartfit.components.CustomOutlinedTextInput
 import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.CustomSwitch
 import com.example.smartfit.components.CustomTextButton
 import com.example.smartfit.components.CustomTrainingInfoCardWithDate
 import com.example.smartfit.components.CustomTrainingInfoDisplayCard
-import com.example.smartfit.navigation.NavigationUpAndBottomBar
+import com.example.smartfit.screens.EditProfileInfoScreen
 import com.example.smartfit.ui.theme.SmartFitTheme
 
 class MainActivity : ComponentActivity() {
@@ -49,7 +45,7 @@ class MainActivity : ComponentActivity() {
         //enableEdgeToEdge()
         setContent {
             SmartFitTheme {
-                NavigationUpAndBottomBar()
+                EditProfileInfoScreen()
 
             }
         }
@@ -57,7 +53,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @SuppressLint("NewApi")
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun Greeting() {
 
@@ -73,29 +69,33 @@ fun Greeting() {
             //experimental udajne
             val (login, password) = remember { FocusRequester.createRefs() }
 
-            CustomOutlinedTextInput(
-                currentFocusRequester = login,
-                onNext = { password.requestFocus() },
-                label = "Login",
-                trailingIcon = Icons.Filled.Person,
-                keyBoardType = KeyboardType.Email,
-                enterButtonAction = ImeAction.Next,
-                isPassword = false,
-                errorText = "",
-                isError = false
-            )
+//            CustomOutlinedTextInput(
+//                currentFocusRequester = login,
+//                onNext = { password.requestFocus() },
+//                label = "Login",
+//                trailingIcon = Icons.Filled.Person,
+//                keyBoardType = KeyboardType.Email,
+//                enterButtonAction = ImeAction.Next,
+//                isPassword = false,
+//                errorText = "",
+//                isError = false,
+//                input = TODO(),
+//                isDate = TODO()
+//            )
 
-            CustomOutlinedTextInput(
-                currentFocusRequester = password,
-                onNext = { password.freeFocus() },
-                label = "Password",
-                trailingIcon = Icons.Filled.Lock,
-                keyBoardType = KeyboardType.Password,
-                enterButtonAction = ImeAction.Done,
-                isPassword = true,
-                errorText = "",
-                isError = false
-            )
+//            CustomOutlinedTextInput(
+//                currentFocusRequester = password,
+//                onNext = { password.freeFocus() },
+//                label = "Password",
+//                trailingIcon = Icons.Filled.Lock,
+//                keyBoardType = KeyboardType.Password,
+//                enterButtonAction = ImeAction.Done,
+//                isPassword = true,
+//                errorText = "",
+//                isError = false,
+//                input = TODO(),
+//                isDate = TODO()
+//            )
 
             Row {
                 CustomButton(
@@ -177,6 +177,8 @@ fun Greeting() {
                 unit = "km"
             )
 
+
+            
         }
     }
 }

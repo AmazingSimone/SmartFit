@@ -425,6 +425,7 @@ fun CustomCheckBox(
 @Composable
 fun CustomSwitch(
     text: String,
+    defaultPosition: Boolean = false,
     textColor: Color = MaterialTheme.colorScheme.primary,
     enabled: Boolean = true
 ) {
@@ -435,7 +436,7 @@ fun CustomSwitch(
         horizontalArrangement = Arrangement.SpaceAround
     ) {
 
-        val switchedState = remember { mutableStateOf(false) }
+        val switchedState = remember { mutableStateOf(defaultPosition) }
 
         Text(
             text = text,
