@@ -37,6 +37,7 @@ import com.example.smartfit.components.CustomTextButton
 import com.example.smartfit.components.CustomTrainingInfoCardWithDate
 import com.example.smartfit.components.CustomTrainingInfoDisplayCard
 import com.example.smartfit.screens.CurrentActivityScreen
+import com.example.smartfit.screens.TrainingHistoryScreen
 import com.example.smartfit.ui.theme.SmartFitTheme
 
 class MainActivity : ComponentActivity() {
@@ -45,7 +46,7 @@ class MainActivity : ComponentActivity() {
         //enableEdgeToEdge()
         setContent {
             SmartFitTheme {
-                CurrentActivityScreen()
+                TrainingHistoryScreen()
 
             }
         }
@@ -165,11 +166,6 @@ fun Greeting() {
             Spacer(modifier = Modifier.height(20.dp))
 
 
-            CustomTrainingInfoCardWithDate(
-                trainingType = "Beh",
-                numberOfParticipants = 3,
-                trainingIcon = Icons.AutoMirrored.Filled.DirectionsRun
-            )
 
             CustomTrainingInfoDisplayCard(
                 title = "Vzdialenost",

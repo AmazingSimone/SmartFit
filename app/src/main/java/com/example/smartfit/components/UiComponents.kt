@@ -72,6 +72,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.smartfit.data.Training
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
@@ -732,12 +733,13 @@ fun CustomInfoCardFromDevice(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CustomTrainingInfoCardWithDate(
-    trainingType: String,
+    training: Training,
+    //trainingType: String,
     timeLength: LocalTime = LocalTime.of(1, 20, 34),
     timeOfTraining: LocalTime = LocalTime.now(),
     numberOfParticipants: Int = 0,
     date: LocalDate = LocalDate.now(),
-    trainingIcon: ImageVector
+    //trainingIcon: ImageVector
 ) {
 
     Column(
@@ -766,7 +768,7 @@ fun CustomTrainingInfoCardWithDate(
                         if (numberOfParticipants > 1) Heading1("Skupinovy trening") else Heading1("Trening")
 
                         Icon(
-                            imageVector = trainingIcon,
+                            imageVector = training.icon,
                             contentDescription = "Device info card icon",
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -785,13 +787,13 @@ fun CustomTrainingInfoCardWithDate(
                             Row(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .weight(1f),
+                                    .weight(1.2f),
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically,
 
                                 ) {
                                 HeadlineText(
-                                    trainingType,
+                                    training.name,
                                     color = MaterialTheme.colorScheme.secondary
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -811,7 +813,7 @@ fun CustomTrainingInfoCardWithDate(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .weight(1f),
+                                .weight(0.5f),
                             contentAlignment = Alignment.BottomEnd
                         ) {
                             Column {
