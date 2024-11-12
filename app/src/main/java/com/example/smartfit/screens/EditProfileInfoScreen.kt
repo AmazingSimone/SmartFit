@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -25,7 +26,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -34,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.CustomDateOutlineInput
@@ -74,6 +79,15 @@ fun EditProfileInfoScreen() {
 
         val (nameFR, surnameFR, birthDateFR, weightFR, heightFR, bioFR) = remember { FocusRequester.createRefs() }
 
+        var selectedColorIndex by remember { mutableStateOf(0) }
+        var colors = listOf(
+            MaterialTheme.colorScheme.secondaryContainer,
+            Color.Blue,
+            Color.Red,
+            Color.Yellow,
+            Color.Magenta,
+            Color.Green
+        )
 
         Surface() {
 
@@ -94,65 +108,46 @@ fun EditProfileInfoScreen() {
                     Spacer(Modifier.padding(40.dp))
 
                     CustomProfilePictureFrame(
+                        frameColor = colors[selectedColorIndex],
                         frameSize = 150.dp
                     )
 
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(10.dp),
+                            .padding(vertical = 15.dp),
                         horizontalArrangement = Arrangement.SpaceAround
                     ) {
-                        Box(modifier = Modifier
-                            //.weight(1f)
-                            //.background(Color.Blue)
-                            .clickable { }) {
-                            Box(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .background(Color.Blue)
-                            )
+
+                        val size: Dp = 50.dp
+
+                        colors.forEachIndexed { index, color ->
+
+                            if (index != 0) {
+                                Box(modifier = Modifier
+                                    .clickable {
+                                        selectedColorIndex = index
+                                    }) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(size)
+                                            .background(color),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (selectedColorIndex == index) {
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = "Selected color icon",
+                                                tint = MaterialTheme.colorScheme.surface
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
                         }
-                        Box(modifier = Modifier
-                            //.weight(1f)
-                            //.background(Color.Red)
-                            .clickable { }) {
-                            Box(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .background(Color.Red)
-                            )
-                        }
-                        Box(modifier = Modifier
-                            //.weight(1f)
-                            //.background(Color.Yellow)
-                            .clickable { }) {
-                            Box(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .background(Color.Yellow)
-                            )
-                        }
-                        Box(modifier = Modifier
-                            //.weight(1f)
-                            //.background(Color.Magenta)
-                            .clickable { }) {
-                            Box(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .background(Color.Magenta)
-                            )
-                        }
-                        Box(modifier = Modifier
-                            //.weight(1f)
-                            //.background(Color.White)
-                            .clickable { }) {
-                            Box(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .background(Color.Green)
-                            )
-                        }
+
+
                     }
 
                     CustomOutlinedTextInput(

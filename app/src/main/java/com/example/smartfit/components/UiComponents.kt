@@ -529,7 +529,7 @@ fun CustomOnlineStateIndicator(
 //TODO - Tu treba samozrejme dorobit cestu k fotke a veci s tym...
 @Composable
 fun CustomProfilePictureFrame(
-    frameColor: Color = Color.Magenta,
+    frameColor: Color = MaterialTheme.colorScheme.secondaryContainer,
     enabled: Boolean = true,
     editOption: Boolean = false,
     onClick: () -> Unit = {},
