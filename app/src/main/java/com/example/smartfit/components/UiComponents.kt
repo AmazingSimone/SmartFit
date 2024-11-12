@@ -831,7 +831,7 @@ fun CustomTrainingInfoCardWithDate(
 fun CustomTrainingInfoDisplayCard(
     modifier: Modifier = Modifier,
     title: String,
-    timeData: LocalTime? = null,
+    timeData: String = "",
     data: Float = 0f,
     unit: String = ""
 ) {

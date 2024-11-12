@@ -1,6 +1,7 @@
 package com.example.smartfit.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,12 +24,19 @@ import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.CustomTrainingInfoDisplayCard
 import com.example.smartfit.components.Heading1
-import java.time.LocalTime
+import com.example.smartfit.components.StopWatch
 
 @SuppressLint("NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrentActivityScreen() {
+
+    val stopWatch = remember { StopWatch() }
+    val isRunning = remember { mutableStateOf(stopWatch.isRunning()) }
+
+    stopWatch.start()
+    isRunning.value = stopWatch.isRunning()
+
 
     Scaffold(
         topBar = {
@@ -36,19 +46,45 @@ fun CurrentActivityScreen() {
         },
         bottomBar = {
             Row (){
+                if (isRunning.value) {
+                    CustomButton(
+                        modifier = Modifier
+                            .padding(20.dp)
+                            .weight(1f),
+                        onClick = {
+                            stopWatch.pause()
+                            isRunning.value = stopWatch.isRunning()
+                        },
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        buttonText = "Pozastavit"
+                    )
+                } else {
+                    CustomButton(
+                        modifier = Modifier
+                            .padding(20.dp)
+                            .weight(1f),
+                        onClick = {
+                            stopWatch.start()
+                            isRunning.value = stopWatch.isRunning()
+                        },
+                        containerColor = MaterialTheme.colorScheme.onSecondary,
+                        buttonText = "Sputstit"
+                    )
+                }
 
                 CustomButton(
-                    modifier = Modifier.padding(20.dp).weight(1f),
-                    onClick = {},
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    buttonText = "Pozastavit"
-                )
-                CustomButton(
-                    modifier = Modifier.padding(20.dp).weight(1f),
-                    onClick = {},
+                    modifier = Modifier
+                        .padding(20.dp)
+                        .weight(1f),
+                    onClick = {
+                        stopWatch.pause()
+                        Log.d("timeMillis","${stopWatch.getTimeMillis()}")
+
+                    },
                     containerColor = MaterialTheme.colorScheme.error,
                     buttonText = "Dokoncit"
                 )
+
             }
         }
 
@@ -67,20 +103,26 @@ fun CurrentActivityScreen() {
 
                 ) {
                     CustomTrainingInfoDisplayCard(
-                        modifier = Modifier.fillMaxWidth().padding(50.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(50.dp),
                         title = "Cas",
-                        timeData = LocalTime.now()
+                        timeData = stopWatch.getCustomFormattedTime()
                     )
                     Spacer(Modifier.padding(5.dp))
                     Row {
                         CustomTrainingInfoDisplayCard(
-                            modifier = Modifier.fillMaxWidth(0.48f).padding(30.dp),
+                            modifier = Modifier
+                                .fillMaxWidth(0.48f)
+                                .padding(30.dp),
                             title = "Vzdialenost"
                         )
                         Spacer(Modifier.padding(5.dp))
 
                         CustomTrainingInfoDisplayCard(
-                            modifier = Modifier.fillMaxWidth(1f).padding(30.dp),
+                            modifier = Modifier
+                                .fillMaxWidth(1f)
+                                .padding(30.dp),
 
                             title = "Srdcovy tep"
                         )
@@ -88,14 +130,18 @@ fun CurrentActivityScreen() {
                     Spacer(Modifier.padding(5.dp))
                     Row {
                         CustomTrainingInfoDisplayCard(
-                            modifier = Modifier.fillMaxWidth(0.48f).padding(30.dp),
+                            modifier = Modifier
+                                .fillMaxWidth(0.48f)
+                                .padding(30.dp),
 
                             title = "Kadencia"
                         )
                         Spacer(Modifier.padding(5.dp))
 
                         CustomTrainingInfoDisplayCard(
-                            modifier = Modifier.fillMaxWidth(1f).padding(30.dp),
+                            modifier = Modifier
+                                .fillMaxWidth(1f)
+                                .padding(30.dp),
 
                             title = "Rychlost"
                         )
@@ -103,14 +149,18 @@ fun CurrentActivityScreen() {
                     Spacer(Modifier.padding(5.dp))
                     Row {
                         CustomTrainingInfoDisplayCard(
-                            modifier = Modifier.fillMaxWidth(0.48f).padding(30.dp),
+                            modifier = Modifier
+                                .fillMaxWidth(0.48f)
+                                .padding(30.dp),
 
                             title = "Spalene kalorie"
                         )
                         Spacer(Modifier.padding(5.dp))
 
                         CustomTrainingInfoDisplayCard(
-                            modifier = Modifier.fillMaxWidth(1f).padding(43.dp),
+                            modifier = Modifier
+                                .fillMaxWidth(1f)
+                                .padding(43.dp),
 
                             title = "Teplota"
                         )
