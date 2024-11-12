@@ -837,7 +837,7 @@ fun CustomTrainingInfoDisplayCard(
 ) {
     Card {
         Column(
-            modifier = modifier.padding(40.dp),
+            modifier = modifier,
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
