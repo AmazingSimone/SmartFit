@@ -1,3 +1,5 @@
+import com.android.tools.r8.internal.In
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -53,6 +55,8 @@ dependencies {
     implementation(libs.androidx.espresso.core)
     implementation(libs.firebase.vertexai)
     implementation(libs.firebase.auth)
+    implementation(libs.koin.android)
+    implementation(libs.koin.android)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -64,5 +68,25 @@ dependencies {
 
 
     implementation(libs.androidx.material.icons.extended)
+
+
+    //Google Sign In
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+
+    implementation("io.github.mirzemehdi:kmpauth-google:2.2.0") //Google One Tap Sign-In
+    implementation("io.github.mirzemehdi:kmpauth-firebase:2.2.0") //Integrated Authentications with Firebase
+    implementation("io.github.mirzemehdi:kmpauth-uihelper:2.2.0") //UiHelper SignIn buttons (AppleSignIn, GoogleSignInButton)
+
+
+
+
+
+
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+
+
 
 }

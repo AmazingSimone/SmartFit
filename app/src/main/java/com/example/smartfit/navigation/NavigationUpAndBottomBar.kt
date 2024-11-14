@@ -98,7 +98,7 @@ fun NavigationUpAndBottomBar() {
             },
 
             bottomBar = {
-                NavigationBar (
+                NavigationBar(
                     tonalElevation = 8.dp
 
                 ) {
@@ -121,21 +121,20 @@ fun NavigationUpAndBottomBar() {
         ) {
 
             Surface(
-    modifier = Modifier
-        .fillMaxSize()
-        .padding(it)
-        .clip(RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp))
-) {
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it)
+                    .clip(RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp))
+            ) {
 
-    if (selectedItem == 0) {
-        HomeScreen()
-    } else if (selectedItem == 1) {
-        ActivityScreen()
-    } else {
-        FriendsScreen()
-    }
-
-}
+                if (selectedItem == 0) {
+                    HomeScreen()
+                } else if (selectedItem == 1) {
+                    ActivityScreen()
+                } else {
+                    FriendsScreen()
+                }
+            }
         }
     }
 }

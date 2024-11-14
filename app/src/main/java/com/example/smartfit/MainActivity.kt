@@ -3,6 +3,7 @@ package com.example.smartfit
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,6 +24,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomButton
@@ -34,19 +35,26 @@ import com.example.smartfit.components.CustomOnlineStateIndicator
 import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.CustomSwitch
 import com.example.smartfit.components.CustomTextButton
-import com.example.smartfit.components.CustomTrainingInfoCardWithDate
 import com.example.smartfit.components.CustomTrainingInfoDisplayCard
-import com.example.smartfit.screens.CurrentActivityScreen
+import com.example.smartfit.screens.LoginScreen
 import com.example.smartfit.screens.TrainingHistoryScreen
 import com.example.smartfit.ui.theme.SmartFitTheme
+import com.mmk.kmpauth.google.GoogleAuthCredentials
+import com.mmk.kmpauth.google.GoogleAuthProvider
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
+
         super.onCreate(savedInstanceState)
         //enableEdgeToEdge()
         setContent {
             SmartFitTheme {
-                TrainingHistoryScreen()
+
+                GoogleAuthProvider.create(credentials = GoogleAuthCredentials(serverId = stringResource(R.string.default_web_client_id)))
+
+                LoginScreen()
 
             }
         }
