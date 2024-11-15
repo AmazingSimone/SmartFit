@@ -3,7 +3,6 @@ package com.example.smartfit.navigation
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
@@ -20,7 +19,6 @@ import com.example.smartfit.firebase.signin.SharedFirebaseViewModel
 import com.example.smartfit.screens.EditProfileInfoScreen
 import com.example.smartfit.screens.LoginScreen
 import com.example.smartfit.screens.UserProfileScreen
-import com.google.firebase.auth.FirebaseAuth
 import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
 

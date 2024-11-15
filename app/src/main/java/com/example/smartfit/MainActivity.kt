@@ -3,7 +3,6 @@ package com.example.smartfit
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -24,7 +23,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomButton
@@ -32,20 +30,14 @@ import com.example.smartfit.components.CustomCheckBox
 import com.example.smartfit.components.CustomInfoCardFromDevice
 import com.example.smartfit.components.CustomLargeIconButton
 import com.example.smartfit.components.CustomOnlineStateIndicator
-import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.CustomSwitch
 import com.example.smartfit.components.CustomTextButton
 import com.example.smartfit.components.CustomTrainingInfoDisplayCard
 import com.example.smartfit.navigation.AppNavigator
-import com.example.smartfit.screens.LoginScreen
-import com.example.smartfit.screens.TrainingHistoryScreen
 import com.example.smartfit.ui.theme.SmartFitTheme
-import com.mmk.kmpauth.google.GoogleAuthCredentials
-import com.mmk.kmpauth.google.GoogleAuthProvider
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-
 
 
         super.onCreate(savedInstanceState)
@@ -54,7 +46,6 @@ class MainActivity : ComponentActivity() {
             SmartFitTheme {
 
                 //GoogleAuthProvider.create(credentials = GoogleAuthCredentials(serverId = stringResource(R.string.default_web_client_id)))
-
 
 
                 AppNavigator()
@@ -69,11 +60,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting() {
 
-    Surface (
+    Surface(
         modifier = Modifier.fillMaxSize()
     ) {
 
-        Column (
+        Column(
             modifier = Modifier.verticalScroll(rememberScrollState())
         )
         {
@@ -127,7 +118,7 @@ fun Greeting() {
 
             }
 
-            Row{
+            Row {
 
                 CustomTextButton(
                     onClick = {},
@@ -135,7 +126,7 @@ fun Greeting() {
                     enabled = true,
                     textColor = Color.Blue,
                     modifier = Modifier.weight(1f)
-                    )
+                )
 
                 CustomTextButton(
                     onClick = {},
@@ -143,7 +134,7 @@ fun Greeting() {
                     enabled = true,
                     textColor = Color.Blue,
                     modifier = Modifier.weight(1f)
-                    )
+                )
             }
 
             CustomCheckBox(
@@ -185,7 +176,6 @@ fun Greeting() {
             )
 
 
-            
         }
     }
 }

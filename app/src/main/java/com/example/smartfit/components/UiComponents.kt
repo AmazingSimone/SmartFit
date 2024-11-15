@@ -63,6 +63,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -72,6 +73,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.smartfit.data.Training
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -530,6 +532,7 @@ fun CustomOnlineStateIndicator(
 //TODO - Tu treba samozrejme dorobit cestu k fotke a veci s tym...
 @Composable
 fun CustomProfilePictureFrame(
+    pictureUrl: String,
     frameColor: Color = MaterialTheme.colorScheme.secondaryContainer,
     enabled: Boolean = true,
     editOption: Boolean = false,
@@ -550,12 +553,21 @@ fun CustomProfilePictureFrame(
                 .background(frameColor),
             contentAlignment = Alignment.Center
         ) {
-            Box(
+
+            AsyncImage(
+                model = pictureUrl,
+                contentDescription = "Profile picture",
                 modifier = Modifier
-                    .clip(CircleShape)
                     .size(frameSize * profilePicRatio)
-                    .background(Color.Gray)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
             )
+//            Box(
+//                modifier = Modifier
+//                    .clip(CircleShape)
+//                    .size(frameSize * profilePicRatio)
+//                    .background(Color.Gray)
+//            )
         }
         if (editOption) {
             Box(

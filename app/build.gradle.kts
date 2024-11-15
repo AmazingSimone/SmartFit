@@ -1,5 +1,3 @@
-import com.android.tools.r8.internal.In
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -89,21 +87,15 @@ dependencies {
     implementation("io.github.mirzemehdi:kmpauth-uihelper:2.2.0") //UiHelper SignIn buttons (AppleSignIn, GoogleSignInButton)
 
 
-
-
-
-
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
 
     implementation(libs.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
-    implementation (libs.kotlinx.serialization.json.v151)
+    implementation(libs.kotlinx.serialization.json.v151)
 
-    implementation ("io.coil-kt:coil-compose:2.7.0")
-
-
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
 
 }

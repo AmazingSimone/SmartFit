@@ -1,21 +1,15 @@
 package com.example.smartfit.screens
 
-import android.service.autofill.UserData
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,29 +25,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.smartfit.R
-import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.Heading1
-import com.example.smartfit.components.Heading2
 import com.example.smartfit.components.HeadlineText
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.mmk.kmpauth.firebase.apple.AppleButtonUiContainer
-import com.mmk.kmpauth.firebase.github.GithubButtonUiContainer
 import com.mmk.kmpauth.firebase.google.GoogleButtonUiContainerFirebase
-import com.mmk.kmpauth.google.GoogleAuthCredentials
-import com.mmk.kmpauth.google.GoogleAuthProvider
-import com.mmk.kmpauth.google.GoogleButtonUiContainer
-import com.mmk.kmpauth.google.GoogleUser
-import com.mmk.kmpauth.uihelper.apple.AppleSignInButton
 import com.mmk.kmpauth.uihelper.apple.AppleSignInButtonIconOnly
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButtonIconOnly
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.launch
+import dev.gitlive.firebase.auth.FirebaseUser
 
 //class LoginViewModel : ViewModel() {
 //    val googleAuth =
@@ -81,20 +62,23 @@ data class FBUser(
 
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    firebaseAuth: FirebaseAuth? = null,
+    onLoginClick: () -> Unit,
+) {
 
 //    var signedInUserName: String by remember { mutableStateOf("") }
 //    var signedInUserFirebaseUser: FirebaseUser? = null
 //    var signedInUser: FBUser? = null
-    //val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+      //val firebase = firebaseAuth
 //    var fbUser: FirebaseUser? by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
 //    var user: Any?
 //    var firebaseUser: dev.gitlive.firebase.auth.FirebaseUser? = null
 //    var firebaseUser1: FirebaseUser? = null
 
     //var signedInUserName: String by remember { mutableStateOf("") }
-    //var signedInUser: FBUser? by remember { mutableStateOf(null) }
-
+    var signedInUser: FBUser? by remember { mutableStateOf(null) }
+    Log.d("errorFB", "pred odhlaseni: ${firebaseAuth?.currentUser?.uid}")
 
     //Log.d("errorFB", "pred odhlasenim: ${firebaseAuth.currentUser}")
 //    val onFirebaseResult: (Result<dev.gitlive.firebase.auth.FirebaseUser?>) -> Unit =
@@ -146,26 +130,36 @@ fun LoginScreen() {
 
                 //Log.d("errorFB", " ${signedInUser?.profilePicUrl}")
 
-//                Text(
-//                    text = signedInUser?.displayName ?: "",
-//                    style = MaterialTheme.typography.bodyLarge,
-//                    textAlign = TextAlign.Start,
-//                )
+                Text(
+                    text = signedInUser?.displayName ?: "",
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Start,
+                )
 
-                //if (signedInUser == null && (firebaseAuth.currentUser == null)) {
-                    //Log.d("errorFB", "po odhlaseni: ${firebaseAuth.currentUser}")
+
+                if (signedInUser == null && (firebaseAuth?.currentUser == null)) {
+                    Log.d("errorFB", "po odhlaseni: ${firebaseAuth?.currentUser}")
 
                     AuthUiHelperButtonsAndFirebaseAuth(
                         modifier = Modifier.fillMaxWidth(),
                         onFirebaseResult = { result ->
                             if (result.isSuccess) {
-                                Log.d("errorFB", "success")
+                                Log.d("errorFB", "${result.getOrNull()?.uid}")
+                                onLoginClick()
                             } else {
                                 Log.d("errorFB", "error")
                             }
                         }
                     )
-                //}
+                }
+//                else {
+//                    CustomButton(
+//                        onClick = {
+//                            firebaseAuth?.signOut()
+//                        },
+//                        buttonText = "Odhlasit"
+//                    )
+//                }
             }
         }
     }
@@ -216,7 +210,7 @@ fun LoginScreen() {
 @Composable
 fun AuthUiHelperButtonsAndFirebaseAuth(
     modifier: Modifier = Modifier,
-    onFirebaseResult: (Result<dev.gitlive.firebase.auth.FirebaseUser?>) -> Unit,
+    onFirebaseResult: (Result<FirebaseUser?>) -> Unit,
 ) {
     Column(
         modifier = modifier,
@@ -245,7 +239,7 @@ fun AuthUiHelperButtonsAndFirebaseAuth(
 @Composable
 fun IconOnlyButtonsAndFirebaseAuth(
     modifier: Modifier = Modifier,
-    onFirebaseResult: (Result<dev.gitlive.firebase.auth.FirebaseUser?>) -> Unit,
+    onFirebaseResult: (Result<FirebaseUser?>) -> Unit,
 ) {
     Row(
         modifier = modifier,

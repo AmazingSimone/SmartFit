@@ -23,18 +23,24 @@ import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.Heading2
 import com.example.smartfit.components.HeadlineText
+import com.example.smartfit.data.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 
-fun UserProfileScreen() {
+fun UserProfileScreen(
+    onEditClick: () -> Unit,
+    onCloseClick: () -> Unit,
+    onSignOutClick: () -> Unit,
+    recievedUser: User?
+) {
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Heading1("Tvoj profil") },
                 actions = {
-                    IconButton(onClick = { /* Handle navigation icon press */ }) {
+                    IconButton(onClick = { onCloseClick() }) {
                         Icon(imageVector = Icons.Filled.Close, contentDescription = "Close")
                     }
                 }
@@ -43,7 +49,7 @@ fun UserProfileScreen() {
         bottomBar = {
             CustomButton(
                 modifier = Modifier.padding(20.dp),
-                onClick = {},
+                onClick = { onSignOutClick() },
                 buttonText = "Odhlasit sa"
             )
         }
@@ -52,23 +58,30 @@ fun UserProfileScreen() {
         Surface (modifier = Modifier.padding(innerPadding)) {
 
             Box (
-                modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp),
                 contentAlignment = Alignment.TopCenter) {
 
                 Column (
                     horizontalAlignment = Alignment.CenterHorizontally) {
 
-                    CustomProfilePictureFrame(frameSize = 200.dp)
+                    CustomProfilePictureFrame(
+                        pictureUrl = recievedUser?.profilePicUrl.toString(),
+                        editOption = true,
+                        frameSize = 200.dp,
+                        onClick = { onEditClick() }
+                    )
 
-                    HeadlineText("Jozef Mrkva")
+                    HeadlineText(recievedUser?.displayName ?: "")
 
                     Heading2("9 Priatelov")
 
                     CustomProfileInfoTable(
-                        avgTimeOfActivity = "87min",
-                        avgCountOfSteps = 7846,
-                        avgBurnedCalories = 456,
-                        favouriteTraining = "Beh"
+                        avgTimeOfActivity = "0min",
+                        avgCountOfSteps = 0,
+                        avgBurnedCalories = 0,
+                        favouriteTraining = "--"
                     )
 
 
@@ -81,5 +94,10 @@ fun UserProfileScreen() {
 @Preview
 @Composable
 fun UserProfilePreview() {
-    UserProfileScreen()
+    UserProfileScreen(
+        onEditClick = {},
+        onCloseClick = {},
+        onSignOutClick = {},
+        recievedUser = null
+    )
 }

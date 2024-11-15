@@ -15,8 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,23 +43,29 @@ import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.CustomDateOutlineInput
 import com.example.smartfit.components.CustomOutlinedTextInput
-import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.CustomSwitch
 import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.NormalText
+import com.example.smartfit.data.User
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun EditProfileInfoScreen() {
+fun EditProfileInfoScreen(
+    onBackClick: (User?) -> Unit,
+    onSaveClick: () -> Unit,
+    recievedUser: User?
+) {
+
+    val currentUser: User? = recievedUser
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Heading1("Uprav Profil") },
-                actions = {
-                    IconButton(onClick = { /* Handle navigation icon press */ }) {
-                        Icon(imageVector = Icons.Filled.Close, contentDescription = "Close")
+                navigationIcon = {
+                    IconButton(onClick = { onBackClick(currentUser) }) {
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back icon")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -70,7 +76,7 @@ fun EditProfileInfoScreen() {
         bottomBar = {
             CustomButton(
                 modifier = Modifier.padding(20.dp),
-                onClick = {},
+                onClick = { onSaveClick() },
                 buttonText = "Ulozit zmeny"
             )
         }
@@ -107,10 +113,10 @@ fun EditProfileInfoScreen() {
 
                     Spacer(Modifier.padding(40.dp))
 
-                    CustomProfilePictureFrame(
-                        frameColor = colors[selectedColorIndex],
-                        frameSize = 150.dp
-                    )
+//                    CustomProfilePictureFrame(
+//                        frameColor = colors[selectedColorIndex],
+//                        frameSize = 150.dp
+//                    )
 
                     Row(
                         Modifier
@@ -222,5 +228,9 @@ fun EditProfileInfoScreen() {
 @Preview
 @Composable
 fun EditProfileInfoPreview() {
-    EditProfileInfoScreen()
+    EditProfileInfoScreen(
+        onBackClick = {},
+        onSaveClick = {},
+        recievedUser = null
+    )
 }
