@@ -38,12 +38,20 @@ import com.example.smartfit.components.CustomIconButton
 import com.example.smartfit.components.CustomOnlineStateIndicator
 import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.HeadlineText
+import com.example.smartfit.data.User
 import com.example.smartfit.screens.ActivityScreen
 import com.example.smartfit.screens.FriendsScreen
 import com.example.smartfit.screens.HomeScreen
 
 @Composable
-fun NavigationUpAndBottomBar() {
+fun NavigationUpAndBottomBar(
+    onDeviceIndicatorClick: () -> Unit,
+    onProfilePictureClick: () -> Unit,
+    onHistoryClick: () -> Unit,
+    onQrCodeClick: () -> Unit,
+    onSearchClick: () -> Unit,
+    recievedUser: User?
+) {
 
     var selectedItem by remember { mutableIntStateOf(0) }
     val navBarItemsStrings = listOf("Domov", "Aktivita", "Priatelia")
@@ -77,20 +85,23 @@ fun NavigationUpAndBottomBar() {
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             if (selectedItem == 0) {
-                                CustomOnlineStateIndicator(onClick = {})
+                                CustomOnlineStateIndicator(onClick = { onDeviceIndicatorClick() })
                                 Spacer(Modifier.padding(horizontal = 5.dp))
-                                CustomProfilePictureFrame()
+                                CustomProfilePictureFrame(
+                                    pictureUrl = recievedUser?.profilePicUrl.toString(),
+                                    onClick = { onProfilePictureClick() }
+                                )
                             } else if (selectedItem == 1) {
                                 CustomIconButton(
-                                    onClick = {},
+                                    onClick = { onHistoryClick() },
                                     icon = Icons.Filled.History,
                                     size = 40.dp
                                 )
                                 //Icon(imageVector = Icons.Filled.History, contentDescription = "History icon")
                                 Spacer(Modifier.padding(horizontal = 5.dp))
-                                CustomIconButton(onClick = {}, icon = Icons.Filled.QrCodeScanner)
+                                CustomIconButton(onClick = { onQrCodeClick() }, icon = Icons.Filled.QrCodeScanner)
                             } else {
-                                CustomIconButton(onClick = {}, icon = Icons.Filled.Search)
+                                CustomIconButton(onClick = { onSearchClick() }, icon = Icons.Filled.Search)
                             }
                         }
                     }
@@ -142,5 +153,11 @@ fun NavigationUpAndBottomBar() {
 @Preview
 @Composable
 fun PreviewNavbar() {
-    NavigationUpAndBottomBar()
+    NavigationUpAndBottomBar(
+        onDeviceIndicatorClick = {},
+        onProfilePictureClick = {},
+        onHistoryClick = {},
+        onQrCodeClick = {},
+        onSearchClick = {},
+        recievedUser = null)
 }

@@ -36,6 +36,7 @@ import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.CustomSwitch
 import com.example.smartfit.components.CustomTextButton
 import com.example.smartfit.components.CustomTrainingInfoDisplayCard
+import com.example.smartfit.navigation.AppNavigator
 import com.example.smartfit.screens.LoginScreen
 import com.example.smartfit.screens.TrainingHistoryScreen
 import com.example.smartfit.ui.theme.SmartFitTheme
@@ -52,9 +53,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             SmartFitTheme {
 
-                GoogleAuthProvider.create(credentials = GoogleAuthCredentials(serverId = stringResource(R.string.default_web_client_id)))
+                //GoogleAuthProvider.create(credentials = GoogleAuthCredentials(serverId = stringResource(R.string.default_web_client_id)))
 
-                LoginScreen()
+
+
+                AppNavigator()
 
             }
         }
@@ -160,7 +163,7 @@ fun Greeting() {
                 onClick = {}
             )
 
-            CustomProfilePictureFrame()
+            //CustomProfilePictureFrame()
 
             CustomInfoCardFromDevice(
                 heading = "Kalorie",

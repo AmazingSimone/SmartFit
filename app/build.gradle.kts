@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.kotlin.serialization)
+
 }
 
 android {
@@ -57,6 +59,13 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.koin.android)
     implementation(libs.koin.android)
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.koin.android)
+    implementation(libs.koin.android)
+    implementation(libs.koin.android)
+    implementation(libs.koin.android)
+    implementation(libs.koin.android)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -86,6 +95,14 @@ dependencies {
 
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
+
+
+    implementation(libs.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
+    implementation (libs.kotlinx.serialization.json.v151)
+
+    implementation ("io.coil-kt:coil-compose:2.7.0")
+
 
 
 
