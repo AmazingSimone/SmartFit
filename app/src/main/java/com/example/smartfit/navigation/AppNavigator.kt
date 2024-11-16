@@ -1,6 +1,5 @@
 package com.example.smartfit.navigation
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -15,9 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,108 +28,110 @@ import com.example.smartfit.screens.LoginScreen
 import com.example.smartfit.screens.UserProfileScreen
 import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
+import kotlinx.coroutines.launch
 
-@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
 
     GoogleAuthProvider.create(credentials = GoogleAuthCredentials(serverId = stringResource(R.string.default_web_client_id)))
 
+
     val firebaseViewModel = viewModel<SharedFirebaseViewModel>()
+    firebaseViewModel.checkCurrentUser()
+    NavHost(
+        navController = navController,
+        startDestination = if (firebaseViewModel.isSignedIn()) Screens.HOME.name else Screens.LOGIN.name
+    ) {
+
+        composable(Screens.HOME.name) {
+            val isLoading by firebaseViewModel.isLoading.collectAsStateWithLifecycle()
+
+            val sharedUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
 
 
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surface),
+                    contentAlignment = Alignment.Center,
 
-        NavHost(
-            navController = navController,
-            startDestination = if (firebaseViewModel.isSignedIn()) Screens.HOME.name else Screens.LOGIN.name
-        ) {
-
-            composable(Screens.HOME.name) {
-                val isLoading by firebaseViewModel.isLoading.collectAsStateWithLifecycle()
-
-                val sharedUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
-
-
-                if (isLoading) {
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                            .background(MaterialTheme.colorScheme.surface),
-                        contentAlignment = Alignment.Center,
-
-                        ) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    NavigationUpAndBottomBar(
-
-                        recievedUser = sharedUser,
-                        onDeviceIndicatorClick = {},
-                        onProfilePictureClick = {
-
-                            navController.navigate(Screens.USER_PROFILE.name) {
-                                popUpTo(Screens.USER_PROFILE.name) {
-                                    inclusive = true
-                                    saveState = false
-                                }
-                            }
-                        },
-                        onHistoryClick = {},
-                        onQrCodeClick = {},
-                        onSearchClick = {}
-                    )
+                    ) {
+                    CircularProgressIndicator()
                 }
+            } else {
+                NavigationUpAndBottomBar(
 
+                    recievedUser = sharedUser,
+                    onDeviceIndicatorClick = {},
+                    onProfilePictureClick = {
 
-
+                        navController.navigate(Screens.USER_PROFILE.name) {
+                            popUpTo(Screens.USER_PROFILE.name) {
+                                inclusive = true
+                                saveState = false
+                            }
+                        }
+                    },
+                    onHistoryClick = {},
+                    onQrCodeClick = {},
+                    onSearchClick = {}
+                )
             }
+        }
 
-            composable(Screens.LOGIN.name) {
+        composable(Screens.LOGIN.name) {
 
-                LoginScreen(
-                    onLoginClick = {
+            LoginScreen(
+                onLoginClick = {
+                    // TODO posli ho na dalsiu obrazovku len ak sa este vytvoria / updatenu data v
+                    //  firestore ak nie tak tam daj tlacidlo na zopakovanie
+                        recievedFromOneTapButton ->
+
+                    firebaseViewModel.viewModelScope.launch {
+                        Log.d("errorFB", "user: $it")
+                        firebaseViewModel.createUserIfNotExists(recievedFromOneTapButton?.uid!!)
                         navController.navigate(Screens.HOME.name) {
                             popUpTo(0) { inclusive = true }
                         }
                     }
-                )
-            }
-
-            composable(Screens.USER_PROFILE.name) {
-
-                val sharedSignedInUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
-
-
-                UserProfileScreen(
-                    recievedUser = sharedSignedInUser,
-                    onEditClick = { navController.navigate(Screens.EDIT_PROFILE.name) },
-                    onCloseClick = { navController.popBackStack() },
-                    onSignOutClick = {
-
-                        firebaseViewModel.signOut()
-
-                        navController.navigate(Screens.LOGIN.name) {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    }
-                )
-            }
-
-            composable(Screens.EDIT_PROFILE.name) {
-                val sharedUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
-
-                EditProfileInfoScreen(
-                    recievedUser = sharedUser,
-                    onBackClick = {
-                        navController.navigateUp()
-                    },
-                    onSaveClick = {}
-                )
-            }
-
+                }
+            )
         }
 
+        composable(Screens.USER_PROFILE.name) {
 
+            val sharedSignedInUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
+
+
+            UserProfileScreen(
+                recievedUser = sharedSignedInUser,
+                onEditClick = { navController.navigate(Screens.EDIT_PROFILE.name) },
+                onCloseClick = { navController.popBackStack() },
+                onSignOutClick = {
+
+                    firebaseViewModel.signOut()
+                    navController.navigate(Screens.LOGIN.name) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Screens.EDIT_PROFILE.name) {
+            val sharedUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
+
+            EditProfileInfoScreen(
+                recievedUser = sharedUser,
+                onBackClick = {
+                    navController.navigateUp()
+                },
+                onSaveClick = {}
+            )
+        }
+
+    }
 
 
 }

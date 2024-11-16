@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.android)
     implementation(libs.koin.android)
+    implementation(libs.firebase.firestore)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

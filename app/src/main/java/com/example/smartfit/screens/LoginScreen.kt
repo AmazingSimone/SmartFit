@@ -18,10 +18,11 @@ import com.example.smartfit.R
 import com.example.smartfit.components.CustomOneTapUiButtonWithFirebaseAuth
 import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.HeadlineText
+import dev.gitlive.firebase.auth.FirebaseUser
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit
+    onLoginClick: (FirebaseUser?) -> Unit
 ) {
 
     Surface(
@@ -49,7 +50,7 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth(),
                     onFirebaseResult = { result ->
                         if (result.isSuccess) {
-                            onLoginClick()
+                            onLoginClick(result.getOrNull())
                         } else {
                             Log.d("errorFB", "error")
                         }
