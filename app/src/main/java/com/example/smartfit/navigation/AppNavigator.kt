@@ -2,9 +2,14 @@ package com.example.smartfit.navigation
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,13 +31,10 @@ import com.mmk.kmpauth.google.GoogleAuthProvider
 @Composable
 fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
-    val firebaseViewModel: SharedFirebaseViewModel = viewModel()
 
-    //val firebaseAuth = FirebaseAuth.getInstance()
     GoogleAuthProvider.create(credentials = GoogleAuthCredentials(serverId = stringResource(R.string.default_web_client_id)))
 
-
-    firebaseViewModel.checkCurrentUser()
+    val firebaseViewModel = viewModel<SharedFirebaseViewModel>()
 
     NavHost(
         navController = navController,
@@ -41,37 +43,37 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
         composable(Screens.HOME.name) {
 
-
-            //val viewModel = it.sharedViewModel<SharedFirebaseViewModel>(navController)
-
             val sharedUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
-
+            val isLoading by firebaseViewModel.isLoading.collectAsStateWithLifecycle()
 
             Log.d("errorFB", "meno ${firebaseViewModel.sharedUserState.value}")
 
 
-            NavigationUpAndBottomBar(
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator()
+                } else {
+                    NavigationUpAndBottomBar(
 
-                recievedUser = sharedUser,
-                onDeviceIndicatorClick = {},
-                onProfilePictureClick = {
-
-                    navController.navigate(Screens.USER_PROFILE.name)
-                    //navController.navigate(Screens.USER_PROFILE.name)
-                },
-                onHistoryClick = {},
-                onQrCodeClick = {},
-                onSearchClick = {}
-            )
+                        recievedUser = sharedUser,
+                        onDeviceIndicatorClick = {},
+                        onProfilePictureClick = {
+                            navController.navigate(Screens.USER_PROFILE.name)
+                        },
+                        onHistoryClick = {},
+                        onQrCodeClick = {},
+                        onSearchClick = {}
+                    )
+                }
+            }
         }
 
         composable(Screens.LOGIN.name) {
-            //val viewModel = it.sharedViewModel<SharedFirebaseViewModel>(navController)
-
-            val sharedSignedInUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
 
             LoginScreen(
-                firebaseAuth = firebaseViewModel.getInstance(),
                 onLoginClick = {
                     firebaseViewModel.checkCurrentUser()
                     navController.navigate(route = Screens.HOME.name)
@@ -81,7 +83,6 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
         composable(Screens.USER_PROFILE.name) {
 
-            //val viewModel = it.sharedViewModel<SharedFirebaseViewModel>(navController)
             val sharedSignedInUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
 
 
@@ -98,13 +99,11 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
         }
 
         composable(Screens.EDIT_PROFILE.name) {
-            //val viewModel = it.sharedViewModel<SharedFirebaseViewModel>(navController)
             val sharedUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
 
             EditProfileInfoScreen(
                 recievedUser = sharedUser,
                 onBackClick = {
-                    //navController.navigate(UserProfile(it))
                     navController.popBackStack()
                     navController.clearBackStack(Screens.EDIT_PROFILE.name)
                 },
