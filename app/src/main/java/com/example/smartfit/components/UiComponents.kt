@@ -73,8 +73,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.smartfit.data.Training
+import com.mmk.kmpauth.firebase.google.GoogleButtonUiContainerFirebase
+import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
+import com.mmk.kmpauth.uihelper.google.GoogleSignInButtonIconOnly
+import dev.gitlive.firebase.auth.FirebaseUser
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
@@ -374,6 +379,44 @@ fun CustomButton(
             )
         ) {
             Text(text = buttonText)
+        }
+    }
+}
+
+@Composable
+fun CustomOneTapUiButtonWithFirebaseAuth(
+    modifier: Modifier = Modifier,
+    onFirebaseResult: (Result<FirebaseUser?>) -> Unit,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        //Google Sign-In Button and authentication with Firebase
+        GoogleButtonUiContainerFirebase(onResult = onFirebaseResult, linkAccount = false) {
+            GoogleSignInButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp),
+                fontSize = 19.sp
+            ) { this.onClick() }
+        }
+    }
+}
+
+@Composable
+fun CustomIconOnlyButtonAndFirebaseAuth(
+    modifier: Modifier = Modifier,
+    onFirebaseResult: (Result<FirebaseUser?>) -> Unit,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
+    ) {
+
+        //Google Sign-In IconOnly Button and authentication with Firebase
+        GoogleButtonUiContainerFirebase(onResult = onFirebaseResult, linkAccount = false) {
+            GoogleSignInButtonIconOnly(onClick = { this.onClick() })
         }
     }
 }
