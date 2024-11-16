@@ -22,16 +22,12 @@ class SharedFirebaseViewModel : ViewModel() {
 
     private val _isLoadingUserData = MutableStateFlow(false)
     val isLoading = _isLoadingUserData.onStart {
-        loadUserData()
+        checkCurrentUser()
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000L),
-        false
+        true
     )
-
-    private fun loadUserData() {
-        checkCurrentUser()
-    }
 
     fun checkCurrentUser() {
         val currentUser = firebaseAuth.currentUser
