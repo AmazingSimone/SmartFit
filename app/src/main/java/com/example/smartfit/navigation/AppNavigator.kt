@@ -1,6 +1,9 @@
 package com.example.smartfit.navigation
 
+import android.os.Build
 import android.util.Log
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +33,7 @@ import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
@@ -39,6 +43,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
     val firebaseViewModel = viewModel<SharedFirebaseViewModel>()
     firebaseViewModel.checkCurrentUser()
+
     NavHost(
         navController = navController,
         startDestination = if (firebaseViewModel.isSignedIn()) Screens.HOME.name else Screens.LOGIN.name
@@ -126,9 +131,19 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
             EditProfileInfoScreen(
                 recievedUser = sharedUser,
                 onBackClick = {
+
                     navController.navigateUp()
                 },
-                onSaveClick = {}
+                onSaveClick = {
+                    firebaseViewModel.viewModelScope.launch {
+                        if (firebaseViewModel.uploadUserData(it)) {
+                            Toast.makeText(navController.context, "Udaje boli uspesne ulozene",Toast.LENGTH_SHORT).show()
+                            firebaseViewModel.checkCurrentUser()
+                        } else {
+                            Toast.makeText(navController.context, "Nastala chyba pri ukladani udajov",Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
             )
         }
 

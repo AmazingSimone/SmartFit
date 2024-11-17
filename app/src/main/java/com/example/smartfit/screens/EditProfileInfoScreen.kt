@@ -1,6 +1,9 @@
 package com.example.smartfit.screens
 
 import android.annotation.SuppressLint
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,11 +30,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
@@ -48,24 +51,30 @@ import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.NormalText
 import com.example.smartfit.data.User
 
+@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun EditProfileInfoScreen(
-    onBackClick: (User?) -> Unit,
-    onSaveClick: () -> Unit,
-    recievedUser: User?
+    onBackClick: () -> Unit,
+    onSaveClick: (User) -> Unit,
+    recievedUser: User
 ) {
 
-    val currentUser: User? = recievedUser
+    //var currentUser: User? = recievedUser
+    var currentUser by remember { mutableStateOf(recievedUser) }
+
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Heading1("Uprav Profil") },
                 navigationIcon = {
-                    IconButton(onClick = { onBackClick(currentUser) }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back icon")
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back icon"
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -76,7 +85,11 @@ fun EditProfileInfoScreen(
         bottomBar = {
             CustomButton(
                 modifier = Modifier.padding(20.dp),
-                onClick = { onSaveClick() },
+                onClick = {
+                    onSaveClick(currentUser)
+                    Log.d("errorFB", "$currentUser")
+                },
+                enabled = currentUser != recievedUser,
                 buttonText = "Ulozit zmeny"
             )
         }
@@ -85,8 +98,8 @@ fun EditProfileInfoScreen(
 
         val (nameFR, surnameFR, birthDateFR, weightFR, heightFR, bioFR) = remember { FocusRequester.createRefs() }
 
-        var selectedColorIndex by remember { mutableStateOf(0) }
-        var colors = listOf(
+        var selectedColorIndex by remember { mutableIntStateOf(0) }
+        val colors = listOf(
             MaterialTheme.colorScheme.secondaryContainer,
             Color.Blue,
             Color.Red,
@@ -95,7 +108,7 @@ fun EditProfileInfoScreen(
             Color.Green
         )
 
-        Surface() {
+        Surface {
 
 
             Box(
@@ -133,6 +146,8 @@ fun EditProfileInfoScreen(
                                 Box(modifier = Modifier
                                     .clickable {
                                         selectedColorIndex = index
+                                        //selectedColor = color
+                                        currentUser = currentUser.copy(color = color)
                                     }) {
                                     Box(
                                         modifier = Modifier
@@ -150,43 +165,53 @@ fun EditProfileInfoScreen(
                                     }
                                 }
                             }
-
                         }
-
-
                     }
 
                     CustomOutlinedTextInput(
                         currentFocusRequester = nameFR,
                         onNext = { surnameFR.requestFocus() },
                         keyBoardType = KeyboardType.Text,
+                        readOnly = true,
                         label = "Meno",
+                        value = recievedUser.displayName.toString(),
                         enterButtonAction = ImeAction.Next,
                         onTextChanged = { }
                     )
 
-                    CustomOutlinedTextInput(
-                        currentFocusRequester = surnameFR,
-                        onNext = { birthDateFR.requestFocus() },
-                        keyBoardType = KeyboardType.Text,
-                        label = "Priezvisko",
-                        enterButtonAction = ImeAction.Next,
-                        onTextChanged = { }
-                    )
+//                    CustomOutlinedTextInput(
+//                        currentFocusRequester = surnameFR,
+//                        onNext = { birthDateFR.requestFocus() },
+//                        keyBoardType = KeyboardType.Text,
+//                        label = "Priezvisko",
+//                        enterButtonAction = ImeAction.Next,
+//                        onTextChanged = { }
+//                    )
 
                     CustomDateOutlineInput(
                         currentFocusRequester = birthDateFR,
                         label = "Datum",
-                        defaultDate = "",
-                        onDateChanged = {}
-                    )
+                        defaultDate = currentUser.birthDate,
+                        //if (currentUser?.birthDate == 0L) LocalDateTime.now().toEpochSecond(java.time.ZoneOffset.UTC) * 1000 else currentUser?.birthDate ?: LocalDateTime.now().toEpochSecond(java.time.ZoneOffset.UTC),
 
+                        onDateChanged = {
+                            currentUser = currentUser.copy(birthDate = it ?: 0L)
+                            //currentUser = currentUser?.copy(birthDate = it)
+                        }
+                    )
                     CustomOutlinedTextInput(
                         currentFocusRequester = weightFR,
                         onNext = { heightFR.requestFocus() },
                         keyBoardType = KeyboardType.Number,
                         label = "Vaha",
-                        onTextChanged = {},
+                        value = remember { mutableStateOf(if (currentUser.weight != 0.0f) currentUser.weight.toString() else "") }.value,
+                        onTextChanged = {
+                            val sanitizedInput = it.replace(",", ".")
+
+                            currentUser =
+                                currentUser.copy(weight = sanitizedInput.toFloatOrNull() ?: 0.0f)
+
+                        },
                         enterButtonAction = ImeAction.Next,
                         suffix = { NormalText("kg") }
                     )
@@ -196,7 +221,12 @@ fun EditProfileInfoScreen(
                         onNext = { bioFR.requestFocus() },
                         keyBoardType = KeyboardType.Number,
                         label = "Vyska",
-                        onTextChanged = {},
+                        value = remember { mutableStateOf(if (currentUser.height != 0.0f) currentUser.height.toString() else "") }.value,
+                        onTextChanged = {
+                            val sanitizedInput = it.replace(",", ".")
+                            currentUser =
+                                currentUser.copy(height = sanitizedInput.toFloatOrNull() ?: 0.0f)
+                        },
                         enterButtonAction = ImeAction.Next,
                         suffix = { NormalText("cm") }
                     )
@@ -209,15 +239,21 @@ fun EditProfileInfoScreen(
                         maxLines = 5,
                         singleLine = false,
                         label = "Bio",
-                        onTextChanged = {},
+                        value = remember { mutableStateOf(currentUser.bio.toString()) }.value,
+                        onTextChanged = {
+                            currentUser = currentUser.copy(bio = it)
+                        },
                         enterButtonAction = ImeAction.Done
                     )
 
                     CustomSwitch(
-                        text = "Profil trenera"
+                        text = "Profil trenera",
+                        defaultPosition = remember { mutableStateOf(currentUser.isTrainer) }.value,
+                        onSwitchChange = {
+                            currentUser = currentUser.copy(isTrainer = it)
+                        }
                     )
                     Spacer(Modifier.padding(paddingValues))
-
                 }
             }
         }
@@ -225,12 +261,13 @@ fun EditProfileInfoScreen(
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun EditProfileInfoPreview() {
     EditProfileInfoScreen(
         onBackClick = {},
         onSaveClick = {},
-        recievedUser = null
+        recievedUser = User()
     )
 }

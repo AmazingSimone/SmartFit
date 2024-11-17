@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,9 +24,11 @@ import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Watch
@@ -38,6 +41,7 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -76,6 +80,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.smartfit.R
 import com.example.smartfit.data.Training
 import com.mmk.kmpauth.firebase.google.GoogleButtonUiContainerFirebase
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
@@ -217,6 +222,7 @@ fun CustomOutlinedTextInput(
                 IconButton(
                     onClick = {
                         textValue.value = ""
+                        onTextChanged("")
                     }
                 ) {
                     Icon(
@@ -282,17 +288,16 @@ fun CustomPasswordOutlineInput(
 @Composable
 fun CustomDateOutlineInput(
     currentFocusRequester: FocusRequester,
-    defaultDate: String = "",
+    defaultDate: Long = 0L,
     label: String,
     onDateChanged: (Long?) -> Unit
 ) {
-    var selectedDate by remember { mutableStateOf<Long?>(null) }
+    var selectedDate by remember { mutableStateOf<Long?>(defaultDate) }
     var showModal by remember { mutableStateOf(false) }
-    Log.d("Datum", "${selectedDate}")
     CustomOutlinedTextInput(
         currentFocusRequester = currentFocusRequester,
-        defaultText = defaultDate,
-        value = selectedDate?.let { convertMillisToDate(it) } ?: defaultDate,
+        //defaultText = "",
+        value = if (defaultDate == 0L) "" else selectedDate?.let { convertMillisToDate(it) } ?: convertMillisToDate(defaultDate),
         label = label,
         readOnly = true,
         trailingIcon = {
@@ -473,6 +478,7 @@ fun CustomCheckBox(
 fun CustomSwitch(
     text: String,
     defaultPosition: Boolean = false,
+    onSwitchChange: (Boolean) -> Unit,
     textColor: Color = MaterialTheme.colorScheme.primary,
     enabled: Boolean = true
 ) {
@@ -493,7 +499,10 @@ fun CustomSwitch(
 
         Switch(
             checked = switchedState.value,
-            onCheckedChange = { switchedState.value = it },
+            onCheckedChange = {
+            switchedState.value = it
+            onSwitchChange(it)
+             },
             enabled = enabled
         )
 

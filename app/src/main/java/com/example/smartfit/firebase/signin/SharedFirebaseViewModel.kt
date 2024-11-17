@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class SharedFirebaseViewModel : ViewModel() {
@@ -35,19 +35,11 @@ class SharedFirebaseViewModel : ViewModel() {
     // --- FIREBASEAUTH
 
     fun checkCurrentUser() {
-        val currentUser = firebaseAuth.currentUser
-        _sharedUserState.update {
-            if (currentUser != null) {
-                User(
-                    id = currentUser.uid,
-                    displayName = currentUser.displayName,
-                    profilePicUrl = currentUser.photoUrl.toString()
-                )
-            } else {
-                User()
-            }
+
+        viewModelScope.launch {
+            _sharedUserState.value = getUserData(firebaseAuth.currentUser?.uid ?: "") ?: User()
+
         }
-        //Log.d("errorFB", "shared v checkUser ${sharedUserState.value}")
     }
 
 
@@ -61,7 +53,7 @@ class SharedFirebaseViewModel : ViewModel() {
 
     fun signOut() {
         firebaseAuth.signOut()
-        checkCurrentUser()
+        _sharedUserState.value = User()
     }
 
     // --- FIRESTORE
@@ -74,15 +66,72 @@ class SharedFirebaseViewModel : ViewModel() {
         if (!doesUserExist(userId)) {
             firebaseFirestore.collection("users").document(userId).set(
                 mapOf(
-                    "birthDate" to "",
-                    "height" to "",
-                    "weight" to "",
+                    "displayName" to firebaseAuth.currentUser?.displayName,
+                    "profilePicUrl" to firebaseAuth.currentUser?.photoUrl,
+                    "birthDate" to 0L,
+                    "height" to 0f,
+                    "weight" to 0f,
                     "bio" to "",
                     "color" to Color.Unspecified.toArgb(),
                     "isTrainer" to false
                 )
             ).await()
+        } else {
+            firebaseFirestore.collection("users").document(userId).update(
+                mapOf(
+                    "displayName" to firebaseAuth.currentUser?.displayName,
+                    "profilePicUrl" to firebaseAuth.currentUser?.photoUrl
+                )
+            )
         }
     }
+
+    suspend fun getUserData(userId: String): User? {
+        if (userId.isEmpty()) {
+            return null
+        }
+        val documentSnapshot = firebaseFirestore.collection("users").document(userId).get().await()
+        return if (documentSnapshot.exists()) {
+            val data = documentSnapshot.data
+            User(
+                id = userId,
+                displayName = data?.get("displayName") as String ?: "",
+                profilePicUrl = data["profilePicUrl"] as String,
+                birthDate = data["birthDate"] as Long,
+                height = (data["height"] as Number).toFloat(),
+                weight = (data["weight"] as Number).toFloat(),
+                bio = data["bio"] as? String ?: "",
+                color = if (Color(
+                        (data["color"] as Number).toInt()
+                    ) == Color(0.0f, 0.0f, 0.0f, 0.0f)
+                ) Color.Unspecified else Color(
+                    (data["color"] as Number).toInt()
+                ),
+                isTrainer = data["isTrainer"] as Boolean
+            )
+        } else {
+            null
+        }
+    }
+
+    suspend fun uploadUserData(user: User): Boolean {
+    return try {
+        firebaseFirestore.collection("users").document(user.id).update(
+            mapOf(
+                "displayName" to user.displayName,
+                "profilePicUrl" to user.profilePicUrl,
+                "birthDate" to user.birthDate,
+                "height" to user.height,
+                "weight" to user.weight,
+                "bio" to user.bio,
+                "color" to user.color.toArgb(),
+                "isTrainer" to user.isTrainer
+            )
+        ).await()
+        true
+    } catch (e: Exception) {
+        false
+    }
+}
 
 }
