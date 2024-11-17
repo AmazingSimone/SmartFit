@@ -75,7 +75,8 @@ class SharedFirebaseViewModel : ViewModel() {
                     "birthDate" to "",
                     "height" to "",
                     "weight" to "",
-                    "bio" to ""
+                    "bio" to "",
+                    "isTrainer" to false
                 )
             ).await()
         }

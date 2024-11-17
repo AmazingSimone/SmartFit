@@ -9,5 +9,6 @@ data class User(
     val birthDate: Long? = 0L,
     val height: Float? = 0f,
     val weight: Float? = 0f,
-    val bio: String? = ""
+    val bio: String? = "",
+    val isTrainer: Boolean = false
 )
