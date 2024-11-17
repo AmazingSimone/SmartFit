@@ -107,6 +107,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
             UserProfileScreen(
                 recievedUser = sharedSignedInUser,
+                loggedInUser = sharedSignedInUser,
                 onEditClick = { navController.navigate(Screens.EDIT_PROFILE.name) },
                 onCloseClick = { navController.popBackStack() },
                 onSignOutClick = {

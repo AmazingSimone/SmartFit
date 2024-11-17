@@ -32,7 +32,8 @@ fun UserProfileScreen(
     onEditClick: () -> Unit,
     onCloseClick: () -> Unit,
     onSignOutClick: () -> Unit,
-    recievedUser: User?
+    recievedUser: User?,
+    loggedInUser: User?
 ) {
 
     Scaffold(
@@ -68,7 +69,8 @@ fun UserProfileScreen(
 
                     CustomProfilePictureFrame(
                         pictureUrl = recievedUser?.profilePicUrl.toString(),
-                        editOption = true,
+                        editOption = recievedUser == loggedInUser,
+                        enabled = recievedUser == loggedInUser,
                         frameSize = 200.dp,
                         onClick = { onEditClick() }
                     )
@@ -98,6 +100,7 @@ fun UserProfilePreview() {
         onEditClick = {},
         onCloseClick = {},
         onSignOutClick = {},
-        recievedUser = null
+        recievedUser = null,
+        loggedInUser = null
     )
 }
