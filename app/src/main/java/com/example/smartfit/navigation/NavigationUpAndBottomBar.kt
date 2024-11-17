@@ -40,6 +40,7 @@ import com.example.smartfit.components.CustomOnlineStateIndicator
 import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.HeadlineText
 import com.example.smartfit.data.User
+import com.example.smartfit.data.frameColors
 import com.example.smartfit.screens.ActivityScreen
 import com.example.smartfit.screens.FriendsScreen
 import com.example.smartfit.screens.HomeScreen
@@ -51,7 +52,7 @@ fun NavigationUpAndBottomBar(
     onHistoryClick: () -> Unit,
     onQrCodeClick: () -> Unit,
     onSearchClick: () -> Unit,
-    recievedUser: User?
+    recievedUser: User
 ) {
 
     var selectedItem by remember { mutableIntStateOf(0) }
@@ -89,8 +90,8 @@ fun NavigationUpAndBottomBar(
                                 CustomOnlineStateIndicator(onClick = { onDeviceIndicatorClick() })
                                 Spacer(Modifier.padding(horizontal = 5.dp))
                                 CustomProfilePictureFrame(
-                                    pictureUrl = recievedUser?.profilePicUrl.toString(),
-                                    frameColor = recievedUser?.color ?: Color.Unspecified,
+                                    pictureUrl = recievedUser.profilePicUrl.toString(),
+                                    frameColor = Color(frameColors[recievedUser.color]),
                                     onClick = { onProfilePictureClick() }
                                 )
                             } else if (selectedItem == 1) {
@@ -167,6 +168,6 @@ fun PreviewNavbar() {
         onHistoryClick = {},
         onQrCodeClick = {},
         onSearchClick = {},
-        recievedUser = null
+        recievedUser = User()
     )
 }

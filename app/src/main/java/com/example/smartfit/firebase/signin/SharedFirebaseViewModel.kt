@@ -100,13 +100,8 @@ class SharedFirebaseViewModel : ViewModel() {
                 birthDate = data["birthDate"] as Long,
                 height = (data["height"] as Number).toFloat(),
                 weight = (data["weight"] as Number).toFloat(),
-                bio = data["bio"] as? String ?: "",
-                color = if (Color(
-                        (data["color"] as Number).toInt()
-                    ) == Color(0.0f, 0.0f, 0.0f, 0.0f)
-                ) Color.Unspecified else Color(
-                    (data["color"] as Number).toInt()
-                ),
+                bio = data["bio"] as String,
+                color = (data["color"] as Number).toInt(),
                 isTrainer = data["isTrainer"] as Boolean
             )
         } else {
@@ -124,7 +119,7 @@ class SharedFirebaseViewModel : ViewModel() {
                 "height" to user.height,
                 "weight" to user.weight,
                 "bio" to user.bio,
-                "color" to user.color.toArgb(),
+                "color" to user.color,
                 "isTrainer" to user.isTrainer
             )
         ).await()

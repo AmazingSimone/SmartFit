@@ -48,8 +48,10 @@ import com.example.smartfit.components.CustomDateOutlineInput
 import com.example.smartfit.components.CustomOutlinedTextInput
 import com.example.smartfit.components.CustomSwitch
 import com.example.smartfit.components.Heading1
+import com.example.smartfit.components.Heading2
 import com.example.smartfit.components.NormalText
 import com.example.smartfit.data.User
+import com.example.smartfit.data.frameColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -98,7 +100,7 @@ fun EditProfileInfoScreen(
 
         val (nameFR, surnameFR, birthDateFR, weightFR, heightFR, bioFR) = remember { FocusRequester.createRefs() }
 
-        var selectedColorIndex by remember { mutableIntStateOf(0) }
+        var selectedColorIndex by remember { mutableIntStateOf(currentUser.color) }
         val colors = listOf(
             MaterialTheme.colorScheme.secondaryContainer,
             Color.Blue,
@@ -132,6 +134,12 @@ fun EditProfileInfoScreen(
 //                    )
 
                     Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Heading2("Farba ramika:")
+                    }
+
+                    Row(
                         Modifier
                             .fillMaxWidth()
                             .padding(vertical = 15.dp),
@@ -140,19 +148,20 @@ fun EditProfileInfoScreen(
 
                         val size: Dp = 50.dp
 
-                        colors.forEachIndexed { index, color ->
+                        //colors
+                        frameColors.forEachIndexed { index, color ->
 
                             if (index != 0) {
                                 Box(modifier = Modifier
                                     .clickable {
                                         selectedColorIndex = index
                                         //selectedColor = color
-                                        currentUser = currentUser.copy(color = color)
+                                        currentUser = currentUser.copy(color = selectedColorIndex)
                                     }) {
                                     Box(
                                         modifier = Modifier
                                             .size(size)
-                                            .background(color),
+                                            .background(Color(color)),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         if (selectedColorIndex == index) {
@@ -199,33 +208,36 @@ fun EditProfileInfoScreen(
                             //currentUser = currentUser?.copy(birthDate = it)
                         }
                     )
+                    //TODO na toto bude pravdepodobne treba viewmodel
+                    val weightValue = remember {
+                        mutableStateOf(currentUser.weight.toString())
+                    }
                     CustomOutlinedTextInput(
                         currentFocusRequester = weightFR,
                         onNext = { heightFR.requestFocus() },
                         keyBoardType = KeyboardType.Number,
                         label = "Vaha",
-                        value = remember { mutableStateOf(if (currentUser.weight != 0.0f) currentUser.weight.toString() else "") }.value,
+                        value = if (weightValue.value == "0.0") "0" else weightValue.value,
                         onTextChanged = {
-                            val sanitizedInput = it.replace(",", ".")
-
-                            currentUser =
-                                currentUser.copy(weight = sanitizedInput.toFloatOrNull() ?: 0.0f)
-
+                            weightValue.value = it.replace(",", ".")
+                            currentUser = currentUser.copy(weight = it.toFloatOrNull() ?: 0F)
                         },
                         enterButtonAction = ImeAction.Next,
                         suffix = { NormalText("kg") }
                     )
 
+                    val heightValue = remember {
+                        mutableStateOf(currentUser.height.toString())
+                    }
                     CustomOutlinedTextInput(
                         currentFocusRequester = heightFR,
                         onNext = { bioFR.requestFocus() },
                         keyBoardType = KeyboardType.Number,
                         label = "Vyska",
-                        value = remember { mutableStateOf(if (currentUser.height != 0.0f) currentUser.height.toString() else "") }.value,
+                        value = if (heightValue.value == "0.0") "0" else heightValue.value,
                         onTextChanged = {
-                            val sanitizedInput = it.replace(",", ".")
-                            currentUser =
-                                currentUser.copy(height = sanitizedInput.toFloatOrNull() ?: 0.0f)
+                            heightValue.value = it.replace(",", ".")
+                            currentUser = currentUser.copy(height = it.toFloatOrNull() ?: 0F)
                         },
                         enterButtonAction = ImeAction.Next,
                         suffix = { NormalText("cm") }
@@ -239,7 +251,7 @@ fun EditProfileInfoScreen(
                         maxLines = 5,
                         singleLine = false,
                         label = "Bio",
-                        value = remember { mutableStateOf(currentUser.bio.toString()) }.value,
+                        value = currentUser.bio,
                         onTextChanged = {
                             currentUser = currentUser.copy(bio = it)
                         },

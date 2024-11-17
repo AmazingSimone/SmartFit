@@ -1,14 +1,12 @@
 package com.example.smartfit.components
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,11 +22,9 @@ import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Watch
@@ -41,7 +37,6 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -66,7 +61,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -80,7 +74,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.smartfit.R
 import com.example.smartfit.data.Training
 import com.mmk.kmpauth.firebase.google.GoogleButtonUiContainerFirebase
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
@@ -297,7 +290,8 @@ fun CustomDateOutlineInput(
     CustomOutlinedTextInput(
         currentFocusRequester = currentFocusRequester,
         //defaultText = "",
-        value = if (defaultDate == 0L) "" else selectedDate?.let { convertMillisToDate(it) } ?: convertMillisToDate(defaultDate),
+        value = if (defaultDate == 0L) "" else selectedDate?.let { convertMillisToDate(it) }
+            ?: convertMillisToDate(defaultDate),
         label = label,
         readOnly = true,
         trailingIcon = {
@@ -500,9 +494,9 @@ fun CustomSwitch(
         Switch(
             checked = switchedState.value,
             onCheckedChange = {
-            switchedState.value = it
-            onSwitchChange(it)
-             },
+                switchedState.value = it
+                onSwitchChange(it)
+            },
             enabled = enabled
         )
 
@@ -594,6 +588,8 @@ fun CustomProfilePictureFrame(
     profilePicRatio: Float = 0.80f
 ) {
 
+    val color = if (frameColor == Color(0)) MaterialTheme.colorScheme.primary else frameColor
+
     Box(
         modifier = Modifier.clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.TopEnd
@@ -603,7 +599,7 @@ fun CustomProfilePictureFrame(
             modifier = Modifier
                 .clip(CircleShape)
                 .size(frameSize)
-                .background(if (frameColor.isUnspecified) MaterialTheme.colorScheme.primary else frameColor),
+                .background(color),
             contentAlignment = Alignment.Center
         ) {
 
@@ -627,7 +623,7 @@ fun CustomProfilePictureFrame(
                 modifier = Modifier
                     .clip(CircleShape)
                     .size(frameSize * (profilePicRatio / 2.3f))
-                    .background(if (frameColor.isUnspecified) MaterialTheme.colorScheme.primary else frameColor),
+                    .background(color),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(

@@ -11,6 +11,6 @@ data class User(
     val height: Float = 0f,
     val weight: Float = 0f,
     val bio: String = "",
-    val color: Color = Color.Unspecified,
+    val color: Int = 0,
     val isTrainer: Boolean = false
 )
