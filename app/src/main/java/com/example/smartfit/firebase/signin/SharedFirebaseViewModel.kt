@@ -1,5 +1,6 @@
 package com.example.smartfit.firebase.signin
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.smartfit.data.User
@@ -76,6 +77,7 @@ class SharedFirebaseViewModel : ViewModel() {
                     "height" to "",
                     "weight" to "",
                     "bio" to "",
+                    "color" to Color.Unspecified,
                     "isTrainer" to false
                 )
             ).await()

@@ -1,5 +1,6 @@
 package com.example.smartfit.data
 
+import androidx.compose.ui.graphics.Color
 import java.time.LocalDateTime
 
 data class User(
@@ -10,5 +11,6 @@ data class User(
     val height: Float? = 0f,
     val weight: Float? = 0f,
     val bio: String? = "",
+    val color: Color = Color.Unspecified,
     val isTrainer: Boolean = false
 )
