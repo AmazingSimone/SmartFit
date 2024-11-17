@@ -25,7 +25,9 @@ import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.Heading2
 import com.example.smartfit.components.HeadlineText
+import com.example.smartfit.components.NormalText
 import com.example.smartfit.data.User
+import com.example.smartfit.data.frameColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,7 +36,7 @@ fun UserProfileScreen(
     onEditClick: () -> Unit,
     onCloseClick: () -> Unit,
     onSignOutClick: () -> Unit,
-    recievedUser: User?,
+    recievedUser: User,
     loggedInUser: User?
 ) {
 
@@ -60,29 +62,33 @@ fun UserProfileScreen(
         }
 
     ) { innerPadding ->
-        Surface (modifier = Modifier.padding(innerPadding)) {
+        Surface(modifier = Modifier.padding(innerPadding)) {
 
-            Box (
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 20.dp),
-                contentAlignment = Alignment.TopCenter) {
+                contentAlignment = Alignment.TopCenter
+            ) {
 
-                Column (
-                    horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
 
                     CustomProfilePictureFrame(
-                        pictureUrl = recievedUser?.profilePicUrl.toString(),
+                        pictureUrl = recievedUser.profilePicUrl.toString(),
                         editOption = recievedUser == loggedInUser,
                         enabled = recievedUser == loggedInUser,
-                        frameColor = recievedUser?.color ?: Color.Unspecified,
+                        frameColor = Color(frameColors[recievedUser.color]),
                         frameSize = 200.dp,
                         onClick = { onEditClick() }
                     )
 
-                    HeadlineText(recievedUser?.displayName ?: "")
+                    HeadlineText(recievedUser.displayName ?: "")
 
                     Heading2("9 Priatelov")
+
+                    NormalText(recievedUser.bio ?: "")
 
                     CustomProfileInfoTable(
                         avgTimeOfActivity = "0min",
@@ -105,7 +111,7 @@ fun UserProfilePreview() {
         onEditClick = {},
         onCloseClick = {},
         onSignOutClick = {},
-        recievedUser = null,
+        recievedUser = User(),
         loggedInUser = null
     )
 }
