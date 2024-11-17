@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.smartfit.components.NormalText
-import com.example.smartfit.data.trainings
+import com.example.smartfit.data.trainingList
 
 @Composable
 fun ActivityScreen() {
@@ -20,7 +20,7 @@ fun ActivityScreen() {
 
         LazyColumn {
 
-            items(trainings) { training ->
+            items(trainingList) { training ->
 
                 ListItem(
                     modifier = Modifier.clickable {

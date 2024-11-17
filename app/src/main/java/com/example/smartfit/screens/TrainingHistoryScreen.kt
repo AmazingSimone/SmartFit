@@ -1,7 +1,6 @@
 package com.example.smartfit.screens
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomTrainingInfoCardWithDate
 import com.example.smartfit.components.Heading1
-import com.example.smartfit.data.trainings
+import com.example.smartfit.data.trainingList
 
 @SuppressLint("NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,7 +57,7 @@ fun TrainingHistoryScreen() {
                 ) {
 
                     CustomTrainingInfoCardWithDate(
-                        training = trainings[0]
+                        training = trainingList[0]
                     )
                 }
             }

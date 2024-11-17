@@ -4,12 +4,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.ui.graphics.vector.ImageVector
 
+
 data class Training(
     val name: String,
     val icon: ImageVector
 )
 
-val trainings = listOf (
+val trainingList = listOf (
     Training("Beh", Icons.AutoMirrored.Filled.DirectionsRun),
     Training("Bicyklovanie", Icons.AutoMirrored.Filled.DirectionsRun),
     Training("Bezecky trener", Icons.AutoMirrored.Filled.DirectionsRun),
