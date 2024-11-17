@@ -62,6 +62,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -576,7 +577,7 @@ fun CustomOnlineStateIndicator(
 @Composable
 fun CustomProfilePictureFrame(
     pictureUrl: String,
-    frameColor: Color = MaterialTheme.colorScheme.secondaryContainer,
+    frameColor: Color = Color.Unspecified,
     enabled: Boolean = true,
     editOption: Boolean = false,
     onClick: () -> Unit = {},
@@ -593,7 +594,7 @@ fun CustomProfilePictureFrame(
             modifier = Modifier
                 .clip(CircleShape)
                 .size(frameSize)
-                .background(frameColor),
+                .background(if (frameColor.isUnspecified) MaterialTheme.colorScheme.primary else frameColor),
             contentAlignment = Alignment.Center
         ) {
 
@@ -617,13 +618,13 @@ fun CustomProfilePictureFrame(
                 modifier = Modifier
                     .clip(CircleShape)
                     .size(frameSize * (profilePicRatio / 2.3f))
-                    .background(frameColor),
+                    .background(if (frameColor.isUnspecified) MaterialTheme.colorScheme.primary else frameColor),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.Edit,
                     contentDescription = "Icon for edit profile option",
-                    tint = MaterialTheme.colorScheme.secondary,
+                    tint = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.size((frameSize * (profilePicRatio / 2.6f)) * profilePicRatio)
                 )
             }

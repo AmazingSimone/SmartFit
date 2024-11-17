@@ -9,12 +9,14 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomButton
@@ -50,6 +52,8 @@ fun UserProfileScreen(
         bottomBar = {
             CustomButton(
                 modifier = Modifier.padding(20.dp),
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                textColor = MaterialTheme.colorScheme.onErrorContainer,
                 onClick = { onSignOutClick() },
                 buttonText = "Odhlasit sa"
             )
@@ -71,6 +75,7 @@ fun UserProfileScreen(
                         pictureUrl = recievedUser?.profilePicUrl.toString(),
                         editOption = recievedUser == loggedInUser,
                         enabled = recievedUser == loggedInUser,
+                        frameColor = recievedUser?.color ?: Color.Unspecified,
                         frameSize = 200.dp,
                         onClick = { onEditClick() }
                     )

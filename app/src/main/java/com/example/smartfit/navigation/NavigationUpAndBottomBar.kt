@@ -89,6 +89,7 @@ fun NavigationUpAndBottomBar(
                                 Spacer(Modifier.padding(horizontal = 5.dp))
                                 CustomProfilePictureFrame(
                                     pictureUrl = recievedUser?.profilePicUrl.toString(),
+                                    frameColor = recievedUser?.color ?: Color.Unspecified,
                                     onClick = { onProfilePictureClick() }
                                 )
                             } else if (selectedItem == 1) {
