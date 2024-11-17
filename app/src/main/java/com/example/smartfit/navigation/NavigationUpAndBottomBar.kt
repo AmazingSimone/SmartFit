@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomIconButton
@@ -100,9 +101,15 @@ fun NavigationUpAndBottomBar(
                                 )
                                 //Icon(imageVector = Icons.Filled.History, contentDescription = "History icon")
                                 Spacer(Modifier.padding(horizontal = 5.dp))
-                                CustomIconButton(onClick = { onQrCodeClick() }, icon = Icons.Filled.QrCodeScanner)
+                                CustomIconButton(
+                                    onClick = { onQrCodeClick() },
+                                    icon = Icons.Filled.QrCodeScanner
+                                )
                             } else {
-                                CustomIconButton(onClick = { onSearchClick() }, icon = Icons.Filled.Search)
+                                CustomIconButton(
+                                    onClick = { onSearchClick() },
+                                    icon = Icons.Filled.Search
+                                )
                             }
                         }
                     }
@@ -160,5 +167,6 @@ fun PreviewNavbar() {
         onHistoryClick = {},
         onQrCodeClick = {},
         onSearchClick = {},
-        recievedUser = null)
+        recievedUser = null
+    )
 }
