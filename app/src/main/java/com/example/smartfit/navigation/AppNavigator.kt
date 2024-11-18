@@ -140,10 +140,18 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                 onSaveClick = {
                     firebaseViewModel.viewModelScope.launch {
                         if (firebaseViewModel.uploadUserData(it)) {
-                            Toast.makeText(navController.context, "Udaje boli uspesne ulozene",Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                navController.context,
+                                "Udaje boli uspesne ulozene",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             firebaseViewModel.checkCurrentUser()
                         } else {
-                            Toast.makeText(navController.context, "Nastala chyba pri ukladani udajov",Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                navController.context,
+                                "Nastala chyba pri ukladani udajov",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 }
@@ -152,11 +160,14 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
         composable("${Screens.CURRENT_ACTIVITY.name}/{indexOfTraining}") { backStackEntry ->
 
+            val sharedUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
+
+
             val indexOfChosenTraining =
                 backStackEntry.arguments?.getString("indexOfTraining")?.toIntOrNull() ?: 0
 
             CurrentActivityScreen(
-                trainingList[indexOfChosenTraining],
+                chosenTraining = trainingList[indexOfChosenTraining].copy(creatorId = sharedUser.id),
                 onEndtrainingClick = {
 
                     if (it.trainingDuration < 5000) {
@@ -166,18 +177,26 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
-
+                        firebaseViewModel.viewModelScope.launch {
+                            if (firebaseViewModel.uploadTrainingData(it)) {
+                                Toast.makeText(
+                                    navController.context,
+                                    "Udaje boli uspesne ulozene",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            Toast.makeText(
+                                navController.context,
+                                "Nastala chyba pri ukladani udajov",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
-
                     navController.navigateUp()
                 }
             )
-
         }
-
     }
-
-
 }
 
 fun NavHostController.navigateToSingleTop(route: String) {
