@@ -7,7 +7,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 data class Training(
     val name: String,
-    val icon: ImageVector
+    val icon: ImageVector,
+    val trainingDuration: Long = 0L,
+    val avgSpeed: Float = 0F,
+    val burnedCalories: Float = 0F,
+    val avgHeartRate: Int = 0,
+    val avgTempo: Int = 0,
+    val steps: Int = 0,
+    val trainingTemperature: Int = 0
 )
 
 val trainingList = listOf (
