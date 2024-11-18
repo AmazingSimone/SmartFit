@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
@@ -80,8 +81,9 @@ import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButtonIconOnly
 import dev.gitlive.firebase.auth.FirebaseUser
 import java.text.SimpleDateFormat
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
@@ -576,7 +578,6 @@ fun CustomOnlineStateIndicator(
     }
 }
 
-//TODO - Tu treba samozrejme dorobit cestu k fotke a veci s tym...
 @Composable
 fun CustomProfilePictureFrame(
     pictureUrl: String,
@@ -790,24 +791,31 @@ fun CustomInfoCardFromDevice(
     }
 }
 
-//TODO - treba daky enum na treningy spravit a pozor na anotacie
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CustomTrainingInfoCardWithDate(
     training: Training,
-    //trainingType: String,
     timeLength: LocalTime = LocalTime.of(1, 20, 34),
-    timeOfTraining: LocalTime = LocalTime.now(),
-    numberOfParticipants: Int = 0,
-    date: LocalDate = LocalDate.now(),
-    //trainingIcon: ImageVector
+    numberOfParticipants: Int = 0
 ) {
 
     Column(
 
     ) {
 
-        Heading2(date.format(DateTimeFormatter.ofPattern("E, d.M")))
+        Heading2(
+            LocalDateTime.ofEpochSecond(training.timeDateOfTraining, 0, ZoneOffset.UTC)
+                .format(
+                    DateTimeFormatter.ofPattern(
+                        if (LocalDateTime.now().year != LocalDateTime.ofEpochSecond(
+                                training.timeDateOfTraining,
+                                0,
+                                ZoneOffset.UTC
+                            ).year
+                        ) "E, d.M.yyyy" else "E, d.M"
+                    )
+                )
+        )
         Spacer(modifier = Modifier.height(8.dp)) // Add spacing here
 
         OutlinedCard(
@@ -859,10 +867,7 @@ fun CustomTrainingInfoCardWithDate(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 //if (goal > 0) HeadlineText(" / ${goal.toString()}", fontWeight = FontWeight.Bold)
-                                HeadlineText(
-                                    timeLength.toString(),
-                                    color = MaterialTheme.colorScheme.tertiary
-                                )
+
                             }
 
                             if (numberOfParticipants > 1) NormalText(
@@ -877,11 +882,26 @@ fun CustomTrainingInfoCardWithDate(
                                 .weight(0.5f),
                             contentAlignment = Alignment.BottomEnd
                         ) {
-                            Column {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalAlignment = Alignment.End,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                HeadlineText(
+                                    LocalTime.ofSecondOfDay((training.trainingDuration / 1000).toLong())
+                                        .format(DateTimeFormatter.ofPattern("HH:mm:ss")),
+                                    //timeLength.toString(),
+                                    color = MaterialTheme.colorScheme.tertiary
+                                )
 
-
-                                Heading1(timeOfTraining.format(DateTimeFormatter.ofPattern("HH:mm")))
                             }
+                            Heading2(
+                                LocalDateTime.ofEpochSecond(
+                                    training.timeDateOfTraining,
+                                    0,
+                                    ZoneOffset.UTC
+                                ).format(DateTimeFormatter.ofPattern("HH:mm"))
+                            )
                         }
                     }
                 }
@@ -922,6 +942,20 @@ fun CustomTrainingInfoDisplayCard(
 @Preview(showBackground = true)
 @Composable
 fun PreviewComponents() {
-
+    CustomTrainingInfoCardWithDate(
+        training = Training(
+            name = "Bezecky trener",
+            icon = Icons.AutoMirrored.Filled.DirectionsRun,
+            creatorId = "MZ6M79VA9zetdUHX4NtgRE6UDzx2",
+            trainingDuration = 9142,
+            timeDateOfTraining = 1731964032,
+            avgSpeed = 0F,
+            burnedCalories = 0F,
+            avgHeartRate = 0,
+            avgTempo = 0,
+            steps = 0,
+            trainingTemperature = 0
+        )
+    )
 }
 
