@@ -1,7 +1,6 @@
 package com.example.smartfit.navigation
 
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -25,7 +24,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.smartfit.R
+import com.example.smartfit.data.trainingList
 import com.example.smartfit.firebase.signin.SharedFirebaseViewModel
+import com.example.smartfit.screens.CurrentActivityScreen
 import com.example.smartfit.screens.EditProfileInfoScreen
 import com.example.smartfit.screens.LoginScreen
 import com.example.smartfit.screens.UserProfileScreen
@@ -79,6 +80,9 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                             }
                         }
                     },
+                    onActivityClick = {
+                        navController.navigate("${Screens.CURRENT_ACTIVITY.name}/${it}")
+                    },
                     onHistoryClick = {},
                     onQrCodeClick = {},
                     onSearchClick = {}
@@ -95,7 +99,6 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                         recievedFromOneTapButton ->
 
                     firebaseViewModel.viewModelScope.launch {
-                        Log.d("errorFB", "user: $it")
                         firebaseViewModel.createUserIfNotExists(recievedFromOneTapButton?.uid!!)
                         navController.navigate(Screens.HOME.name) {
                             popUpTo(0) { inclusive = true }
@@ -145,6 +148,31 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                     }
                 }
             )
+        }
+
+        composable("${Screens.CURRENT_ACTIVITY.name}/{indexOfTraining}") { backStackEntry ->
+
+            val indexOfChosenTraining =
+                backStackEntry.arguments?.getString("indexOfTraining")?.toIntOrNull() ?: 0
+
+            CurrentActivityScreen(
+                trainingList[indexOfChosenTraining],
+                onEndtrainingClick = {
+
+                    if (it.trainingDuration < 5000) {
+                        Toast.makeText(
+                            navController.context,
+                            "Tréning nebol uložený, pretože trval menej ako 5 sekúnd",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+
+                    }
+
+                    navController.navigateUp()
+                }
+            )
+
         }
 
     }

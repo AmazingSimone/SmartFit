@@ -1,7 +1,6 @@
 package com.example.smartfit.screens
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,8 +16,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,9 +34,11 @@ import com.example.smartfit.data.Training
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrentActivityScreen(
-    chosenTraining: Training
+    chosenTraining: Training,
+    onEndtrainingClick: (Training) -> Unit
 ) {
 
+    var training by remember { mutableStateOf(chosenTraining) }
     val stopWatch = remember { StopWatch() }
     val isRunning = remember { mutableStateOf(stopWatch.isRunning()) }
 
@@ -46,7 +49,7 @@ fun CurrentActivityScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Heading1(chosenTraining.name) }
+                title = { Heading1(training.name) }
             )
         },
         bottomBar = {
@@ -83,7 +86,8 @@ fun CurrentActivityScreen(
                         .weight(1f),
                     onClick = {
                         stopWatch.pause()
-                        Log.d("timeMillis","${stopWatch.getTimeMillis()}")
+                        training = training.copy(trainingDuration = stopWatch.getTimeMillis())
+                        onEndtrainingClick(training)
 
                     },
                     containerColor = MaterialTheme.colorScheme.error,
@@ -180,6 +184,7 @@ fun CurrentActivityScreen(
 @Composable
 fun CurrentActivityPreview() {
     CurrentActivityScreen(
-        Training("Beh", Icons.Default.DirectionsRun)
+        Training("Beh", Icons.Default.DirectionsRun),
+        onEndtrainingClick = {}
     )
 }
