@@ -29,6 +29,8 @@ import com.example.smartfit.components.CustomTrainingInfoDisplayCard
 import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.StopWatch
 import com.example.smartfit.data.Training
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @SuppressLint("NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,6 +43,8 @@ fun CurrentActivityScreen(
     var training by remember { mutableStateOf(chosenTraining) }
     val stopWatch = remember { StopWatch() }
     val isRunning = remember { mutableStateOf(stopWatch.isRunning()) }
+    val timeDateOfTraining = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+
 
     stopWatch.start()
     isRunning.value = stopWatch.isRunning()
@@ -87,6 +91,7 @@ fun CurrentActivityScreen(
                     onClick = {
                         stopWatch.pause()
                         training = training.copy(trainingDuration = stopWatch.getTimeMillis())
+                        training = training.copy(timeDateOfTraining = timeDateOfTraining)
                         onEndtrainingClick(training)
 
                     },
