@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -110,23 +111,45 @@ class SharedFirebaseViewModel : ViewModel() {
     }
 
     suspend fun uploadUserData(user: User): Boolean {
-    return try {
-        firebaseFirestore.collection("users").document(user.id).update(
-            mapOf(
-                "displayName" to user.displayName,
-                "profilePicUrl" to user.profilePicUrl,
-                "birthDate" to user.birthDate,
-                "height" to user.height,
-                "weight" to user.weight,
-                "bio" to user.bio,
-                "color" to user.color,
-                "isTrainer" to user.isTrainer
-            )
-        ).await()
-        true
-    } catch (e: Exception) {
-        false
+        return try {
+            firebaseFirestore.collection("users").document(user.id).update(
+                mapOf(
+                    "displayName" to user.displayName,
+                    "profilePicUrl" to user.profilePicUrl,
+                    "birthDate" to user.birthDate,
+                    "height" to user.height,
+                    "weight" to user.weight,
+                    "bio" to user.bio,
+                    "color" to user.color,
+                    "isTrainer" to user.isTrainer
+                )
+            ).await()
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
-}
+
+    suspend fun uploadTrainingData(training: Training): Boolean {
+        return try {
+            firebaseFirestore.collection("trainings").document().set(
+                mapOf(
+                    "name" to training.name,
+                    "icon" to training.icon,
+                    "creatorId" to training.creatorId,
+                    "trainingDuration" to training.trainingDuration,
+                    "avgSpeed" to training.avgSpeed,
+                    "burnedCalories" to training.burnedCalories,
+                    "avgHeartRate" to training.avgHeartRate,
+                    "avgTempo" to training.avgTempo,
+                    "steps" to training.steps,
+                    "trainingTemperature" to training.trainingTemperature
+                )
+            ).await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
 
 }
