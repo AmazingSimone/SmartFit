@@ -10,6 +10,7 @@ data class Training(
     val icon: ImageVector,
     val creatorId: String = "",
     val trainingDuration: Long = 0L,
+    val timeDateOfTraining: Long = 0L,
     val avgSpeed: Float = 0F,
     val burnedCalories: Float = 0F,
     val avgHeartRate: Int = 0,
