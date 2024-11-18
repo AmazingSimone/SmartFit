@@ -78,8 +78,8 @@ fun Greeting() {
 //                isPassword = false,
 //                errorText = "",
 //                isError = false,
-//                input = TODO(),
-//                isDate = TODO()
+//                input =
+//                isDate =
 //            )
 
 //            CustomOutlinedTextInput(
@@ -92,8 +92,8 @@ fun Greeting() {
 //                isPassword = true,
 //                errorText = "",
 //                isError = false,
-//                input = TODO(),
-//                isDate = TODO()
+//                input =
+//                isDate =
 //            )
 
             Row {
