@@ -130,14 +130,14 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
-    suspend fun uploadTrainingData(training: Training): Boolean {
+    suspend fun uploadTrainingData(indexOfTraining: Int, training: Training): Boolean {
         return try {
             firebaseFirestore.collection("trainings").document().set(
                 mapOf(
-                    "name" to training.name,
-                    "icon" to training.icon,
+                    "indexOfTraining" to indexOfTraining,
                     "creatorId" to training.creatorId,
                     "trainingDuration" to training.trainingDuration,
+                    "timeDateOfTraining" to training.timeDateOfTraining,
                     "avgSpeed" to training.avgSpeed,
                     "burnedCalories" to training.burnedCalories,
                     "avgHeartRate" to training.avgHeartRate,

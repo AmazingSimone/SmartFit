@@ -178,7 +178,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                         ).show()
                     } else {
                         firebaseViewModel.viewModelScope.launch {
-                            if (firebaseViewModel.uploadTrainingData(it)) {
+                            if (firebaseViewModel.uploadTrainingData(indexOfChosenTraining, it)) {
                                 Toast.makeText(
                                     navController.context,
                                     "Udaje boli uspesne ulozene",
