@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -25,11 +27,14 @@ import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.CustomTrainingInfoDisplayCard
 import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.StopWatch
+import com.example.smartfit.data.Training
 
 @SuppressLint("NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CurrentActivityScreen() {
+fun CurrentActivityScreen(
+    chosenTraining: Training
+) {
 
     val stopWatch = remember { StopWatch() }
     val isRunning = remember { mutableStateOf(stopWatch.isRunning()) }
@@ -41,7 +46,7 @@ fun CurrentActivityScreen() {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Heading1("Beh") }
+                title = { Heading1(chosenTraining.name) }
             )
         },
         bottomBar = {
@@ -174,5 +179,7 @@ fun CurrentActivityScreen() {
 @Preview
 @Composable
 fun CurrentActivityPreview() {
-    CurrentActivityScreen()
+    CurrentActivityScreen(
+        Training("Beh", Icons.Default.DirectionsRun)
+    )
 }

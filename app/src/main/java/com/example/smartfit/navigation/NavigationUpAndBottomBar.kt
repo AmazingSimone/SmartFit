@@ -49,6 +49,7 @@ import com.example.smartfit.screens.HomeScreen
 fun NavigationUpAndBottomBar(
     onDeviceIndicatorClick: () -> Unit,
     onProfilePictureClick: () -> Unit,
+    onActivityClick: (Int) -> Unit,
     onHistoryClick: () -> Unit,
     onQrCodeClick: () -> Unit,
     onSearchClick: () -> Unit,
@@ -150,7 +151,7 @@ fun NavigationUpAndBottomBar(
                 if (selectedItem == 0) {
                     HomeScreen()
                 } else if (selectedItem == 1) {
-                    ActivityScreen()
+                    ActivityScreen(onActivityClick)
                 } else {
                     FriendsScreen()
                 }
@@ -165,6 +166,7 @@ fun PreviewNavbar() {
     NavigationUpAndBottomBar(
         onDeviceIndicatorClick = {},
         onProfilePictureClick = {},
+        onActivityClick = {},
         onHistoryClick = {},
         onQrCodeClick = {},
         onSearchClick = {},

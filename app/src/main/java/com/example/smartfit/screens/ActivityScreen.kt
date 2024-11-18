@@ -14,7 +14,9 @@ import com.example.smartfit.components.NormalText
 import com.example.smartfit.data.trainingList
 
 @Composable
-fun ActivityScreen() {
+fun ActivityScreen(
+    onActivityClick: (Int) -> Unit
+) {
 
     Surface {
 
@@ -24,6 +26,8 @@ fun ActivityScreen() {
 
                 ListItem(
                     modifier = Modifier.clickable {
+
+                        onActivityClick(trainingList.indexOf(training))
 
                     },
                     headlineContent = { NormalText(training.name) },
@@ -43,5 +47,7 @@ fun ActivityScreen() {
 @Preview
 @Composable
 fun ActivityPreview() {
-    ActivityScreen()
+    ActivityScreen(
+        {}
+    )
 }
