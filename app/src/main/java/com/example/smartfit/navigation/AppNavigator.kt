@@ -29,6 +29,7 @@ import com.example.smartfit.firebase.signin.SharedFirebaseViewModel
 import com.example.smartfit.screens.CurrentActivityScreen
 import com.example.smartfit.screens.EditProfileInfoScreen
 import com.example.smartfit.screens.LoginScreen
+import com.example.smartfit.screens.TrainingHistoryScreen
 import com.example.smartfit.screens.UserProfileScreen
 import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
@@ -83,7 +84,10 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                     onActivityClick = {
                         navController.navigate("${Screens.CURRENT_ACTIVITY.name}/${it}")
                     },
-                    onHistoryClick = {},
+                    onHistoryClick = {
+                        navController.navigate(Screens.HISTORY.name)
+
+                    },
                     onQrCodeClick = {},
                     onSearchClick = {}
                 )
@@ -199,6 +203,20 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                 }
             )
         }
+
+        composable(Screens.HISTORY.name) {
+
+            val userTrainings by firebaseViewModel.sharedUserTrainingsState.collectAsStateWithLifecycle()
+
+            TrainingHistoryScreen(
+                userTrainings,
+                onBackClick = {
+                    navController.navigateUp()
+                }
+            )
+
+        }
+
     }
 }
 
