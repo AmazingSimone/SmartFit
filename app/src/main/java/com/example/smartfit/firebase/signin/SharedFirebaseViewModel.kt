@@ -164,4 +164,61 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
+    suspend fun getTrainingData(trainingId: String, userId: String): Training? {
+        val firestore = FirebaseFirestore.getInstance()
+        val documentSnapshot =
+            firestore.collection("users").document(userId).collection("trainings")
+                .document(trainingId).get().await()
+        return if (documentSnapshot.exists()) {
+
+            val data = documentSnapshot.data
+
+            Training(
+                name = trainingList[(data?.get("indexOfTraining") as? Number)?.toInt() ?: 0].name,
+                icon = trainingList[(data?.get("indexOfTraining") as? Number)?.toInt() ?: 0].icon,
+                //creatorId = data?.get("creatorId") as? String ?: "",
+                trainingDuration = (data?.get("trainingDuration") as? Number)?.toLong() ?: 0L,
+                timeDateOfTraining = (data?.get("timeDateOfTraining") as? Number)?.toLong() ?: 0L,
+                avgSpeed = (data?.get("avgSpeed") as? Number)?.toFloat() ?: 0f,
+                burnedCalories = (data?.get("burnedCalories") as? Number)?.toFloat() ?: 0f,
+                avgHeartRate = (data?.get("avgHeartRate") as? Number)?.toInt() ?: 0,
+                avgTempo = (data?.get("avgTempo") as? Number)?.toInt() ?: 0,
+                steps = (data?.get("steps") as? Number)?.toInt() ?: 0,
+                trainingTemperature = (data?.get("trainingTemperature") as? Number)?.toInt() ?: 0
+            )
+        } else {
+            null
+        }
+    }
+
+    suspend fun getAllUserTrainings(): List<Training> {
+        val userId = firebaseAuth.currentUser?.uid ?: return emptyList()
+        val trainings = mutableListOf<Training>()
+        val documents =
+            firebaseFirestore.collection("users").document(userId).collection("trainings").get()
+                .await()
+
+
+        if (!documents.isEmpty) {
+
+            for (document in documents) {
+
+                val trainingId = document.id
+                Log.d("ahoj", "training id $trainingId")
+
+                val training = getTrainingData(trainingId, userId)
+                Log.d("ahoj", "training $training")
+
+                if (training != null) {
+                    trainings.add(training)
+                    Log.d("ahoj", "${trainings[0]}")
+
+                }
+            }
+        } else {
+            return emptyList()
+        }
+        return trainings
+    }
+
 }
