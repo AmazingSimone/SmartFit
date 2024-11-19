@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.smartfit.R
 import com.example.smartfit.data.trainingList
 import com.example.smartfit.firebase.signin.SharedFirebaseViewModel
+import com.example.smartfit.screens.ActivityDetailScreen
 import com.example.smartfit.screens.CurrentActivityScreen
 import com.example.smartfit.screens.EditProfileInfoScreen
 import com.example.smartfit.screens.LoginScreen
@@ -163,13 +164,12 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
             val sharedUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
 
-
+            //TODO preco tam je getString
             val indexOfChosenTraining =
                 backStackEntry.arguments?.getString("indexOfTraining")?.toIntOrNull() ?: 0
 
             CurrentActivityScreen(
                 chosenTraining = trainingList[indexOfChosenTraining],
-                //.copy(creatorId = sharedUser.id),
                 onEndtrainingClick = {
 
                     if (it.trainingDuration < 5000) {
@@ -209,10 +209,26 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                 userTrainings,
                 onBackClick = {
                     navController.navigateUp()
+                },
+                onActivityClick = {
+                    navController.navigate("${Screens.ACTIVIY_DETAIL.name}/${it}")
                 }
             )
-
         }
 
+        composable("${Screens.ACTIVIY_DETAIL.name}/{indexOfTrainingDetail}") { backStackEntry ->
+
+            val indexOfChosenTraining =
+                backStackEntry.arguments?.getString("indexOfTrainingDetail")?.toIntOrNull() ?: 0
+
+            val training by firebaseViewModel.sharedUserTrainingsState.collectAsStateWithLifecycle()
+
+            ActivityDetailScreen(
+                training = training[indexOfChosenTraining],
+                onBackClick = {
+                    navController.navigateUp()
+                }
+            )
+        }
     }
 }
