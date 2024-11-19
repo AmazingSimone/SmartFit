@@ -185,12 +185,14 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                                     "Udaje boli uspesne ulozene",
                                     Toast.LENGTH_SHORT
                                 ).show()
+                            } else {
+                                Toast.makeText(
+                                    navController.context,
+                                    "Nastala chyba pri ukladani udajov",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
-                            Toast.makeText(
-                                navController.context,
-                                "Nastala chyba pri ukladani udajov",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            firebaseViewModel.checkCurrentUser()
                         }
                     }
                     navController.navigateUp()
