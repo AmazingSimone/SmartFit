@@ -1,6 +1,7 @@
 package com.example.smartfit.screens
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -29,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomTrainingInfoCardWithDate
 import com.example.smartfit.components.Heading1
+import com.example.smartfit.components.Heading2
 import com.example.smartfit.components.NormalText
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.trainingList
@@ -41,7 +43,8 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun TrainingHistoryScreen(
     listOfTrainings: List<Training>,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onActivityClick: (Int) -> Unit
 ) {
 
     Scaffold(
@@ -72,6 +75,7 @@ fun TrainingHistoryScreen(
                 contentAlignment = Alignment.TopCenter
             ) {
 
+
 //                Column(
 //                    Modifier.verticalScroll(rememberScrollState()),
 //                    horizontalAlignment = Alignment.CenterHorizontally
@@ -90,21 +94,22 @@ fun TrainingHistoryScreen(
 
                 if (listOfTrainings.isNotEmpty()) {
                     LazyColumn(
-                        modifier = Modifier.padding(top = 8.dp)
                     ) {
                         val groupedTrainings = listOfTrainings.groupBy {
                             LocalDate.ofEpochDay(it.timeDateOfTraining / (24 * 60 * 60)).with(
                                 DayOfWeek.MONDAY
                             )
                         }
+
                         groupedTrainings.forEach { (week, trainings) ->
                             item {
+
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Heading1(
+                                    Heading2(
                                         if (week == LocalDate.now()
                                                 .with(DayOfWeek.MONDAY)
                                         ) "Tento tyzden" else "Tyzden od ${
@@ -120,11 +125,18 @@ fun TrainingHistoryScreen(
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                             items(trainings.sortedByDescending { it.timeDateOfTraining }) { training ->
+
+
                                 CustomTrainingInfoCardWithDate(
+                                    modifier = Modifier.clickable {
+
+                                        onActivityClick(listOfTrainings.indexOf(training))
+                                    },
                                     training = training
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
+
                             if (trainings.size > 1) {
                                 item {
                                     HorizontalDivider()
@@ -148,6 +160,7 @@ fun TrainingHistoryScreen(
 fun TrainingHistoryPreview() {
     TrainingHistoryScreen(
         listOfTrainings = trainingList,
+        {},
         {}
     )
 }
