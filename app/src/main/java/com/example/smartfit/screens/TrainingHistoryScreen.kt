@@ -27,17 +27,27 @@ import com.example.smartfit.data.trainingList
 @SuppressLint("NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TrainingHistoryScreen() {
+fun TrainingHistoryScreen(
+    listOfTrainings: List<Training>,
+    onBackClick: () -> Unit
+) {
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Heading1("Historia treningov") },
-                actions = {
-                    IconButton(onClick = { /* Handle navigation icon press */ }) {
-                        Icon(imageVector = Icons.Filled.Close, contentDescription = "Close")
+                navigationIcon = {
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back icon"
+                        )
                     }
                 }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.9f)
+                )
             )
         }
 
@@ -68,5 +78,8 @@ fun TrainingHistoryScreen() {
 @Preview
 @Composable
 fun TrainingHistoryPreview() {
-    TrainingHistoryScreen()
+    TrainingHistoryScreen(
+        listOfTrainings = trainingList,
+        {}
+    )
 }
