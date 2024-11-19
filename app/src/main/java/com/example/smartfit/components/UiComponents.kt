@@ -795,7 +795,7 @@ fun CustomInfoCardFromDevice(
 @Composable
 fun CustomTrainingInfoCardWithDate(
     training: Training,
-    timeLength: LocalTime = LocalTime.of(1, 20, 34),
+    //timeLength: LocalTime = LocalTime.of(1, 20, 34),
     numberOfParticipants: Int = 0
 ) {
 
@@ -857,7 +857,7 @@ fun CustomTrainingInfoCardWithDate(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .weight(1.2f),
-                                horizontalArrangement = Arrangement.Center,
+                                horizontalArrangement = Arrangement.Start,
                                 verticalAlignment = Alignment.CenterVertically,
 
                                 ) {
@@ -879,7 +879,7 @@ fun CustomTrainingInfoCardWithDate(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .weight(0.5f),
+                                .weight(0.6f),
                             contentAlignment = Alignment.BottomEnd
                         ) {
                             Column(
@@ -946,7 +946,7 @@ fun PreviewComponents() {
         training = Training(
             name = "Bezecky trener",
             icon = Icons.AutoMirrored.Filled.DirectionsRun,
-            creatorId = "MZ6M79VA9zetdUHX4NtgRE6UDzx2",
+            //creatorId = "MZ6M79VA9zetdUHX4NtgRE6UDzx2",
             trainingDuration = 9142,
             timeDateOfTraining = 1731964032,
             avgSpeed = 0F,
