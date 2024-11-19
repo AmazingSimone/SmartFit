@@ -794,6 +794,7 @@ fun CustomInfoCardFromDevice(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CustomTrainingInfoCardWithDate(
+    modifier: Modifier = Modifier,
     training: Training,
     //timeLength: LocalTime = LocalTime.of(1, 20, 34),
     numberOfParticipants: Int = 0
@@ -819,7 +820,7 @@ fun CustomTrainingInfoCardWithDate(
         Spacer(modifier = Modifier.height(8.dp)) // Add spacing here
 
         OutlinedCard(
-            modifier = Modifier.height(150.dp),
+            modifier = modifier.height(150.dp),
             colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
         ) {
             Box {
@@ -861,7 +862,7 @@ fun CustomTrainingInfoCardWithDate(
                                 verticalAlignment = Alignment.CenterVertically,
 
                                 ) {
-                                HeadlineText(
+                                Heading1(
                                     training.name,
                                     color = MaterialTheme.colorScheme.secondary
                                 )
@@ -887,7 +888,7 @@ fun CustomTrainingInfoCardWithDate(
                                 horizontalAlignment = Alignment.End,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                HeadlineText(
+                                Heading1(
                                     LocalTime.ofSecondOfDay((training.trainingDuration / 1000).toLong())
                                         .format(DateTimeFormatter.ofPattern("HH:mm:ss")),
                                     //timeLength.toString(),
