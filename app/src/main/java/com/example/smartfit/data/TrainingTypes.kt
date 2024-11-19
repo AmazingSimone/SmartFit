@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 data class Training(
     val name: String,
     val icon: ImageVector,
-    val creatorId: String = "",
+    //val creatorId: String = "",
     val trainingDuration: Long = 0L,
     val timeDateOfTraining: Long = 0L,
     val avgSpeed: Float = 0F,

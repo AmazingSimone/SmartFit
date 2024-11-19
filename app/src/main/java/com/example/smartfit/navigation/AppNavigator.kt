@@ -167,7 +167,8 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                 backStackEntry.arguments?.getString("indexOfTraining")?.toIntOrNull() ?: 0
 
             CurrentActivityScreen(
-                chosenTraining = trainingList[indexOfChosenTraining].copy(creatorId = sharedUser.id),
+                chosenTraining = trainingList[indexOfChosenTraining],
+                //.copy(creatorId = sharedUser.id),
                 onEndtrainingClick = {
 
                     if (it.trainingDuration < 5000) {

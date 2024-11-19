@@ -1,11 +1,13 @@
 package com.example.smartfit.firebase.signin
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
+import com.example.smartfit.data.trainingList
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
+
 class SharedFirebaseViewModel : ViewModel() {
 
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -24,13 +27,19 @@ class SharedFirebaseViewModel : ViewModel() {
     private val _sharedUserState = MutableStateFlow(User("", "", ""))
     val sharedUserState = _sharedUserState.asStateFlow()
 
+    private val _sharedUserTrainingsState = MutableStateFlow<List<Training>>(emptyList())
+    val sharedUserTrainingsState = _sharedUserTrainingsState.asStateFlow()
+
     private val _isLoadingUserData = MutableStateFlow(false)
     val isLoading = _isLoadingUserData.onStart {
+        _isLoadingUserData.value = true
         checkCurrentUser()
+        _isLoadingUserData.value = false
+
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000L),
-        true
+        false
     )
 
     // --- FIREBASEAUTH
@@ -39,7 +48,7 @@ class SharedFirebaseViewModel : ViewModel() {
 
         viewModelScope.launch {
             _sharedUserState.value = getUserData(firebaseAuth.currentUser?.uid ?: "") ?: User()
-
+            _sharedUserTrainingsState.value = getAllUserTrainings()
         }
     }
 
@@ -55,6 +64,7 @@ class SharedFirebaseViewModel : ViewModel() {
     fun signOut() {
         firebaseAuth.signOut()
         _sharedUserState.value = User()
+        _sharedUserTrainingsState.value = emptyList()
     }
 
     // --- FIRESTORE
@@ -130,12 +140,14 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
+    //TODO toto neskor sprav ze ak ti pride napriklad atribute isTraining true tak to uploadni do user kolekcie "groupTrainings"
     suspend fun uploadTrainingData(indexOfTraining: Int, training: Training): Boolean {
         return try {
-            firebaseFirestore.collection("trainings").document().set(
+            firebaseFirestore.collection("users").document(firebaseAuth.currentUser?.uid ?: "")
+                .collection("trainings").document().set(
                 mapOf(
                     "indexOfTraining" to indexOfTraining,
-                    "creatorId" to training.creatorId,
+                    //"creatorId" to training.creatorId,
                     "trainingDuration" to training.trainingDuration,
                     "timeDateOfTraining" to training.timeDateOfTraining,
                     "avgSpeed" to training.avgSpeed,
