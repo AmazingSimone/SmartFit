@@ -4,6 +4,7 @@ enum class Screens {
 
     ACTIVITY,
     CURRENT_ACTIVITY,
+    ACTIVIY_DETAIL,
     EDIT_PROFILE,
     FRIENDS,
     HOME,
