@@ -1,6 +1,5 @@
 package com.example.smartfit.firebase.signin
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
@@ -204,14 +203,11 @@ class SharedFirebaseViewModel : ViewModel() {
             for (document in documents) {
 
                 val trainingId = document.id
-                Log.d("ahoj", "training id $trainingId")
 
                 val training = getTrainingData(trainingId, userId)
-                Log.d("ahoj", "training $training")
 
                 if (training != null) {
                     trainings.add(training)
-                    Log.d("ahoj", "${trainings[0]}")
 
                 }
             }
