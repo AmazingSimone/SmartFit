@@ -48,7 +48,7 @@ import com.example.smartfit.screens.HomeScreen
 @Composable
 fun NavigationUpAndBottomBar(
     onDeviceIndicatorClick: () -> Unit,
-    onProfilePictureClick: () -> Unit,
+    onProfilePictureClick: (String) -> Unit,
     onActivityClick: (Int) -> Unit,
     onHistoryClick: () -> Unit,
     onQrCodeClick: () -> Unit,
@@ -95,7 +95,7 @@ fun NavigationUpAndBottomBar(
                                 CustomProfilePictureFrame(
                                     pictureUrl = recievedUser.profilePicUrl.toString(),
                                     frameColor = Color(frameColors[recievedUser.color]),
-                                    onClick = { onProfilePictureClick() }
+                                    onClick = { onProfilePictureClick(recievedUser.id) }
                                 )
                             } else if (selectedItem == 1) {
                                 CustomIconButton(

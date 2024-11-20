@@ -41,7 +41,7 @@ fun SearchForUserScreen(
     onSearchQuery: (String) -> Unit,
     recievedUsersFromQuery: List<User>,
     onUserAddClick: () -> Unit,
-    onUserProfileClick: () -> Unit,
+    onUserProfileClick: (String) -> Unit,
     onBackClick: () -> Unit
 ) {
     var query by rememberSaveable { mutableStateOf("") }
@@ -111,7 +111,7 @@ fun SearchForUserScreen(
                             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                             modifier = Modifier
                                 .clickable {
-                                    onUserProfileClick()
+                                    onUserProfileClick(user.id)
                                 }
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 4.dp)
