@@ -52,8 +52,10 @@ fun NavigationUpAndBottomBar(
     onActivityClick: (Int) -> Unit,
     onHistoryClick: () -> Unit,
     onQrCodeClick: () -> Unit,
+    onUserClick: (Int) -> Unit,
     onSearchClick: () -> Unit,
-    recievedUser: User
+    recievedUser: User,
+    recievedListOfUsers: List<User>
 ) {
 
     var selectedItem by remember { mutableIntStateOf(0) }
@@ -139,12 +141,12 @@ fun NavigationUpAndBottomBar(
                     }
                 }
             }
-        ) {
+        ) { paddingValues ->
 
             Surface(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(it)
+                    .padding(paddingValues)
                     .clip(RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp))
             ) {
 
@@ -154,8 +156,10 @@ fun NavigationUpAndBottomBar(
                     ActivityScreen(onActivityClick)
                 } else {
                     FollowingScreen(
-                        listOfUsers = emptyList(),
-                        onUserClick = {}
+                        listOfUsers = recievedListOfUsers,
+                        onUserClick = { userIndex ->
+                            onUserClick(userIndex)
+                        }
                     )
                 }
             }
@@ -172,7 +176,9 @@ fun PreviewNavbar() {
         onActivityClick = {},
         onHistoryClick = {},
         onQrCodeClick = {},
+        onUserClick = {},
         onSearchClick = {},
-        recievedUser = User()
+        recievedUser = User(),
+        recievedListOfUsers = emptyList()
     )
 }
