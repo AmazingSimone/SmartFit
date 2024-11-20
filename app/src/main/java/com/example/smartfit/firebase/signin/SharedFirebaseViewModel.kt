@@ -26,6 +26,9 @@ class SharedFirebaseViewModel : ViewModel() {
     private val _sharedUserState = MutableStateFlow(User("", "", ""))
     val sharedUserState = _sharedUserState.asStateFlow()
 
+    private val _chosenUserState = MutableStateFlow(User("", "", ""))
+    val chosenUserState = _chosenUserState.asStateFlow()
+
     private val _sharedUserTrainingsState = MutableStateFlow<List<Training>>(emptyList())
     val sharedUserTrainingsState = _sharedUserTrainingsState.asStateFlow()
 
@@ -124,6 +127,12 @@ class SharedFirebaseViewModel : ViewModel() {
         } else {
             null
         }
+    }
+
+    suspend fun chooseUser(userId: String) {
+
+        _chosenUserState.value = getUserData(userId) ?: User()
+
     }
 
     suspend fun uploadUserData(user: User): Boolean {
