@@ -32,6 +32,9 @@ class SharedFirebaseViewModel : ViewModel() {
     private val _sharedUserFollowingState = MutableStateFlow<List<User>>(emptyList())
     val sharedUserFollowingState = _sharedUserFollowingState.asStateFlow()
 
+    private val _searchResults = MutableStateFlow<List<User>>(emptyList())
+    val searchResults = _searchResults.asStateFlow()
+
     private val _isLoadingUserData = MutableStateFlow(false)
     val isLoading = _isLoadingUserData.onStart {
         _isLoadingUserData.value = true
@@ -271,5 +274,29 @@ class SharedFirebaseViewModel : ViewModel() {
         }
         return followedUsers
     }
+
+    //TODO Mozno daky znak ze sa loaduje by bolo treba
+    suspend fun searchUsers(query: String) {
+        val users = mutableListOf<User>()
+        if (query.isNotEmpty()) {
+            val documents = firebaseFirestore.collection("users")
+                .whereGreaterThanOrEqualTo("displayName", query)
+                .whereLessThanOrEqualTo("displayName", query + "\uf8ff")
+                .get()
+                .await()
+
+            for (document in documents) {
+                val userId = document.id
+                val user = getUserData(userId)
+                if (user != null) {
+                    users.add(user)
+                }
+            }
+            _searchResults.value = users
+        } else {
+            _searchResults.value = emptyList()
+        }
+    }
+
 }
 
