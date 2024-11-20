@@ -27,6 +27,7 @@ import com.example.smartfit.screens.ActivityDetailScreen
 import com.example.smartfit.screens.CurrentActivityScreen
 import com.example.smartfit.screens.EditProfileInfoScreen
 import com.example.smartfit.screens.LoginScreen
+import com.example.smartfit.screens.SearchForUserScreen
 import com.example.smartfit.screens.TrainingHistoryScreen
 import com.example.smartfit.screens.UserProfileScreen
 import com.mmk.kmpauth.google.GoogleAuthCredentials
@@ -71,7 +72,9 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                     recievedUser = sharedUser,
                     onDeviceIndicatorClick = {},
                     onProfilePictureClick = {
-
+                        firebaseViewModel.viewModelScope.launch {
+                            firebaseViewModel.chooseUser(it)
+                        }
                         navController.navigate(Screens.USER_PROFILE.name) {
                             popUpTo(Screens.USER_PROFILE.name) {
                                 inclusive = true
@@ -87,7 +90,9 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
                     },
                     onQrCodeClick = {},
-                    onSearchClick = {}
+                    onSearchClick = { navController.navigate(Screens.SEARCH.name) },
+                    onUserClick = {},
+                    recievedListOfUsers = emptyList()
                 )
             }
         }
@@ -114,9 +119,12 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
             val sharedSignedInUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
 
+            val chosenUser = firebaseViewModel.chosenUserState.collectAsStateWithLifecycle()
+
+
 
             UserProfileScreen(
-                recievedUser = sharedSignedInUser,
+                recievedUser = chosenUser.value,
                 loggedInUser = sharedSignedInUser,
                 onEditClick = { navController.navigate(Screens.EDIT_PROFILE.name) },
                 onCloseClick = { navController.popBackStack() },
@@ -226,6 +234,31 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
             ActivityDetailScreen(
                 training = training[indexOfChosenTraining],
                 onBackClick = {
+                    navController.navigateUp()
+                }
+            )
+        }
+
+        composable(Screens.SEARCH.name) {
+
+            val searchResults by firebaseViewModel.searchResults.collectAsStateWithLifecycle()
+
+            SearchForUserScreen(
+                onSearchQuery = {
+                    firebaseViewModel.viewModelScope.launch {
+                        firebaseViewModel.searchUsers(it)
+                    }
+                },
+                recievedUsersFromQuery = searchResults,
+                onUserAddClick = {},
+                onUserProfileClick = {
+                    firebaseViewModel.viewModelScope.launch {
+                        firebaseViewModel.chooseUser(it)
+                    }
+                    navController.navigate(Screens.USER_PROFILE.name)
+                },
+                onBackClick = {
+
                     navController.navigateUp()
                 }
             )
