@@ -217,4 +217,31 @@ class SharedFirebaseViewModel : ViewModel() {
         return trainings
     }
 
+    suspend fun getAllUserFollowing(): List<User> {
+        val userId = firebaseAuth.currentUser?.uid ?: return emptyList()
+        val followedUsers = mutableListOf<User>()
+        val documents =
+            firebaseFirestore.collection("users").document(userId).collection("followedUsers").get()
+                .await()
+
+
+        if (!documents.isEmpty) {
+
+            for (document in documents) {
+
+                val followedUserId = document.id
+
+                val followedUser = getUserData(followedUserId)
+
+                if (followedUser != null) {
+                    followedUsers.add(followedUser)
+
+                }
+            }
+        } else {
+            return emptyList()
+        }
+        return followedUsers
+    }
+
 }
