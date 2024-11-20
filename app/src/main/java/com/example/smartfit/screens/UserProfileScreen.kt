@@ -43,7 +43,9 @@ fun UserProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Heading1("Tvoj profil") },
+                title = {
+                    if (recievedUser == loggedInUser) Heading1("Tvoj profil")
+                },
                 actions = {
                     IconButton(onClick = { onCloseClick() }) {
                         Icon(imageVector = Icons.Filled.Close, contentDescription = "Close")
@@ -52,13 +54,15 @@ fun UserProfileScreen(
             )
         },
         bottomBar = {
-            CustomButton(
-                modifier = Modifier.padding(20.dp),
-                containerColor = MaterialTheme.colorScheme.errorContainer,
-                textColor = MaterialTheme.colorScheme.onErrorContainer,
-                onClick = { onSignOutClick() },
-                buttonText = "Odhlasit sa"
-            )
+            if (recievedUser == loggedInUser) {
+                CustomButton(
+                    modifier = Modifier.padding(20.dp),
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    textColor = MaterialTheme.colorScheme.onErrorContainer,
+                    onClick = { onSignOutClick() },
+                    buttonText = "Odhlasit sa"
+                )
+            }
         }
 
     ) { innerPadding ->
