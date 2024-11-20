@@ -29,6 +29,9 @@ class SharedFirebaseViewModel : ViewModel() {
     private val _sharedUserTrainingsState = MutableStateFlow<List<Training>>(emptyList())
     val sharedUserTrainingsState = _sharedUserTrainingsState.asStateFlow()
 
+    private val _sharedUserFollowingState = MutableStateFlow<List<User>>(emptyList())
+    val sharedUserFollowingState = _sharedUserFollowingState.asStateFlow()
+
     private val _isLoadingUserData = MutableStateFlow(false)
     val isLoading = _isLoadingUserData.onStart {
         _isLoadingUserData.value = true
@@ -48,6 +51,7 @@ class SharedFirebaseViewModel : ViewModel() {
         viewModelScope.launch {
             _sharedUserState.value = getUserData(firebaseAuth.currentUser?.uid ?: "") ?: User()
             _sharedUserTrainingsState.value = getAllUserTrainings()
+            _sharedUserFollowingState.value = getAllUserFollowing()
         }
     }
 
