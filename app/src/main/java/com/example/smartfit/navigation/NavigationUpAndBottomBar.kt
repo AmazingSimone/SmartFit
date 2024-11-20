@@ -42,7 +42,7 @@ import com.example.smartfit.components.HeadlineText
 import com.example.smartfit.data.User
 import com.example.smartfit.data.frameColors
 import com.example.smartfit.screens.ActivityScreen
-import com.example.smartfit.screens.FriendsScreen
+import com.example.smartfit.screens.FollowingScreen
 import com.example.smartfit.screens.HomeScreen
 
 @Composable
@@ -57,7 +57,7 @@ fun NavigationUpAndBottomBar(
 ) {
 
     var selectedItem by remember { mutableIntStateOf(0) }
-    val navBarItemsStrings = listOf("Domov", "Aktivita", "Priatelia")
+    val navBarItemsStrings = listOf("Domov", "Aktivita", "Sledujes")
     val navBarSelectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Person)
     val navBarUnselectedIcons =
         listOf(Icons.Outlined.Home, Icons.Outlined.FavoriteBorder, Icons.Outlined.PersonOutline)
@@ -153,7 +153,7 @@ fun NavigationUpAndBottomBar(
                 } else if (selectedItem == 1) {
                     ActivityScreen(onActivityClick)
                 } else {
-                    FriendsScreen()
+                    FollowingScreen()
                 }
             }
         }

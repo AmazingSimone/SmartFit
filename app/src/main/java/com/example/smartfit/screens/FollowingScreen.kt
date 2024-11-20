@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import com.example.smartfit.components.HeadlineText
 
 @Composable
-fun FriendsScreen() {
+fun FollowingScreen() {
 
     Surface {
 
