@@ -153,7 +153,10 @@ fun NavigationUpAndBottomBar(
                 } else if (selectedItem == 1) {
                     ActivityScreen(onActivityClick)
                 } else {
-                    FollowingScreen()
+                    FollowingScreen(
+                        listOfUsers = emptyList(),
+                        onUserClick = {}
+                    )
                 }
             }
         }
