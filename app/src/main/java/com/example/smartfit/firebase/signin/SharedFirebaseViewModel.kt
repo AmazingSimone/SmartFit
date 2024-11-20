@@ -148,19 +148,19 @@ class SharedFirebaseViewModel : ViewModel() {
         return try {
             firebaseFirestore.collection("users").document(firebaseAuth.currentUser?.uid ?: "")
                 .collection("trainings").document().set(
-                mapOf(
-                    "indexOfTraining" to indexOfTraining,
-                    //"creatorId" to training.creatorId,
-                    "trainingDuration" to training.trainingDuration,
-                    "timeDateOfTraining" to training.timeDateOfTraining,
-                    "avgSpeed" to training.avgSpeed,
-                    "burnedCalories" to training.burnedCalories,
-                    "avgHeartRate" to training.avgHeartRate,
-                    "avgTempo" to training.avgTempo,
-                    "steps" to training.steps,
-                    "trainingTemperature" to training.trainingTemperature
-                )
-            ).await()
+                    mapOf(
+                        "indexOfTraining" to indexOfTraining,
+                        //"creatorId" to training.creatorId,
+                        "trainingDuration" to training.trainingDuration,
+                        "timeDateOfTraining" to training.timeDateOfTraining,
+                        "avgSpeed" to training.avgSpeed,
+                        "burnedCalories" to training.burnedCalories,
+                        "avgHeartRate" to training.avgHeartRate,
+                        "avgTempo" to training.avgTempo,
+                        "steps" to training.steps,
+                        "trainingTemperature" to training.trainingTemperature
+                    )
+                ).await()
             true
         } catch (e: Exception) {
             false
@@ -221,6 +221,30 @@ class SharedFirebaseViewModel : ViewModel() {
         return trainings
     }
 
+    suspend fun addUserToFollowing(userId: String): Boolean {
+        return try {
+            val currentUserId = firebaseAuth.currentUser?.uid ?: return false
+            firebaseFirestore.collection("users").document(currentUserId)
+                .collection("followedUsers").document(userId).set(
+                    mapOf("userReference" to firebaseFirestore.collection("users").document(userId))
+                ).await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    suspend fun removeUserFromFollowing(userId: String): Boolean {
+        return try {
+            val currentUserId = firebaseAuth.currentUser?.uid ?: return false
+            firebaseFirestore.collection("users").document(currentUserId)
+                .collection("followedUsers").document(userId).delete().await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     suspend fun getAllUserFollowing(): List<User> {
         val userId = firebaseAuth.currentUser?.uid ?: return emptyList()
         val followedUsers = mutableListOf<User>()
@@ -247,5 +271,5 @@ class SharedFirebaseViewModel : ViewModel() {
         }
         return followedUsers
     }
-
 }
+
