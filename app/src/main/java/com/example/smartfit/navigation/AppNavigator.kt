@@ -241,19 +241,60 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
         composable(Screens.SEARCH.name) {
 
+            val loggedInUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
             val searchResults by firebaseViewModel.searchResults.collectAsStateWithLifecycle()
+            val followedUsers by firebaseViewModel.sharedUserFollowingState.collectAsStateWithLifecycle()
+
 
             SearchForUserScreen(
-                onSearchQuery = {
+                loggedInUser = loggedInUser,
+                onSearchQuery = { query ->
                     firebaseViewModel.viewModelScope.launch {
-                        firebaseViewModel.searchUsers(it)
+                        firebaseViewModel.searchUsers(query)
                     }
                 },
+                followedUsersList = followedUsers,
                 recievedUsersFromQuery = searchResults,
-                onUserAddClick = {},
-                onUserProfileClick = {
+                onUserAddClick = { userId ->
                     firebaseViewModel.viewModelScope.launch {
-                        firebaseViewModel.chooseUser(it)
+                        if (firebaseViewModel.addUserToFollowing(userId)) {
+                            Toast.makeText(
+                                navController.context,
+                                "Sledujes pouzivatela",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            firebaseViewModel.checkCurrentUser()
+                        } else {
+                            Toast.makeText(
+                                navController.context,
+                                "Nastala chyba pri ukladani udajov",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                    }
+                },
+                onUserRemoveClick = { userId ->
+                    firebaseViewModel.viewModelScope.launch {
+                        if (firebaseViewModel.removeUserFromFollowing(userId)) {
+                            Toast.makeText(
+                                navController.context,
+                                "Pouzivatel bol odstraneni zo zoznamu sledovanich",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            firebaseViewModel.checkCurrentUser()
+                        } else {
+                            Toast.makeText(
+                                navController.context,
+                                "Nastala chyba pri ukladani udajov",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                },
+                onUserProfileClick = { userId ->
+                    firebaseViewModel.viewModelScope.launch {
+                        firebaseViewModel.chooseUser(userId)
                     }
                     navController.navigate(Screens.USER_PROFILE.name)
                 },

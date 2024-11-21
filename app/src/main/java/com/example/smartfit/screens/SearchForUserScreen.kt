@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,9 +39,12 @@ import com.example.smartfit.data.frameColors
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchForUserScreen(
+    loggedInUser: User = User(),
+    followedUsersList: List<User> = emptyList(),
     onSearchQuery: (String) -> Unit,
     recievedUsersFromQuery: List<User>,
-    onUserAddClick: () -> Unit,
+    onUserAddClick: (String) -> Unit,
+    onUserRemoveClick: (String) -> Unit,
     onUserProfileClick: (String) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -103,10 +107,33 @@ fun SearchForUserScreen(
                                 )
                             },
                             trailingContent = {
-                                Icon(
-                                    Icons.Filled.Add,
-                                    contentDescription = "Add user icon"
-                                )
+                                if (user != loggedInUser) {
+                                    if (followedUsersList.contains(user)) {
+                                        IconButton(
+                                            onClick = {
+                                                onUserRemoveClick(user.id)
+                                            }
+                                        ) {
+                                            Icon(
+                                                Icons.Filled.Check,
+                                                contentDescription = "Added user icon"
+                                            )
+                                        }
+                                    } else {
+                                        IconButton(
+                                            onClick = {
+                                                onUserAddClick(user.id)
+                                            }
+                                        ) {
+                                            Icon(
+                                                Icons.Filled.Add,
+                                                contentDescription = "Add user icon"
+                                            )
+                                        }
+                                    }
+
+                                }
+
                             },
                             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                             modifier = Modifier
@@ -131,6 +158,7 @@ fun SearchForUserPreview() {
         onUserProfileClick = {},
         recievedUsersFromQuery = emptyList(),
         onSearchQuery = {},
-        onBackClick = {}
+        onBackClick = {},
+        onUserRemoveClick = {}
     )
 }
