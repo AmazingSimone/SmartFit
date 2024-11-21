@@ -55,6 +55,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
             val sharedUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
 
+            val sharedUserFollowingList by firebaseViewModel.sharedUserFollowingState.collectAsStateWithLifecycle()
 
             if (isLoading) {
                 Box(
@@ -74,6 +75,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                     onProfilePictureClick = {
                         firebaseViewModel.viewModelScope.launch {
                             firebaseViewModel.chooseUser(it)
+
                         }
                         navController.navigate(Screens.USER_PROFILE.name) {
                             popUpTo(Screens.USER_PROFILE.name) {
@@ -91,8 +93,13 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                     },
                     onQrCodeClick = {},
                     onSearchClick = { navController.navigate(Screens.SEARCH.name) },
-                    onUserClick = {},
-                    recievedListOfUsers = emptyList()
+                    onUserClick = { userId ->
+                        firebaseViewModel.viewModelScope.launch {
+                            firebaseViewModel.chooseUser(userId)
+                        }
+                        navController.navigate(Screens.USER_PROFILE.name)
+                    },
+                    recievedListOfUsers = sharedUserFollowingList
                 )
             }
         }
@@ -118,13 +125,19 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
         composable(Screens.USER_PROFILE.name) {
 
             val sharedSignedInUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
+            val sharedSignedInUserFollowing by firebaseViewModel.sharedUserFollowingState.collectAsStateWithLifecycle()
+
 
             val chosenUser = firebaseViewModel.chosenUserState.collectAsStateWithLifecycle()
-
-
+            val chosenUserCompletedTrainings =
+                firebaseViewModel.chosenUserTrainingsState.collectAsStateWithLifecycle()
+            val chosenUserFollowing =
+                firebaseViewModel.chosenUserFollowingState.collectAsStateWithLifecycle()
 
             UserProfileScreen(
                 recievedUser = chosenUser.value,
+                completedtrainingsList = chosenUserCompletedTrainings.value,
+                followedUsersList = chosenUserFollowing.value,
                 loggedInUser = sharedSignedInUser,
                 onEditClick = { navController.navigate(Screens.EDIT_PROFILE.name) },
                 onCloseClick = { navController.popBackStack() },
@@ -134,7 +147,44 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                     navController.navigate(Screens.LOGIN.name) {
                         popUpTo(0) { inclusive = true }
                     }
-                }
+                },
+                onUnFollowButtonClick = { userId ->
+                    firebaseViewModel.viewModelScope.launch {
+                        if (firebaseViewModel.removeUserFromFollowing(userId)) {
+                            Toast.makeText(
+                                navController.context,
+                                "Pouzivatel bol odstraneni zo zoznamu sledovanich",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            firebaseViewModel.checkCurrentUser()
+                        } else {
+                            Toast.makeText(
+                                navController.context,
+                                "Nastala chyba pri ukladani udajov",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                },
+                onFollowButtonClick = { userId ->
+                    firebaseViewModel.viewModelScope.launch {
+                        if (firebaseViewModel.addUserToFollowing(userId)) {
+                            Toast.makeText(
+                                navController.context,
+                                "Sledujes pouzivatela",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            firebaseViewModel.checkCurrentUser()
+                        } else {
+                            Toast.makeText(
+                                navController.context,
+                                "Nastala chyba pri ukladani udajov",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                },
+                loggedInUserfollowedUsersList = sharedSignedInUserFollowing
             )
         }
 

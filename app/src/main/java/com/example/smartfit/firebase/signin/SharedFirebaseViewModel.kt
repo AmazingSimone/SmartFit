@@ -20,14 +20,15 @@ import kotlinx.coroutines.tasks.await
 
 class SharedFirebaseViewModel : ViewModel() {
 
+    //--INSTANCES
+
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firebaseFirestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
+    //--LOGGED IN USER
+
     private val _sharedUserState = MutableStateFlow(User("", "", ""))
     val sharedUserState = _sharedUserState.asStateFlow()
-
-    private val _chosenUserState = MutableStateFlow(User("", "", ""))
-    val chosenUserState = _chosenUserState.asStateFlow()
 
     private val _sharedUserTrainingsState = MutableStateFlow<List<Training>>(emptyList())
     val sharedUserTrainingsState = _sharedUserTrainingsState.asStateFlow()
@@ -35,8 +36,23 @@ class SharedFirebaseViewModel : ViewModel() {
     private val _sharedUserFollowingState = MutableStateFlow<List<User>>(emptyList())
     val sharedUserFollowingState = _sharedUserFollowingState.asStateFlow()
 
+    //--CHOSEN SPECIFIC USER
+
+    private val _chosenUserState = MutableStateFlow(User("", "", ""))
+    val chosenUserState = _chosenUserState.asStateFlow()
+
+    private val _chosenUserTrainingsState = MutableStateFlow<List<Training>>(emptyList())
+    val chosenUserTrainingsState = _chosenUserTrainingsState.asStateFlow()
+
+    private val _chosenUserFollowingState = MutableStateFlow<List<User>>(emptyList())
+    val chosenUserFollowingState = _chosenUserFollowingState.asStateFlow()
+
+    //--
+
     private val _searchResults = MutableStateFlow<List<User>>(emptyList())
     val searchResults = _searchResults.asStateFlow()
+
+    //--INIT LOAD USER DATA
 
     private val _isLoadingUserData = MutableStateFlow(false)
     val isLoading = _isLoadingUserData.onStart {
@@ -50,21 +66,27 @@ class SharedFirebaseViewModel : ViewModel() {
         false
     )
 
-    // --- FIREBASEAUTH
-
     fun checkCurrentUser() {
 
         viewModelScope.launch {
             _sharedUserState.value = getUserData(firebaseAuth.currentUser?.uid ?: "") ?: User()
-            _sharedUserTrainingsState.value = getAllUserTrainings()
-            _sharedUserFollowingState.value = getAllUserFollowing()
+            _sharedUserTrainingsState.value =
+                getAllUserTrainings(firebaseAuth.currentUser?.uid ?: "")
+            _sharedUserFollowingState.value =
+                getAllUserFollowing(firebaseAuth.currentUser?.uid ?: "")
         }
     }
 
+//    fun checkChosenUser(userId: String) {
+//
+//        viewModelScope.launch {
+//            _chosenUserState.value = getUserData(userId) ?: User()
+//            _chosenUserTrainingsState.value = getAllUserTrainings(userId)
+//            _chosenUserFollowingState.value = getAllUserFollowing(userId)
+//        }
+//    }
 
-    fun getInstance(): FirebaseAuth {
-        return firebaseAuth
-    }
+    // --- FIREBASEAUTH
 
     fun isSignedIn(): Boolean {
         return firebaseAuth.currentUser != null
@@ -132,6 +154,8 @@ class SharedFirebaseViewModel : ViewModel() {
     suspend fun chooseUser(userId: String) {
 
         _chosenUserState.value = getUserData(userId) ?: User()
+        _chosenUserTrainingsState.value = getAllUserTrainings(userId)
+        _chosenUserFollowingState.value = getAllUserFollowing(userId)
 
     }
 
@@ -206,8 +230,8 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
-    suspend fun getAllUserTrainings(): List<Training> {
-        val userId = firebaseAuth.currentUser?.uid ?: return emptyList()
+    suspend fun getAllUserTrainings(userId: String): List<Training> {
+        if (userId == "") return emptyList()
         val trainings = mutableListOf<Training>()
         val documents =
             firebaseFirestore.collection("users").document(userId).collection("trainings").get()
@@ -257,8 +281,8 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
-    suspend fun getAllUserFollowing(): List<User> {
-        val userId = firebaseAuth.currentUser?.uid ?: return emptyList()
+    suspend fun getAllUserFollowing(userId: String): List<User> {
+        if (userId == "") return emptyList()
         val followedUsers = mutableListOf<User>()
         val documents =
             firebaseFirestore.collection("users").document(userId).collection("followedUsers").get()

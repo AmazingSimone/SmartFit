@@ -52,7 +52,7 @@ fun NavigationUpAndBottomBar(
     onActivityClick: (Int) -> Unit,
     onHistoryClick: () -> Unit,
     onQrCodeClick: () -> Unit,
-    onUserClick: (Int) -> Unit,
+    onUserClick: (String) -> Unit,
     onSearchClick: () -> Unit,
     recievedUser: User,
     recievedListOfUsers: List<User>
@@ -157,8 +157,8 @@ fun NavigationUpAndBottomBar(
                 } else {
                     FollowingScreen(
                         listOfUsers = recievedListOfUsers,
-                        onUserClick = { userIndex ->
-                            onUserClick(userIndex)
+                        onUserClick = { userId ->
+                            onUserClick(userId)
                         }
                     )
                 }
