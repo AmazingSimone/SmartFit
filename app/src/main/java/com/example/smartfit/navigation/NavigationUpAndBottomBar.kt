@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PersonOutline
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -27,7 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,7 +60,7 @@ fun NavigationUpAndBottomBar(
     recievedListOfUsers: List<User>
 ) {
 
-    var selectedItem by remember { mutableIntStateOf(0) }
+    var selectedItem by rememberSaveable { mutableIntStateOf(0) }
     val navBarItemsStrings = listOf("Domov", "Aktivita", "Sledujes")
     val navBarSelectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Person)
     val navBarUnselectedIcons =
@@ -118,6 +120,14 @@ fun NavigationUpAndBottomBar(
                         }
                     }
                 }
+            },
+            floatingActionButton = {
+                if (selectedItem == 1 && recievedUser.isTrainer)
+                    ExtendedFloatingActionButton(
+                        onClick = { /* do something */ },
+                        icon = { Icon(Icons.Filled.Add, "Add group training icon") },
+                        text = { Text(text = "Vytvorit skupinovy trening") },
+                    )
             },
 
             bottomBar = {
