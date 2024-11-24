@@ -53,6 +53,7 @@ fun NavigationUpAndBottomBar(
     onProfilePictureClick: (String) -> Unit,
     onActivityClick: (Int) -> Unit,
     onHistoryClick: () -> Unit,
+    onFAButtonClick: (String) -> Unit,
     onQrCodeClick: () -> Unit,
     onUserClick: (String) -> Unit,
     onSearchClick: () -> Unit,
@@ -124,7 +125,7 @@ fun NavigationUpAndBottomBar(
             floatingActionButton = {
                 if (selectedItem == 1 && recievedUser.isTrainer)
                     ExtendedFloatingActionButton(
-                        onClick = { /* do something */ },
+                        onClick = { onFAButtonClick(recievedUser.id) },
                         icon = { Icon(Icons.Filled.Add, "Add group training icon") },
                         text = { Text(text = "Vytvorit skupinovy trening") },
                     )
@@ -189,6 +190,7 @@ fun PreviewNavbar() {
         onUserClick = {},
         onSearchClick = {},
         recievedUser = User(),
-        recievedListOfUsers = emptyList()
+        recievedListOfUsers = emptyList(),
+        onFAButtonClick = {}
     )
 }

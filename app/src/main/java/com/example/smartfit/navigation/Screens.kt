@@ -10,6 +10,7 @@ enum class Screens {
     HOME,
     LOGIN,
     HISTORY,
-    USER_PROFILE
+    USER_PROFILE,
+    CREATE_GROUP_TRAINING
 
 }

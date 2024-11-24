@@ -24,6 +24,7 @@ import com.example.smartfit.R
 import com.example.smartfit.data.trainingList
 import com.example.smartfit.firebase.signin.SharedFirebaseViewModel
 import com.example.smartfit.screens.ActivityDetailScreen
+import com.example.smartfit.screens.CreateGroupTrainingScreen
 import com.example.smartfit.screens.CurrentActivityScreen
 import com.example.smartfit.screens.EditProfileInfoScreen
 import com.example.smartfit.screens.LoginScreen
@@ -99,7 +100,10 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                         }
                         navController.navigate(Screens.USER_PROFILE.name)
                     },
-                    recievedListOfUsers = sharedUserFollowingList
+                    recievedListOfUsers = sharedUserFollowingList,
+                    onFAButtonClick = { trainerId ->
+                        navController.navigate("${Screens.CREATE_GROUP_TRAINING.name}/${trainerId}")
+                    }
                 )
             }
         }
@@ -354,5 +358,23 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                 }
             )
         }
+
+        composable("${Screens.CREATE_GROUP_TRAINING.name}/{trainerId}") { navBackStackEntry ->
+
+            val trainerId = navBackStackEntry.arguments?.getString("trainerId") ?: ""
+
+            CreateGroupTrainingScreen(
+                trainerId = trainerId,
+                onBackClick = {
+                    navController.navigateUp()
+                },
+                onCreateTraining = { groupTraining ->
+
+                }
+            )
+
+        }
+
+
     }
 }
