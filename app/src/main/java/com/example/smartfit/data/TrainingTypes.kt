@@ -19,6 +19,20 @@ data class Training(
     val trainingTemperature: Int = 0
 )
 
+
+//TODO Kolekcia Group treningy bude mat na firestore v sebe kolekciu users kt. bude tvorit cisto userIds
+//TODO potreba potom spravit metodu ktora mi getne trening podla userId a treningId
+//TODO a tiez treba spravit createGroupTraining ktora vytvori skup. trening a vrati jeho id
+data class GroupTraining(
+    val trainerId: String,
+    val name: String = "",
+    val trainingIndex: Int,
+    val maxUsers: Int,
+    val trainingDuration: Long = 0L,
+    val timeDateOfTraining: Long = 0L
+)
+
+
 val trainingList = listOf (
     Training("Beh", Icons.AutoMirrored.Filled.DirectionsRun),
     Training("Bicyklovanie", Icons.AutoMirrored.Filled.DirectionsRun),

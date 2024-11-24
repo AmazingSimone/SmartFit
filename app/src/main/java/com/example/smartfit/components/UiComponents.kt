@@ -22,7 +22,6 @@ import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
@@ -172,7 +171,8 @@ fun HeadlineText(
 
 @Composable
 fun CustomOutlinedTextInput(
-    currentFocusRequester: FocusRequester,
+    modifier: Modifier = Modifier,
+    currentFocusRequester: FocusRequester = FocusRequester(),
     onNext: (KeyboardActionScope.() -> Unit)? = null,
     label: String,
     value: String = "",
@@ -184,7 +184,7 @@ fun CustomOutlinedTextInput(
     enterButtonAction: ImeAction = ImeAction.Default,
     readOnly: Boolean = false,
     isError: Boolean = false,
-    errorText: String = "",
+    supportingText: @Composable() (() -> Unit)? = null,
     singleLine: Boolean = true,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
@@ -196,7 +196,7 @@ fun CustomOutlinedTextInput(
     }
 
     OutlinedTextField(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .focusRequester(currentFocusRequester),
         value = if (value.isNotEmpty()) value else textValue.value,
@@ -238,7 +238,7 @@ fun CustomOutlinedTextInput(
             onNext = onNext
         ),
         visualTransformation = visualTransformation,
-        supportingText = { Text(text = errorText) },
+        supportingText = supportingText,
         isError = isError,
 
         )
@@ -943,20 +943,16 @@ fun CustomTrainingInfoDisplayCard(
 @Preview(showBackground = true)
 @Composable
 fun PreviewComponents() {
-    CustomTrainingInfoCardWithDate(
-        training = Training(
-            name = "Bezecky trener",
-            icon = Icons.AutoMirrored.Filled.DirectionsRun,
-            //creatorId = "MZ6M79VA9zetdUHX4NtgRE6UDzx2",
-            trainingDuration = 9142,
-            timeDateOfTraining = 1731964032,
-            avgSpeed = 0F,
-            burnedCalories = 0F,
-            avgHeartRate = 0,
-            avgTempo = 0,
-            steps = 0,
-            trainingTemperature = 0
+    Column {
+
+        OutlinedTextField(
+            value = "",
+            onValueChange = {}
         )
-    )
+        CustomOutlinedTextInput(
+            label = "",
+            onTextChanged = {}
+        )
+    }
 }
 
