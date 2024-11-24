@@ -99,4 +99,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0")
 
 
+    //qr
+    implementation(libs.core)
+
 }
