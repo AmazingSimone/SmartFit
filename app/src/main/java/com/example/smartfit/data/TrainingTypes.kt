@@ -22,7 +22,6 @@ data class Training(
 
 //TODO Kolekcia Group treningy bude mat na firestore v sebe kolekciu users kt. bude tvorit cisto userIds
 //TODO potreba potom spravit metodu ktora mi getne trening podla userId a treningId
-//TODO a tiez treba spravit createGroupTraining ktora vytvori skup. trening a vrati jeho id
 data class GroupTraining(
     val trainerId: String,
     val name: String = "",

@@ -27,6 +27,7 @@ import com.example.smartfit.screens.ActivityDetailScreen
 import com.example.smartfit.screens.CreateGroupTrainingScreen
 import com.example.smartfit.screens.CurrentActivityScreen
 import com.example.smartfit.screens.EditProfileInfoScreen
+import com.example.smartfit.screens.GroupTrainingLobby
 import com.example.smartfit.screens.LoginScreen
 import com.example.smartfit.screens.SearchForUserScreen
 import com.example.smartfit.screens.TrainingHistoryScreen
@@ -369,12 +370,25 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                     navController.navigateUp()
                 },
                 onCreateTraining = { groupTraining ->
+                    firebaseViewModel.viewModelScope.launch {
+                        val grTrainingId = firebaseViewModel.uploadGroupTrainingData(groupTraining)
+                        if (grTrainingId.isNotEmpty()) {
+                            navController.navigate("${Screens.GROUP_TRAINING_LOBBY.name}/${grTrainingId}")
+                        }
+                    }
+                }
+            )
+        }
+
+        composable("${Screens.GROUP_TRAINING_LOBBY.name}/{groupTrainingId}") { navBackStackEntry ->
+            val groupTrainingId = navBackStackEntry.arguments?.getString("groupTrainingId") ?: ""
+
+            GroupTrainingLobby(
+                groupTrainingId = groupTrainingId,
+                onDeleteClick = {
 
                 }
             )
-
         }
-
-
     }
 }
