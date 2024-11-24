@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.smartfit.data.GroupTraining
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
 import com.example.smartfit.data.trainingList
@@ -179,7 +180,7 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
-    //TODO toto neskor sprav ze ak ti pride napriklad atribute isTraining true tak to uploadni do user kolekcie "groupTrainings"
+    //TODO toto neskor sprav ze ak ti pride napriklad atribute isGroupTraining true tak to uploadni do user kolekcie "groupTrainings"
     suspend fun uploadTrainingData(indexOfTraining: Int, training: Training): Boolean {
         return try {
             firebaseFirestore.collection("users").document(firebaseAuth.currentUser?.uid ?: "")
@@ -328,6 +329,25 @@ class SharedFirebaseViewModel : ViewModel() {
             _searchResults.value = users
         } else {
             _searchResults.value = emptyList()
+        }
+    }
+
+    suspend fun uploadGroupTrainingData(groupTraining: GroupTraining): String {
+        return try {
+            val documentReference = firebaseFirestore.collection("groupTrainings").document()
+            documentReference.set(
+                mapOf(
+                    "trainerId" to groupTraining.trainerId,
+                    "name" to groupTraining.name,
+                    "trainingIndex" to groupTraining.trainingIndex,
+                    "maxUsers" to groupTraining.maxUsers,
+                    "trainingDuration" to groupTraining.trainingDuration,
+                    "timeDateOfTraining" to groupTraining.timeDateOfTraining
+                )
+            ).await()
+            documentReference.id
+        } catch (e: Exception) {
+            ""
         }
     }
 
