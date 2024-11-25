@@ -342,7 +342,8 @@ class SharedFirebaseViewModel : ViewModel() {
                     "trainingIndex" to groupTraining.trainingIndex,
                     "maxUsers" to groupTraining.maxUsers,
                     "trainingDuration" to groupTraining.trainingDuration,
-                    "timeDateOfTraining" to groupTraining.timeDateOfTraining
+                    "timeDateOfTraining" to groupTraining.timeDateOfTraining,
+                    "trainingDetails" to groupTraining.trainingDetails
                 )
             ).await()
             documentReference.id

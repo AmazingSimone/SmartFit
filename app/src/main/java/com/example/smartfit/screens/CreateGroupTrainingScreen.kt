@@ -1,5 +1,7 @@
 package com.example.smartfit.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -42,8 +44,11 @@ import com.example.smartfit.components.NormalText
 import com.example.smartfit.data.GroupTraining
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.trainingList
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateGroupTrainingScreen(
@@ -58,6 +63,10 @@ fun CreateGroupTrainingScreen(
 
     val maxUsersValue = remember {
         mutableIntStateOf(0)
+    }
+
+    val detailsValue = remember {
+        mutableStateOf("")
     }
 
     val trainings: List<Training> = trainingList
@@ -91,8 +100,11 @@ fun CreateGroupTrainingScreen(
                         GroupTraining(
                             trainerId = trainerId,
                             name = nameValue.value,
+                            trainingIndex = chosenTrainingIndex,
+                            timeDateOfTraining = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
                             maxUsers = maxUsersValue.intValue,
-                            trainingIndex = chosenTrainingIndex
+                            id = "",
+                            trainingDetails = detailsValue.value
                         )
                     )
                 },
@@ -103,7 +115,7 @@ fun CreateGroupTrainingScreen(
 
     ) { paddingValues ->
 
-        val (nameOfTraining, maxUsers) = remember { FocusRequester.createRefs() }
+        val (nameOfTraining, maxUsers, detailsOfTraining) = remember { FocusRequester.createRefs() }
 
         Surface {
 
@@ -127,7 +139,6 @@ fun CreateGroupTrainingScreen(
                         currentFocusRequester = nameOfTraining,
                         onNext = { nameOfTraining.freeFocus() },
                         keyBoardType = KeyboardType.Text,
-                        readOnly = true,
                         label = "Nazov treningu",
                         value = nameValue.value,
                         enterButtonAction = ImeAction.Default,
@@ -198,6 +209,22 @@ fun CreateGroupTrainingScreen(
                         },
                         enterButtonAction = ImeAction.Default
                     )
+
+                    CustomOutlinedTextInput(
+                        currentFocusRequester = detailsOfTraining,
+                        onNext = { detailsOfTraining.freeFocus() },
+                        keyBoardType = KeyboardType.Text,
+                        label = "Detaily treningu",
+                        value = detailsValue.value,
+                        enterButtonAction = ImeAction.Default,
+                        onTextChanged = { detailsValue.value = it },
+                        supportingText = {
+                            NormalText("Nepovinne")
+                        },
+                        maxLines = 10,
+                        minLines = 10
+                    )
+
                     Spacer(Modifier.padding(paddingValues))
                 }
             }
@@ -206,6 +233,7 @@ fun CreateGroupTrainingScreen(
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun CreateGroupTrainingPreview() {

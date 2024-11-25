@@ -23,12 +23,15 @@ data class Training(
 //TODO Kolekcia Group treningy bude mat na firestore v sebe kolekciu users kt. bude tvorit cisto userIds
 //TODO potreba potom spravit metodu ktora mi getne trening podla userId a treningId
 data class GroupTraining(
-    val trainerId: String,
+    val trainerId: String = "",
     val name: String = "",
-    val trainingIndex: Int,
-    val maxUsers: Int,
+    val trainingIndex: Int = 0,
+    val maxUsers: Int = 0,
     val trainingDuration: Long = 0L,
-    val timeDateOfTraining: Long = 0L
+    val timeDateOfTraining: Long = 0L,
+    val id: String = "",
+    val numberOfParticipants: Int = 0,
+    val trainingDetails: String = ""
 )
 
 
