@@ -1,5 +1,6 @@
 package com.example.smartfit.navigation
 
+import QrReaderScreen
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -10,6 +11,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -21,6 +24,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.smartfit.R
+import com.example.smartfit.data.GroupTraining
+import com.example.smartfit.data.User
 import com.example.smartfit.data.trainingList
 import com.example.smartfit.firebase.signin.SharedFirebaseViewModel
 import com.example.smartfit.screens.ActivityDetailScreen
@@ -93,7 +98,9 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                         navController.navigate(Screens.HISTORY.name)
 
                     },
-                    onQrCodeClick = {},
+                    onQrCodeClick = {
+                        navController.navigate(Screens.QR_READER_SCREEN.name)
+                    },
                     onSearchClick = { navController.navigate(Screens.SEARCH.name) },
                     onUserClick = { userId ->
                         firebaseViewModel.viewModelScope.launch {
@@ -199,7 +206,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
             EditProfileInfoScreen(
                 recievedUser = sharedUser,
                 onBackClick = {
-
+                    //TODO toto inac vobec nefunguje stale mozem rychlim dvojklikom popnut ostatne obrazovky
                     navController.navigateUp()
                 },
                 onSaveClick = {
@@ -388,6 +395,28 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                 onDeleteClick = {
 
                 }
+            )
+        }
+
+        composable(Screens.QR_READER_SCREEN.name) {
+
+            val foundGroupTraining = remember { mutableStateOf(GroupTraining()) }
+            val foundTrainer = remember { mutableStateOf(User()) }
+
+            QrReaderScreen(
+
+                onResult = { groupTrainingIdResult ->
+                    firebaseViewModel.viewModelScope.launch {
+                        foundGroupTraining.value =
+                            firebaseViewModel.getGroupTrainingData(groupTrainingIdResult)
+                                ?: GroupTraining()
+                        foundTrainer.value =
+                            firebaseViewModel.getUserData(foundGroupTraining.value.trainerId)
+                                ?: User()
+                    }
+                },
+                foundGroupTraining = foundGroupTraining.value,
+                foundTrainer = foundTrainer.value
             )
         }
     }
