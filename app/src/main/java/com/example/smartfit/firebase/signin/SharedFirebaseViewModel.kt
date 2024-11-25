@@ -352,5 +352,37 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
+    suspend fun getGroupTrainingData(groupTrainingId: String): GroupTraining? {
+        return try {
+            val documentSnapshot =
+                firebaseFirestore.collection("groupTrainings").document(groupTrainingId).get()
+                    .await()
+            if (documentSnapshot.exists()) {
+                val data = documentSnapshot.data
+                val participantsCount = try {
+                    firebaseFirestore.collection("groupTrainings").document(groupTrainingId)
+                        .collection("participants").get().await().size()
+                } catch (e: Exception) {
+                    0
+                }
+                GroupTraining(
+                    id = groupTrainingId,
+                    trainerId = data?.get("trainerId") as String,
+                    name = data["name"] as String,
+                    trainingIndex = (data["trainingIndex"] as Number).toInt(),
+                    maxUsers = (data["maxUsers"] as Number).toInt(),
+                    trainingDuration = (data["trainingDuration"] as Number).toLong(),
+                    timeDateOfTraining = (data["timeDateOfTraining"] as Number).toLong(),
+                    numberOfParticipants = participantsCount,
+                    trainingDetails = data["trainingDetails"] as String
+                )
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
 }
 
