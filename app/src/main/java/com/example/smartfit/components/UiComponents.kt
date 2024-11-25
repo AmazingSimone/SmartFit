@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Watch
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -74,7 +75,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.smartfit.data.GroupTraining
 import com.example.smartfit.data.Training
+import com.example.smartfit.data.User
+import com.example.smartfit.data.frameColors
+import com.example.smartfit.data.trainingList
 import com.mmk.kmpauth.firebase.google.GoogleButtonUiContainerFirebase
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButtonIconOnly
@@ -800,9 +805,7 @@ fun CustomTrainingInfoCardWithDate(
     numberOfParticipants: Int = 0
 ) {
 
-    Column(
-
-    ) {
+    Column {
 
         Heading2(
             LocalDateTime.ofEpochSecond(training.timeDateOfTraining, 0, ZoneOffset.UTC)
@@ -938,21 +941,142 @@ fun CustomTrainingInfoDisplayCard(
     }
 }
 
+@Composable
+fun CustomAlertDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: @Composable () -> Unit,
+    icon: @Composable () -> Unit
+) {
+    AlertDialog(
+        icon = {
+            icon()
+            //Icon(icon, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            dialogText()
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text("Confirm")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Dismiss")
+            }
+        }
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun CustomAlertDialogGroupTraining(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    groupTraining: GroupTraining? = null,
+    trainer: User? = null
+) {
+
+    CustomAlertDialog(
+        onDismissRequest = { onDismissRequest() },
+        onConfirmation = { onConfirmation() },
+        dialogTitle = groupTraining?.name?.ifEmpty { trainingList[groupTraining.trainingIndex].name }
+            ?: "",
+        dialogText = {
+            Column(verticalArrangement = Arrangement.SpaceEvenly) {
+                Row {
+                    if (groupTraining?.name?.isNotEmpty() != false) NormalText(
+                        "Typ treningu: " + trainingList[groupTraining?.trainingIndex ?: 0].name
+                    )
+                }
+                Row {
+                    NormalText("Datum: ")
+                    NormalText(
+                        LocalDateTime.ofEpochSecond(
+                            groupTraining?.timeDateOfTraining ?: LocalDateTime.now().toEpochSecond(
+                                ZoneOffset.UTC
+                            ), 0, ZoneOffset.UTC
+                        ).format(DateTimeFormatter.ofPattern("d.M.yyyy"))
+                    )
+                }
+                Row {
+                    NormalText("Trener: ")
+                    NormalText(trainer?.displayName ?: "")
+                }
+                Row {
+                    NormalText("Ucastnici: ")
+                    NormalText(
+                        (groupTraining?.numberOfParticipants
+                            ?: "").toString() + " / " + groupTraining?.maxUsers.toString()
+                    )
+                }
+
+                if (groupTraining?.trainingDetails?.isNotEmpty() == true) {
+                    Spacer(Modifier.padding(3.dp))
+                    Column(horizontalAlignment = Alignment.Start) {
+                        Heading3("Detaily treningu:", fontWeight = FontWeight.SemiBold)
+                        NormalText(groupTraining.trainingDetails, textAlign = TextAlign.Start)
+                    }
+                }
+
+            }
+
+        },
+        icon = {
+            CustomProfilePictureFrame(
+                trainer?.profilePicUrl ?: "",
+                frameColor = Color(frameColors[trainer?.color ?: 0])
+            )
+        }
+    )
+
+}
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun PreviewComponents() {
-    Column {
-
-        OutlinedTextField(
-            value = "",
-            onValueChange = {}
+    CustomAlertDialogGroupTraining(
+        onDismissRequest = {},
+        onConfirmation = {},
+        groupTraining = GroupTraining(
+            trainerId = "",
+            name = "Ranny beh",
+            trainingIndex = 2,
+            maxUsers = 4,
+            trainingDuration = 0,
+            timeDateOfTraining = 1732545857,
+            id = "",
+            trainingDetails = "difhbv lisdnflinhbsdlfn bsd fb df8 bsd68 f4b6sd f4b sdf bjs dfsd fbpo;sijdfo;bijsdfbol;jnsdolfbnj;lodsnjbf;losdnfb;sodfbn;dofbnsd;obnfds;fbnsdbndsfknbjdfhjklbndlifhnblidshbnflidshnbfbnkids"
+        ),
+        trainer = User(
+            id = "",
+            displayName = "Simone Bartanus",
+            profilePicUrl = "https://lh3.googleusercontent.com/a/ACg8ocIlxeLUaG-f883-a5lmUuQaqHiiaeuouQnzFf-SZFIND2HBCLf3=s96-c",
+            birthDate = 0,
+            height = 0F,
+            weight = 0F,
+            bio = "",
+            color = 1,
+            isTrainer = true
         )
-        CustomOutlinedTextInput(
-            label = "",
-            onTextChanged = {}
-        )
-    }
+    )
 }
 
