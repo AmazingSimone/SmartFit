@@ -65,6 +65,9 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.android)
     implementation(libs.firebase.firestore)
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -101,5 +104,18 @@ dependencies {
 
     //qr
     implementation(libs.core)
+
+
+    //camera
+    implementation(libs.guava)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle.v110)
+    implementation(libs.androidx.camera.view.v100alpha31)
+    
+    //permissions
+    implementation(libs.accompanist.permissions)
+
+
+
 
 }
