@@ -44,6 +44,7 @@ import java.util.concurrent.Executors
 @Composable
 fun QrReaderScreen(
     onResult: (String) -> Unit,
+    onConfirmation: (String) -> Unit,
     foundGroupTraining: GroupTraining = GroupTraining(),
     foundTrainer: User = User()
 ) {
@@ -75,6 +76,7 @@ fun QrReaderScreen(
                     openAlertDialog.value = false
                 },
                 onConfirmation = {
+                    onConfirmation(foundGroupTraining.id)
                     openAlertDialog.value = false
                 },
                 groupTraining = foundGroupTraining,
