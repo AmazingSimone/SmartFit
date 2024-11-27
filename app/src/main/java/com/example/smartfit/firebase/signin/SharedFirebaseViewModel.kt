@@ -343,7 +343,8 @@ class SharedFirebaseViewModel : ViewModel() {
                     "maxUsers" to groupTraining.maxUsers,
                     "trainingDuration" to groupTraining.trainingDuration,
                     "timeDateOfTraining" to groupTraining.timeDateOfTraining,
-                    "trainingDetails" to groupTraining.trainingDetails
+                    "trainingDetails" to groupTraining.trainingDetails,
+                    "trainingState" to groupTraining.trainingState
                 )
             ).await()
             documentReference.id
@@ -374,7 +375,8 @@ class SharedFirebaseViewModel : ViewModel() {
                     trainingDuration = (data["trainingDuration"] as Number).toLong(),
                     timeDateOfTraining = (data["timeDateOfTraining"] as Number).toLong(),
                     numberOfParticipants = participantsCount,
-                    trainingDetails = data["trainingDetails"] as String
+                    trainingDetails = data["trainingDetails"] as String,
+                    trainingState = (data["trainingState"] as Number).toInt()
                 )
             } else {
                 null

@@ -31,7 +31,8 @@ data class GroupTraining(
     val timeDateOfTraining: Long = 0L,
     val id: String = "",
     val numberOfParticipants: Int = 0,
-    val trainingDetails: String = ""
+    val trainingDetails: String = "",
+    val trainingState: Int = 0
 )
 
 
