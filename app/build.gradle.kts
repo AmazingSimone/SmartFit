@@ -40,6 +40,7 @@ android {
     buildFeatures {
         compose = true
     }
+
 }
 
 dependencies {
@@ -85,6 +86,10 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
+
+
+    implementation(libs.firebase.auth.ktx)
+
 
     implementation("io.github.mirzemehdi:kmpauth-google:2.2.0") //Google One Tap Sign-In
     implementation("io.github.mirzemehdi:kmpauth-firebase:2.2.0") //Integrated Authentications with Firebase
