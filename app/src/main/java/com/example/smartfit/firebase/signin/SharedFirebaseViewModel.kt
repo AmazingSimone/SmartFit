@@ -48,6 +48,14 @@ class SharedFirebaseViewModel : ViewModel() {
     private val _chosenUserFollowingState = MutableStateFlow<List<User>>(emptyList())
     val chosenUserFollowingState = _chosenUserFollowingState.asStateFlow()
 
+    //-- GROUP TRAINING
+
+    private val _chosenGroupTrainingState = MutableStateFlow(GroupTraining())
+    val chosenGroupTrainingState = _chosenGroupTrainingState.asStateFlow()
+
+    private val _chosenGroupTrainingParticipantsState = MutableStateFlow<List<User>>(emptyList())
+    val chosenGroupTrainingParticipantsState = _chosenGroupTrainingParticipantsState.asStateFlow()
+
     //--
 
     private val _searchResults = MutableStateFlow<List<User>>(emptyList())
@@ -383,6 +391,66 @@ class SharedFirebaseViewModel : ViewModel() {
             }
         } catch (e: Exception) {
             null
+        }
+    }
+
+    suspend fun fetchGroupTrainingData(groupTrainingId: String) {
+        _chosenGroupTrainingState.value = getGroupTrainingData(groupTrainingId) ?: GroupTraining()
+    }
+
+    suspend fun addCurrentUserToGroupTraining(groupTrainingId: String): Boolean {
+        return try {
+            val currentUserId = firebaseAuth.currentUser?.uid ?: return false
+            firebaseFirestore.collection("groupTrainings").document(groupTrainingId)
+                .collection("participants").document(currentUserId).set(
+                    mapOf(
+                        "userReference" to firebaseFirestore.collection("users")
+                            .document(currentUserId)
+                    )
+                ).await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun setMyCurrentGroupTraining(groupTraining: GroupTraining) {
+
+        _chosenGroupTrainingState.value = groupTraining
+
+    }
+
+    suspend fun fetchAllParticipantsOfTraining(groupTrainingId: String) {
+        try {
+            val documents = firebaseFirestore.collection("groupTrainings")
+                .document(groupTrainingId)
+                .collection("participants")
+                .get()
+                .await()
+
+            if (documents.isEmpty) {
+                _chosenGroupTrainingParticipantsState.value = emptyList()
+            } else {
+                val participants = documents.mapNotNull { document ->
+                    val userId = document.id
+                    getUserData(userId)
+                }
+                _chosenGroupTrainingParticipantsState.value = participants
+            }
+        } catch (e: Exception) {
+            _chosenGroupTrainingParticipantsState.value = emptyList()
+        }
+    }
+
+    suspend fun setGroupTrainingState(groupTrainingId: String, state: Int): Boolean {
+        return try {
+            firebaseFirestore.collection("groupTrainings").document(groupTrainingId)
+                .update("trainingState", state).await()
+//            _chosenGroupTrainingState.value =
+//                getGroupTrainingData(groupTrainingId) ?: GroupTraining()
+            true
+        } catch (e: Exception) {
+            false
         }
     }
 
