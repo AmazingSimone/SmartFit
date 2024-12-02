@@ -16,10 +16,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,7 +27,9 @@ import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.CustomTrainingInfoDisplayCard
 import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.StopWatch
+import com.example.smartfit.data.GroupTraining
 import com.example.smartfit.data.Training
+import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -37,69 +38,118 @@ import java.time.ZoneOffset
 @Composable
 fun CurrentActivityScreen(
     chosenTraining: Training,
-    onEndtrainingClick: (Training) -> Unit
+    chosenGroupTraining: GroupTraining = GroupTraining(),
+    onCheckAllTrainingInfo: () -> Boolean = { false },
+    onEndTraining: (Training) -> Unit,
+    //onGroupTrainingEnd: (Training) -> Unit,
 ) {
 
-    var training by remember { mutableStateOf(chosenTraining) }
+    val training = remember { mutableStateOf(chosenTraining) }
     val stopWatch = remember { StopWatch() }
     val isRunning = remember { mutableStateOf(stopWatch.isRunning()) }
     val timeDateOfTraining = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
 
+    val groupTraining = remember { mutableStateOf(chosenGroupTraining) }
 
-    stopWatch.start()
-    isRunning.value = stopWatch.isRunning()
+    LaunchedEffect(chosenGroupTraining.trainingState) {
+        while (onCheckAllTrainingInfo()) {
+            delay(10)
+        }
+    }
+
+    LaunchedEffect(chosenGroupTraining.trainingState) {
+        when (chosenGroupTraining.trainingState) {
+            0 -> {
+                stopWatch.start()
+                isRunning.value = stopWatch.isRunning()
+            }
+
+            1 -> {
+                stopWatch.start()
+                isRunning.value = stopWatch.isRunning()
+            }
+
+            2 -> {
+                stopWatch.pause()
+                isRunning.value = stopWatch.isRunning()
+            }
+
+            3 -> {
+                stopWatch.start()
+                isRunning.value = stopWatch.isRunning()
+            }
+
+            4 -> {
+                stopWatch.pause()
+                onCheckAllTrainingInfo()
+                training.value = training.value.copy(trainingDuration = stopWatch.getTimeMillis())
+                training.value =
+                    training.value.copy(timeDateOfTraining = groupTraining.value.timeDateOfTraining)
+                training.value = training.value.copy(isGroupTraining = true)
+                training.value = training.value.copy(id = groupTraining.value.id)
+
+                onEndTraining(training.value)
+            }
+        }
+    }
+
 
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Heading1(training.name) }
+                title = { Heading1(training.value.name) }
             )
         },
         bottomBar = {
-            Row (){
-                if (isRunning.value) {
+            if (groupTraining.value.trainingState == 0) {
+                Row() {
+                    if (isRunning.value) {
+                        CustomButton(
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .weight(1f),
+                            onClick = {
+                                stopWatch.pause()
+                                isRunning.value = stopWatch.isRunning()
+                            },
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            buttonText = "Pozastavit"
+                        )
+                    } else {
+                        CustomButton(
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .weight(1f),
+                            onClick = {
+                                stopWatch.start()
+                                isRunning.value = stopWatch.isRunning()
+                            },
+                            containerColor = MaterialTheme.colorScheme.onSecondary,
+                            buttonText = "Sputstit"
+                        )
+                    }
+
                     CustomButton(
                         modifier = Modifier
                             .padding(20.dp)
                             .weight(1f),
                         onClick = {
                             stopWatch.pause()
-                            isRunning.value = stopWatch.isRunning()
+                            training.value =
+                                training.value.copy(trainingDuration = stopWatch.getTimeMillis())
+                            training.value =
+                                training.value.copy(timeDateOfTraining = timeDateOfTraining)
+                            onEndTraining(training.value)
+
                         },
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        buttonText = "Pozastavit"
+                        containerColor = MaterialTheme.colorScheme.error,
+                        buttonText = "Dokoncit"
                     )
-                } else {
-                    CustomButton(
-                        modifier = Modifier
-                            .padding(20.dp)
-                            .weight(1f),
-                        onClick = {
-                            stopWatch.start()
-                            isRunning.value = stopWatch.isRunning()
-                        },
-                        containerColor = MaterialTheme.colorScheme.onSecondary,
-                        buttonText = "Sputstit"
-                    )
+
                 }
-
-                CustomButton(
-                    modifier = Modifier
-                        .padding(20.dp)
-                        .weight(1f),
-                    onClick = {
-                        stopWatch.pause()
-                        training = training.copy(trainingDuration = stopWatch.getTimeMillis())
-                        training = training.copy(timeDateOfTraining = timeDateOfTraining)
-                        onEndtrainingClick(training)
-
-                    },
-                    containerColor = MaterialTheme.colorScheme.error,
-                    buttonText = "Dokoncit"
-                )
-
             }
+
         }
 
 
@@ -190,6 +240,6 @@ fun CurrentActivityScreen(
 fun CurrentActivityPreview() {
     CurrentActivityScreen(
         Training("Beh", Icons.Default.DirectionsRun),
-        onEndtrainingClick = {}
+        onEndTraining = {}
     )
 }
