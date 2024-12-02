@@ -160,7 +160,7 @@ fun TrainingHistoryScreen(
 fun TrainingHistoryPreview() {
     TrainingHistoryScreen(
         listOfTrainings = trainingList,
-        {},
-        {}
+        onBackClick = {},
+        onActivityClick = {}
     )
 }

@@ -60,9 +60,10 @@ fun GroupTrainingLobby(
     currentUser: User,
     allTrainingParticipants: List<User>,
     onCheckAllTrainingInfo: () -> Boolean,
-    trainingState: (Int) -> Unit, //0 - initial, 1 - start, 2 - pause, 3 - end
+    setTrainingState: (Int) -> Unit, //0 - initial, 1 - start and send to screens, 2 - pause, 3 - resume, 4 - end
     onDeleteClick: () -> Unit,
     onEndGroupTrainingClick: (GroupTraining) -> Unit,
+    onSendAllUsers: (Int) -> Unit
 ) {
 
     var groupTraining by remember { mutableStateOf(chosenGroupTraining) }
@@ -90,40 +91,44 @@ fun GroupTrainingLobby(
         }
         qrBitmap = bitmap
 
-        //trainingState(0)
-
         if (currentUser.id == chosenGroupTraining.trainerId) {
             fullscreenQrState.value = true
         }
-        while (true) {
-            if (onCheckAllTrainingInfo()) {
-                delay(10)
-            } else {
-                break
-            }
+
+        while (onCheckAllTrainingInfo()) {
+            delay(10)
         }
     }
 
-    when (chosenGroupTraining.trainingState) {
-        0 -> {
-            stopWatch.reset()
-            isStopWatchRunning.value = stopWatch.isRunning()
-        }
+    LaunchedEffect(chosenGroupTraining.trainingState) {
+        when (chosenGroupTraining.trainingState) {
+            0 -> {
+                stopWatch.reset()
+                isStopWatchRunning.value = stopWatch.isRunning()
+            }
 
-        1 -> {
-            stopWatch.start()
-            isStopWatchRunning.value = stopWatch.isRunning()
-        }
+            1 -> {
+                onSendAllUsers(chosenGroupTraining.trainingIndex)
+                stopWatch.start()
+                isStopWatchRunning.value = stopWatch.isRunning()
+            }
 
-        2 -> {
-            stopWatch.pause()
-            isStopWatchRunning.value = stopWatch.isRunning()
-        }
+            2 -> {
+                stopWatch.pause()
+                isStopWatchRunning.value = stopWatch.isRunning()
+            }
 
-        3 -> {
-            stopWatch.pause()
-            groupTraining = groupTraining.copy(trainingDuration = stopWatch.getTimeMillis())
-            onEndGroupTrainingClick(groupTraining)
+            3 -> {
+                stopWatch.start()
+                isStopWatchRunning.value = stopWatch.isRunning()
+            }
+
+            4 -> {
+                stopWatch.pause()
+                groupTraining = groupTraining.copy(trainingDuration = stopWatch.getTimeMillis())
+                groupTraining = groupTraining.copy(trainingState = 4)
+                onEndGroupTrainingClick(groupTraining)
+            }
         }
     }
 
@@ -171,7 +176,8 @@ fun GroupTrainingLobby(
                                 onClick = {
 //                                    stopWatch.start()
 //                                    isStopWatchRunning.value = stopWatch.isRunning()
-                                    trainingState(1)
+                                    setTrainingState(1)
+                                    //onSendAllUsers(groupTraining.trainingIndex)
                                 },
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 buttonText = "Sputstit"
@@ -186,7 +192,7 @@ fun GroupTrainingLobby(
                                     onClick = {
 //                                        stopWatch.pause()
 //                                        isStopWatchRunning.value = stopWatch.isRunning()
-                                        trainingState(2)
+                                        setTrainingState(2)
                                     },
                                     containerColor = MaterialTheme.colorScheme.secondary,
                                     buttonText = "Pozastavit"
@@ -199,7 +205,7 @@ fun GroupTrainingLobby(
                                     onClick = {
 //                                        stopWatch.start()
 //                                        isStopWatchRunning.value = stopWatch.isRunning()
-                                        trainingState(1)
+                                        setTrainingState(3)
                                     },
                                     containerColor = MaterialTheme.colorScheme.tertiary,
                                     buttonText = "Sputstit"
@@ -212,7 +218,7 @@ fun GroupTrainingLobby(
                                     .weight(1f),
                                 onClick = {
                                     //stopWatch.pause()
-                                    trainingState(3)
+                                    setTrainingState(4)
 //                                    groupTraining =
 //                                        groupTraining.copy(trainingDuration = stopWatch.getTimeMillis())
                                     //onEndGroupTrainingClick(groupTraining)
@@ -346,6 +352,7 @@ fun GroupTrainingLobbyPreview() {
         onCheckAllTrainingInfo = {
             return@GroupTrainingLobby false
         },
-        trainingState = {}
+        setTrainingState = {},
+        onSendAllUsers = {}
     )
 }
