@@ -472,5 +472,25 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
+    suspend fun getParticipantsOfGroupTraining(groupTrainingId: String): List<String> {
+        return try {
+
+            val documents = firebaseFirestore.collection("groupTrainings")
+                .document(groupTrainingId)
+                .collection("participants")
+                .get()
+                .await()
+
+            val participants = mutableListOf<String>()
+            for (document in documents) {
+                val userId = document.id
+                participants.add(userId)
+            }
+            participants
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
 }
 
