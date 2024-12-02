@@ -1,8 +1,10 @@
 package com.example.smartfit.screens
 
+//import android.graphics.Color
 import android.graphics.Bitmap
-import android.graphics.Color
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,14 +15,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -33,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +49,7 @@ import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.Heading2
+import com.example.smartfit.components.HeadlineText
 import com.example.smartfit.components.NormalText
 import com.example.smartfit.components.StopWatch
 import com.example.smartfit.data.GroupTraining
@@ -87,7 +94,15 @@ fun GroupTrainingLobby(
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
         for (x in 0 until width) {
             for (y in 0 until height) {
-                bitmap.setPixel(x, y, if (bitMatrix.get(x, y)) Color.BLACK else Color.WHITE)
+                bitmap.setPixel(
+                    x,
+                    y,
+                    if (bitMatrix.get(
+                            x,
+                            y
+                        )
+                    ) android.graphics.Color.BLACK else android.graphics.Color.WHITE
+                )
             }
         }
         qrBitmap = bitmap
@@ -142,7 +157,23 @@ fun GroupTrainingLobby(
             topBar = {
                 TopAppBar(
                     title = {
-                        Heading1("Skupinovy trening")
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Heading1("Skupinovy trening")
+                            if (chosenGroupTraining.name.isNotEmpty()) {
+                                Spacer(Modifier.padding(3.dp))
+
+                                Heading2(
+                                    "(${chosenGroupTraining.name})",
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
+
+
                     },
                     actions = {
                         Row {
@@ -184,7 +215,8 @@ fun GroupTrainingLobby(
                                     //onSendAllUsers(groupTraining.trainingIndex)
                                 },
                                 containerColor = MaterialTheme.colorScheme.primary,
-                                buttonText = "Sputstit"
+                                buttonText = "Sputstit",
+                                enabled = allTrainingParticipants.isNotEmpty()
                             )
                         } else {
 
@@ -242,38 +274,7 @@ fun GroupTrainingLobby(
             val padding: Dp = 8.dp
             Surface(modifier = Modifier.padding(innerPadding)) {
 
-                if (fullscreenQrState.value) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                        //.background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.7f))
-                        ,
-                        contentAlignment = Alignment.BottomEnd
-                    ) {
-                        Column(Modifier.fillMaxWidth()) {
-                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
 
-                                IconButton(
-                                    onClick = {
-                                        fullscreenQrState.value = false
-                                    }
-                                ) {
-                                    Icon(
-                                        Icons.Default.Close,
-                                        "Close qr code fullscreen icon",
-                                        tint = MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
-                            }
-
-                            Image(
-                                bitmap = bitmap.asImageBitmap(),
-                                contentDescription = "QR Code",
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                    }
-                }
 
                 Box(
                     modifier = Modifier
@@ -284,40 +285,98 @@ fun GroupTrainingLobby(
 
                     Column {
 
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
-                            if (chosenGroupTraining.name.isNotEmpty()) {
-                                Heading2(
-                                    "(${chosenGroupTraining.name})",
-                                    fontWeight = FontWeight.Medium
-                                )
-                                Spacer(Modifier.padding(3.dp))
-                            }
-                            Heading2(trainingList[chosenGroupTraining.trainingIndex].name)
-                            Spacer(Modifier.padding(3.dp))
-                            Heading2(stopWatch.getCustomFormattedTime())
+
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            Heading1(trainingList[chosenGroupTraining.trainingIndex].name)
                         }
+                        Spacer(Modifier.padding(3.dp))
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            HeadlineText(stopWatch.getCustomFormattedTime())
+                        }
+                        Spacer(Modifier.padding(3.dp))
 
-                        LazyColumn {
-
-                            items(allTrainingParticipants) { participant ->
-
-                                ListItem(
-                                    headlineContent = { NormalText(participant.displayName) },
-                                    overlineContent = { NormalText(participant.bio) },
-                                    //supportingContent = {},
-                                    leadingContent = {
-                                        CustomProfilePictureFrame(
-                                            pictureUrl = participant.profilePicUrl,
-                                            frameColor = androidx.compose.ui.graphics.Color(
-                                                frameColors[participant.color]
-                                            )
-                                        )
-                                    },
-                                    //trailingContent = {},
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(bottom = 15.dp)
+                                .background(
+                                    MaterialTheme.colorScheme.surfaceDim,
+                                    shape = RoundedCornerShape(30.dp)
                                 )
+                            //.padding(16.dp)
+                        ) {
+                            if (allTrainingParticipants.isEmpty()) {
+                                Column(
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Heading2("Zatial ziadny pripojeni ucastnici")
+                                }
+
+                            } else {
+                                LazyColumn(
+                                ) {
+                                    items(allTrainingParticipants) { participant ->
+
+
+                                        ListItem(
+                                            overlineContent = { NormalText(participant.displayName) },
+                                            headlineContent = { NormalText(participant.bio) },
+                                            //supportingContent = {},
+                                            leadingContent = {
+                                                CustomProfilePictureFrame(
+                                                    pictureUrl = participant.profilePicUrl,
+                                                    frameColor = Color(
+                                                        frameColors[participant.color]
+                                                    )
+                                                )
+                                            },
+                                            trailingContent = {
+                                                IconButton(
+                                                    onClick = {
+
+                                                    }
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Filled.Close,
+                                                        contentDescription = "Kick user icon",
+                                                        tint = MaterialTheme.colorScheme.error
+                                                    )
+                                                }
+                                            },
+                                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+
+                                            //trailingContent = {},
+                                        )
+                                        HorizontalDivider()
+                                    }
+                                }
                             }
                         }
                     }
+                }
+
+
+            }
+
+        }
+        if (fullscreenQrState.value) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.9f))
+                    .clickable {
+                        fullscreenQrState.value = false
+                    },
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Column(Modifier.fillMaxWidth()) {
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "QR Code",
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }
@@ -352,8 +411,34 @@ fun GroupTrainingLobbyPreview() {
             isTrainer = false
         ),
         onEndGroupTrainingClick = { },
-        allTrainingParticipants = emptyList(),
-        //onCheckAllTrainingInfo = { return@GroupTrainingLobby false },
+        allTrainingParticipants =
+        emptyList()
+
+//        listOf(
+//            User(
+//                id = "user1",
+//                displayName = "User One",
+//                profilePicUrl = "https://example.com/user1.jpg",
+//                birthDate = 0,
+//                height = 0F,
+//                weight = 0F,
+//                bio = "Bio of User One",
+//                color = 1,
+//                isTrainer = false
+//            ),
+//            User(
+//                id = "user2",
+//                displayName = "User Two",
+//                profilePicUrl = "https://example.com/user2.jpg",
+//                birthDate = 0,
+//                height = 0F,
+//                weight = 0F,
+//                bio = "Bio of User Two",
+//                color = 2,
+//                isTrainer = false
+//            )
+//        )
+        ,        //onCheckAllTrainingInfo = { return@GroupTrainingLobby false },
         setTrainingState = {},
         onSendAllUsers = {}
     )
