@@ -103,7 +103,6 @@ fun CreateGroupTrainingScreen(
                             trainingIndex = chosenTrainingIndex,
                             timeDateOfTraining = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
                             maxUsers = maxUsersValue.intValue,
-                            id = "",
                             trainingDetails = detailsValue.value
                         )
                     )

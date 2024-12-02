@@ -29,7 +29,8 @@ import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.StopWatch
 import com.example.smartfit.data.GroupTraining
 import com.example.smartfit.data.Training
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -39,7 +40,7 @@ import java.time.ZoneOffset
 fun CurrentActivityScreen(
     chosenTraining: Training,
     chosenGroupTraining: GroupTraining = GroupTraining(),
-    onCheckAllTrainingInfo: () -> Boolean = { false },
+    onCheckAllTrainingInfo: () -> Unit = {},
     onEndTraining: (Training) -> Unit,
     //onGroupTrainingEnd: (Training) -> Unit,
 ) {
@@ -51,9 +52,14 @@ fun CurrentActivityScreen(
 
     val groupTraining = remember { mutableStateOf(chosenGroupTraining) }
 
+    //TODO Skus lepsie spravit
     LaunchedEffect(chosenGroupTraining.trainingState) {
-        while (onCheckAllTrainingInfo()) {
-            delay(10)
+        while (chosenTraining.isGroupTraining) {
+            withContext(Dispatchers.IO) {
+                onCheckAllTrainingInfo()
+            }
+            //delay(1000)
+
         }
     }
 

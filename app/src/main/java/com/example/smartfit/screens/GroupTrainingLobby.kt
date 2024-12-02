@@ -51,7 +51,8 @@ import com.example.smartfit.data.frameColors
 import com.example.smartfit.data.trainingList
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +60,7 @@ fun GroupTrainingLobby(
     chosenGroupTraining: GroupTraining,
     currentUser: User,
     allTrainingParticipants: List<User>,
-    onCheckAllTrainingInfo: () -> Boolean,
+    onCheckAllTrainingInfo: () -> Unit = {},
     setTrainingState: (Int) -> Unit, //0 - initial, 1 - start and send to screens, 2 - pause, 3 - resume, 4 - end
     onDeleteClick: () -> Unit,
     onEndGroupTrainingClick: (GroupTraining) -> Unit,
@@ -95,8 +96,11 @@ fun GroupTrainingLobby(
             fullscreenQrState.value = true
         }
 
-        while (onCheckAllTrainingInfo()) {
-            delay(10)
+        while (true) {
+            withContext(Dispatchers.IO) {
+                onCheckAllTrainingInfo()
+            }
+            //delay(1000)
         }
     }
 
@@ -349,9 +353,7 @@ fun GroupTrainingLobbyPreview() {
         ),
         onEndGroupTrainingClick = { },
         allTrainingParticipants = emptyList(),
-        onCheckAllTrainingInfo = {
-            return@GroupTrainingLobby false
-        },
+        //onCheckAllTrainingInfo = { return@GroupTrainingLobby false },
         setTrainingState = {},
         onSendAllUsers = {}
     )

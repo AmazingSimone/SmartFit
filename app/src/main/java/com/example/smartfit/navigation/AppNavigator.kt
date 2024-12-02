@@ -279,11 +279,17 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                 },
                 chosenGroupTraining = groupTrainingState,
                 onCheckAllTrainingInfo = {
-                    firebaseViewModel.viewModelScope.launch {
+
+                    runBlocking {
                         firebaseViewModel.fetchGroupTrainingData(chosenGroupTraining.id)
                         firebaseViewModel.fetchAllParticipantsOfTraining(chosenGroupTraining.id)
                     }
-                    true
+
+//                    firebaseViewModel.viewModelScope.launch {
+//                        firebaseViewModel.fetchGroupTrainingData(chosenGroupTraining.id)
+//                        firebaseViewModel.fetchAllParticipantsOfTraining(chosenGroupTraining.id)
+//                    }
+                    //true
                 }
             )
         }
@@ -467,6 +473,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
             val currentLoggedInUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
             val chosenGroupTrainingParticipants by firebaseViewModel.chosenGroupTrainingParticipantsState.collectAsStateWithLifecycle()
 
+
             GroupTrainingLobby(
                 chosenGroupTraining = chosenGroupTraining,
                 onDeleteClick = {
@@ -519,11 +526,15 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                 },
                 allTrainingParticipants = chosenGroupTrainingParticipants,
                 onCheckAllTrainingInfo = {
-                    firebaseViewModel.viewModelScope.launch {
+                    runBlocking {
                         firebaseViewModel.fetchGroupTrainingData(chosenGroupTraining.id)
                         firebaseViewModel.fetchAllParticipantsOfTraining(chosenGroupTraining.id)
                     }
-                    true
+//                    firebaseViewModel.viewModelScope.launch {
+//                        firebaseViewModel.fetchGroupTrainingData(chosenGroupTraining.id)
+//                        firebaseViewModel.fetchAllParticipantsOfTraining(chosenGroupTraining.id)
+//                    }
+//                    true
                 },
                 setTrainingState = { state ->
                     firebaseViewModel.viewModelScope.launch {
