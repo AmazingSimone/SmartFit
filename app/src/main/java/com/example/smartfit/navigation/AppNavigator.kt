@@ -25,6 +25,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.smartfit.R
 import com.example.smartfit.data.GroupTraining
+import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
 import com.example.smartfit.data.trainingList
 import com.example.smartfit.firebase.signin.SharedFirebaseViewModel
@@ -40,6 +41,7 @@ import com.example.smartfit.screens.UserProfileScreen
 import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -125,7 +127,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                         recievedFromOneTapButton ->
 
                     firebaseViewModel.viewModelScope.launch {
-                        firebaseViewModel.createUserIfNotExists(recievedFromOneTapButton?.uid!!)
+                        firebaseViewModel.createUserIfNotExists(recievedFromOneTapButton?.uid ?: "")
                         navController.navigate(Screens.HOME.name) {
                             popUpTo(0) { inclusive = true }
                         }
@@ -232,7 +234,8 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
         composable("${Screens.CURRENT_ACTIVITY.name}/{indexOfTraining}") { backStackEntry ->
 
-            val sharedUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
+            val groupTrainingState by firebaseViewModel.chosenGroupTrainingState.collectAsStateWithLifecycle()
+            val chosenGroupTraining by firebaseViewModel.chosenGroupTrainingState.collectAsStateWithLifecycle()
 
             //TODO preco tam je getString
             val indexOfChosenTraining =
@@ -240,7 +243,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
             CurrentActivityScreen(
                 chosenTraining = trainingList[indexOfChosenTraining],
-                onEndtrainingClick = {
+                onEndTraining = {
 
                     if (it.trainingDuration < 5000) {
                         Toast.makeText(
@@ -250,7 +253,11 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                         ).show()
                     } else {
                         firebaseViewModel.viewModelScope.launch {
-                            if (firebaseViewModel.uploadTrainingData(indexOfChosenTraining, it)) {
+                            if (firebaseViewModel.uploadLoggedInUserTrainingData(
+                                    indexOfChosenTraining,
+                                    it
+                                )
+                            ) {
                                 Toast.makeText(
                                     navController.context,
                                     "Udaje boli uspesne ulozene",
@@ -266,7 +273,17 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                             firebaseViewModel.checkCurrentUser()
                         }
                     }
-                    navController.navigateUp()
+                    navController.navigate(Screens.HOME.name) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                chosenGroupTraining = groupTrainingState,
+                onCheckAllTrainingInfo = {
+                    firebaseViewModel.viewModelScope.launch {
+                        firebaseViewModel.fetchGroupTrainingData(chosenGroupTraining.id)
+                        firebaseViewModel.fetchAllParticipantsOfTraining(chosenGroupTraining.id)
+                    }
+                    true
                 }
             )
         }
@@ -295,8 +312,62 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
             ActivityDetailScreen(
                 training = training[indexOfChosenTraining],
+                trainerDetails = {
+                    var trainer: User? = null
+//                    firebaseViewModel.viewModelScope.launch {
+//                        trainer = firebaseViewModel.getUserData(firebaseViewModel.getGroupTrainingData(training[indexOfChosenTraining].id)?.trainerId ?: "")
+//                    }
+                    runBlocking {
+                        trainer = firebaseViewModel.getUserData(
+                            firebaseViewModel.getGroupTrainingData(training[indexOfChosenTraining].id)?.trainerId
+                                ?: ""
+                        )
+                    }
+                    trainer
+                },
+                listOfParticipantsOfGroupTraining = { trainingId ->
+                    var participants = emptyList<String>()
+                    runBlocking {
+                        participants = firebaseViewModel.getParticipantsOfGroupTraining(trainingId)
+                    }
+                    participants
+                },
+                onRequestParticipantInfo = { userId ->
+                    var user = User()
+
+                    runBlocking {
+                        user = firebaseViewModel.getUserData(userId) ?: User()
+                        user = user.copy(id = userId)
+                    }
+
+                    user
+                },
+                onRequestParticipantTrainingInfo = { userId ->
+                    var userTrainingData = Training()
+                    runBlocking {
+                        userTrainingData = firebaseViewModel.getTrainingData(
+                            training[indexOfChosenTraining].id,
+                            userId
+                        ) ?: Training()
+
+                    }
+                    userTrainingData
+
+                },
                 onBackClick = {
                     navController.navigateUp()
+                },
+                onTrainerClick = { trainerId ->
+                    firebaseViewModel.viewModelScope.launch {
+                        firebaseViewModel.chooseUser(trainerId)
+                    }
+                    navController.navigate(Screens.USER_PROFILE.name)
+                },
+                onParticipantClick = { participantId ->
+                    firebaseViewModel.viewModelScope.launch {
+                        firebaseViewModel.chooseUser(participantId)
+                    }
+                    navController.navigate(Screens.USER_PROFILE.name)
                 }
             )
         }
@@ -381,7 +452,9 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                         val grTrainingId = firebaseViewModel.uploadGroupTrainingData(groupTraining)
                         if (grTrainingId.isNotEmpty()) {
                             firebaseViewModel.setMyCurrentGroupTraining(groupTraining.copy(id = grTrainingId))
-                            navController.navigate(Screens.GROUP_TRAINING_LOBBY.name)
+                            navController.navigate(Screens.GROUP_TRAINING_LOBBY.name) {
+                                popUpTo(0) { inclusive = true }
+                            }
                         }
                     }
                 }
@@ -400,7 +473,50 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
                 },
                 currentUser = currentLoggedInUser,
-                onEndGroupTrainingClick = {},
+                onEndGroupTrainingClick = { groupTraining ->
+
+                    if (groupTraining.trainingDuration < 5000) {
+                        Toast.makeText(
+                            navController.context,
+                            "Tréning nebol uložený, pretože trval menej ako 5 sekúnd",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        firebaseViewModel.viewModelScope.launch {
+                            if (firebaseViewModel.uploadGroupTrainingData(
+                                    groupTraining,
+                                    groupTraining.id
+                                ).isNotEmpty() && firebaseViewModel.uploadLoggedInUserTrainingData(
+                                    groupTraining.trainingIndex,
+                                    trainingList[groupTraining.trainingIndex].copy(
+                                        trainingDuration = groupTraining.trainingDuration,
+                                        timeDateOfTraining = groupTraining.timeDateOfTraining,
+                                        isGroupTraining = true,
+                                        id = groupTraining.id
+                                    )
+                                )
+                            ) {
+                                Toast.makeText(
+                                    navController.context,
+                                    "Skupinovy trening sa uspesne ulozil",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                            } else {
+                                Toast.makeText(
+                                    navController.context,
+                                    "Nastala chyba pri ukladani udajov",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                    navController.navigate(Screens.HOME.name) {
+                        popUpTo(0) { inclusive = true }
+                    }
+
+
+                },
                 allTrainingParticipants = chosenGroupTrainingParticipants,
                 onCheckAllTrainingInfo = {
                     firebaseViewModel.viewModelScope.launch {
@@ -409,12 +525,21 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                     }
                     true
                 },
-                trainingState = { state ->
+                setTrainingState = { state ->
                     firebaseViewModel.viewModelScope.launch {
                         firebaseViewModel.setGroupTrainingState(chosenGroupTraining.id, state)
                     }
+                },
+                onSendAllUsers = { indexOfTraining ->
+                    if (currentLoggedInUser.id != chosenGroupTraining.trainerId) {
+                        navController.navigate("${Screens.CURRENT_ACTIVITY.name}/$indexOfTraining") {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
                 }
             )
+
+
         }
 
         composable(Screens.QR_READER_SCREEN.name) {
@@ -444,7 +569,9 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                                     groupTrainingId
                                 ) ?: GroupTraining()
                             )
-                            navController.navigate(Screens.GROUP_TRAINING_LOBBY.name)
+                            navController.navigate(Screens.GROUP_TRAINING_LOBBY.name) {
+                                popUpTo(0) { inclusive = true }
+                            }
                         }
                     }
                 }
