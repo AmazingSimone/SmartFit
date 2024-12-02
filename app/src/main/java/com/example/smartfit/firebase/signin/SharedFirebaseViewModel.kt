@@ -83,8 +83,10 @@ class SharedFirebaseViewModel : ViewModel() {
                 getAllUserTrainings(firebaseAuth.currentUser?.uid ?: "")
             _sharedUserFollowingState.value =
                 getAllUserFollowing(firebaseAuth.currentUser?.uid ?: "")
+
         }
     }
+
 
 //    fun checkChosenUser(userId: String) {
 //
@@ -188,11 +190,16 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
-    //TODO toto neskor sprav ze ak ti pride napriklad atribute isGroupTraining true tak to uploadni do user kolekcie "groupTrainings"
-    suspend fun uploadTrainingData(indexOfTraining: Int, training: Training): Boolean {
+    suspend fun uploadLoggedInUserTrainingData(indexOfTraining: Int, training: Training): Boolean {
         return try {
-            firebaseFirestore.collection("users").document(firebaseAuth.currentUser?.uid ?: "")
-                .collection("trainings").document().set(
+            val documentReference = if (training.id.isNotEmpty()) {
+                firebaseFirestore.collection("users").document(firebaseAuth.currentUser?.uid ?: "")
+                    .collection("trainings").document(training.id)
+            } else {
+                firebaseFirestore.collection("users").document(firebaseAuth.currentUser?.uid ?: "")
+                    .collection("trainings").document()
+            }
+            documentReference.set(
                     mapOf(
                         "indexOfTraining" to indexOfTraining,
                         //"creatorId" to training.creatorId,
@@ -203,7 +210,9 @@ class SharedFirebaseViewModel : ViewModel() {
                         "avgHeartRate" to training.avgHeartRate,
                         "avgTempo" to training.avgTempo,
                         "steps" to training.steps,
-                        "trainingTemperature" to training.trainingTemperature
+                        "trainingTemperature" to training.trainingTemperature,
+                        "isGroupTraining" to training.isGroupTraining,
+                        "id" to training.id
                     )
                 ).await()
             true
@@ -213,9 +222,9 @@ class SharedFirebaseViewModel : ViewModel() {
     }
 
     suspend fun getTrainingData(trainingId: String, userId: String): Training? {
-        val firestore = FirebaseFirestore.getInstance()
+        //val firestore = FirebaseFirestore.getInstance()
         val documentSnapshot =
-            firestore.collection("users").document(userId).collection("trainings")
+            firebaseFirestore.collection("users").document(userId).collection("trainings")
                 .document(trainingId).get().await()
         return if (documentSnapshot.exists()) {
 
@@ -232,7 +241,9 @@ class SharedFirebaseViewModel : ViewModel() {
                 avgHeartRate = (data?.get("avgHeartRate") as? Number)?.toInt() ?: 0,
                 avgTempo = (data?.get("avgTempo") as? Number)?.toInt() ?: 0,
                 steps = (data?.get("steps") as? Number)?.toInt() ?: 0,
-                trainingTemperature = (data?.get("trainingTemperature") as? Number)?.toInt() ?: 0
+                trainingTemperature = (data?.get("trainingTemperature") as? Number)?.toInt() ?: 0,
+                isGroupTraining = data?.get("isGroupTraining") as? Boolean ?: false,
+                id = trainingId
             )
         } else {
             null
@@ -340,9 +351,16 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
-    suspend fun uploadGroupTrainingData(groupTraining: GroupTraining): String {
+    suspend fun uploadGroupTrainingData(
+        groupTraining: GroupTraining,
+        groupTrainingId: String = ""
+    ): String {
         return try {
-            val documentReference = firebaseFirestore.collection("groupTrainings").document()
+            val documentReference = if (groupTrainingId.isEmpty()) {
+                firebaseFirestore.collection("groupTrainings").document()
+            } else {
+                firebaseFirestore.collection("groupTrainings").document(groupTrainingId)
+            }
             documentReference.set(
                 mapOf(
                     "trainerId" to groupTraining.trainerId,
