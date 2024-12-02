@@ -1048,35 +1048,180 @@ fun CustomAlertDialogGroupTraining(
 
 }
 
+@Composable
+fun CustomGroupTrainingParticipantsDetailsCard(
+    participant: User,
+    training: Training? = null,
+    onCardClick: () -> Unit
+) {
+    val modifier = Modifier.fillMaxWidth()
+    val horizontalAlignment = Alignment.CenterHorizontally
+    Card(
+        modifier = modifier.clickable {
+            onCardClick()
+        },
+        colors = CardDefaults.cardColors(
+            containerColor = Color(frameColors[participant.color]).copy(
+                alpha = 0.07f
+            )
+        )
+    ) {
+
+        Column() {
+
+            Row(modifier = modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                CustomProfilePictureFrame(
+                    pictureUrl = participant.profilePicUrl,
+                    frameColor = Color(frameColors[participant.color]),
+                    enabled = false
+                )
+                Spacer(Modifier.padding(8.dp))
+                NormalText(participant.displayName)
+
+            }
+            if (training != null) {
+                HorizontalDivider()
+                Box {
+                    Column {
+                        Row(
+                            modifier = Modifier.height(IntrinsicSize.Min),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    Modifier.padding(8.dp),
+                                    horizontalAlignment = horizontalAlignment
+                                ) {
+                                    NormalText("Priemerna rychlost")
+                                    Heading1(training.avgSpeed.toString())
+                                }
+                            }
+                            VerticalDivider(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .width(1.dp)
+                            )
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    Modifier.padding(8.dp),
+                                    horizontalAlignment = horizontalAlignment
+                                ) {
+                                    NormalText("Spalene kalorie")
+                                    Heading1(training.burnedCalories.toString())
+                                }
+                            }
+
+                        }
+                        HorizontalDivider()
+                        Row(
+                            modifier = Modifier.height(IntrinsicSize.Min),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    Modifier.padding(8.dp),
+                                    horizontalAlignment = horizontalAlignment
+                                ) {
+                                    NormalText("Priemerny srdcovy tep")
+                                    Heading1(training.avgHeartRate.toString())
+                                }
+                            }
+                            VerticalDivider(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .width(1.dp)
+                            )
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    Modifier.padding(8.dp),
+                                    horizontalAlignment = horizontalAlignment
+                                ) {
+                                    NormalText("Priemerne tempo")
+                                    Heading1(training.avgSpeed.toString())
+                                }
+                            }
+
+                        }
+                        HorizontalDivider()
+                        Row(
+                            modifier = Modifier.height(IntrinsicSize.Min),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    Modifier.padding(8.dp),
+                                    horizontalAlignment = horizontalAlignment
+                                ) {
+                                    NormalText("Kroky")
+                                    Heading1(training.steps.toString())
+                                }
+                            }
+                            VerticalDivider(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .width(1.dp)
+                            )
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    Modifier.padding(8.dp),
+                                    horizontalAlignment = horizontalAlignment
+                                ) {
+                                    NormalText("Teplota")
+                                    Heading1(training.trainingTemperature.toString())
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun PreviewComponents() {
-    CustomAlertDialogGroupTraining(
-        onDismissRequest = {},
-        onConfirmation = {},
-        groupTraining = GroupTraining(
-            trainerId = "",
-            name = "Ranny beh",
-            trainingIndex = 2,
-            maxUsers = 4,
-            trainingDuration = 0,
-            timeDateOfTraining = 1732545857,
-            id = "",
-            trainingDetails = "difhbv lisdnflinhbsdlfn bsd fb df8 bsd68 f4b6sd f4b sdf bjs dfsd fbpo;sijdfo;bijsdfbol;jnsdolfbnj;lodsnjbf;losdnfb;sodfbn;dofbnsd;obnfds;fbnsdbndsfknbjdfhjklbndlifhnblidshbnflidshnbfbnkids"
-        ),
-        trainer = User(
-            id = "",
-            displayName = "Simone Bartanus",
+    CustomGroupTrainingParticipantsDetailsCard(
+        participant = User(
+            id = "MZ6M79VA9zetdUHX4NtgRE6UDzx2",
+            displayName = "Simon Bartanus",
             profilePicUrl = "https://lh3.googleusercontent.com/a/ACg8ocIlxeLUaG-f883-a5lmUuQaqHiiaeuouQnzFf-SZFIND2HBCLf3=s96-c",
-            birthDate = 0,
-            height = 0F,
-            weight = 0F,
-            bio = "",
-            color = 1,
-            isTrainer = true
-        )
+            bio = "Toto je uzastne bio",
+            color = 1
+        ),
+        training = trainingList[0].copy(
+            trainingDuration = 7363,
+            timeDateOfTraining = 1732746897,
+            avgSpeed = 0F,
+            burnedCalories = 0F,
+            avgHeartRate = 0,
+            avgTempo = 0,
+            steps = 0,
+            trainingTemperature = 0,
+            isGroupTraining = true,
+            id = "pYqROgvqtzWm5cYskr1Z"
+        ),
+        onCardClick = {}
     )
 }
 
