@@ -7,8 +7,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -50,6 +52,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -802,7 +805,7 @@ fun CustomTrainingInfoCardWithDate(
     modifier: Modifier = Modifier,
     training: Training,
     //timeLength: LocalTime = LocalTime.of(1, 20, 34),
-    numberOfParticipants: Int = 0
+    //numberOfParticipants: Int = 0
 ) {
 
     Column {
@@ -838,7 +841,7 @@ fun CustomTrainingInfoCardWithDate(
                         horizontalArrangement = Arrangement.Absolute.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (numberOfParticipants > 1) Heading1("Skupinovy trening") else Heading1("Trening")
+                        if (training.isGroupTraining) Heading1("Skupinovy trening") else Heading1("Trening")
 
                         Icon(
                             imageVector = training.icon,
@@ -874,10 +877,10 @@ fun CustomTrainingInfoCardWithDate(
 
                             }
 
-                            if (numberOfParticipants > 1) NormalText(
-                                "$numberOfParticipants ucastnici",
-                                color = MaterialTheme.colorScheme.outline
-                            )
+//                            if (numberOfParticipants > 1) NormalText(
+//                                "$numberOfParticipants ucastnici",
+//                                color = MaterialTheme.colorScheme.outline
+//                            )
                         }
 
                         Box(
@@ -947,7 +950,8 @@ fun CustomAlertDialog(
     onConfirmation: () -> Unit,
     dialogTitle: String,
     dialogText: @Composable () -> Unit,
-    icon: @Composable () -> Unit
+    icon: @Composable () -> Unit,
+    isConfirmEnabled: Boolean = true
 ) {
     AlertDialog(
         icon = {
@@ -967,7 +971,8 @@ fun CustomAlertDialog(
             TextButton(
                 onClick = {
                     onConfirmation()
-                }
+                },
+                enabled = isConfirmEnabled
             ) {
                 Text("Confirm")
             }
@@ -998,6 +1003,8 @@ fun CustomAlertDialogGroupTraining(
         onConfirmation = { onConfirmation() },
         dialogTitle = groupTraining?.name?.ifEmpty { trainingList[groupTraining.trainingIndex].name }
             ?: "",
+        isConfirmEnabled = groupTraining?.numberOfParticipants != groupTraining?.maxUsers && (groupTraining?.trainingState
+            ?: 4) < 4,
         dialogText = {
             Column(verticalArrangement = Arrangement.SpaceEvenly) {
                 Row {
@@ -1032,6 +1039,12 @@ fun CustomAlertDialogGroupTraining(
                     Column(horizontalAlignment = Alignment.Start) {
                         Heading3("Detaily treningu:", fontWeight = FontWeight.SemiBold)
                         NormalText(groupTraining.trainingDetails, textAlign = TextAlign.Start)
+                    }
+                }
+                if ((groupTraining?.trainingState ?: 4) == 4) {
+                    Spacer(Modifier.padding(3.dp))
+                    Column(horizontalAlignment = Alignment.Start) {
+                        Heading3("(Trening sa skoncil)", fontWeight = FontWeight.Bold)
                     }
                 }
 
