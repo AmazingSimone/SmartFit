@@ -1,7 +1,6 @@
 package com.example.smartfit.screens
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -56,11 +55,9 @@ fun CurrentActivityScreen(
     //TODO Skus lepsie spravit
     if (chosenGroupTraining != null) {
         LaunchedEffect(chosenGroupTraining.id) {
-            while (true) {
-                Log.d("ahoj", "vnutri while")
+            while ((groupTraining.value?.trainingState ?: 4) != 4) {
                 withContext(Dispatchers.IO) {
                     onCheckAllTrainingInfo()
-                    Log.d("ahoj", "$groupTraining")
                 }
                 //delay(1000)
             }

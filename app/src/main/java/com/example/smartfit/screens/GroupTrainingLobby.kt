@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -69,7 +70,7 @@ fun GroupTrainingLobby(
     allTrainingParticipants: List<User>,
     onCheckAllTrainingInfo: () -> Unit = {},
     setTrainingState: (Int) -> Unit, //0 - initial, 1 - start and send to screens, 2 - pause, 3 - resume, 4 - end
-    onDeleteClick: () -> Unit,
+    onDeleteClick: (Boolean) -> Unit,
     onEndGroupTrainingClick: (GroupTraining) -> Unit,
     onRemoveUserFromTrainingClick: (String) -> Unit,
     onDisconnectUser: () -> Unit,
@@ -119,7 +120,7 @@ fun GroupTrainingLobby(
             fullscreenQrState.value = true
         }
 
-        while (true) {
+        while (groupTraining.trainingState != 4) {
             withContext(Dispatchers.IO) {
                 onCheckAllTrainingInfo()
             }
@@ -186,21 +187,31 @@ fun GroupTrainingLobby(
                     },
                     actions = {
                         Row {
-                            if (!fullscreenQrState.value) {
-                                IconButton(onClick = { fullscreenQrState.value = true }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.QrCode,
-                                        contentDescription = "Show qr code icon"
-                                    )
-                                }
+                            IconButton(
+                                onClick = { fullscreenQrState.value = true },
+                                enabled = chosenGroupTraining.trainingState == 0
+
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.QrCode,
+                                    contentDescription = "Show qr code icon",
+                                    tint = if (chosenGroupTraining.trainingState == 0)
+                                        LocalContentColor.current
+                                    else LocalContentColor.current.copy(alpha = 0.4f)
+                                )
                             }
 
                             if (currentUser.id == chosenGroupTraining.trainerId) {
-                                IconButton(onClick = { onDeleteClick() }) {
+                                IconButton(
+                                    onClick = { onDeleteClick(allTrainingParticipants.isEmpty()) },
+                                    enabled = chosenGroupTraining.trainingState == 0
+                                ) {
                                     Icon(
                                         imageVector = Icons.Filled.Delete,
                                         contentDescription = "Delete training",
-                                        tint = MaterialTheme.colorScheme.error
+                                        tint = if (chosenGroupTraining.trainingState == 0)
+                                            MaterialTheme.colorScheme.error
+                                        else MaterialTheme.colorScheme.error.copy(alpha = 0.4f)
                                     )
                                 }
                             }
@@ -282,7 +293,6 @@ fun GroupTrainingLobby(
 
             val padding: Dp = 8.dp
             Surface(modifier = Modifier.padding(innerPadding)) {
-
 
 
                 Box(
@@ -409,12 +419,13 @@ fun GroupTrainingLobbyPreview() {
             trainingDuration = 0,
             timeDateOfTraining = 1732623634,
             id = "04zGShmrMuJ0OekUfoR4",
-            numberOfParticipants = 1,
-            trainingDetails = "Toto su detaily treningu"
+            numberOfParticipants = 2,
+            trainingDetails = "Toto su detaily treningu",
+            trainingState = 1
         ),
         onDeleteClick = {},
         currentUser = User(
-            id = "",
+            id = "CnHNxTvP9UgT6Vbj8Xh8XFYcPmg1",
             displayName = "Pavol P",
             profilePicUrl = "https://lh3.googleusercontent.com/a/ACg8ocK99KLif73J19brC6OLouuXT7I3ilQ-ArQApkXRHkuzZGOruVqf=s96-c",
             birthDate = 0,
@@ -422,7 +433,7 @@ fun GroupTrainingLobbyPreview() {
             weight = 0F,
             bio = "Nie",
             color = 0,
-            isTrainer = false
+            isTrainer = true
         ),
         onEndGroupTrainingClick = { },
         allTrainingParticipants =
@@ -452,7 +463,7 @@ fun GroupTrainingLobbyPreview() {
                 isTrainer = false
             )
         ),        //onCheckAllTrainingInfo = { return@GroupTrainingLobby false },
-        setTrainingState = {},
+        setTrainingState = { },
         onSendAllUsers = {},
         onCheckAllTrainingInfo = {},
         onRemoveUserFromTrainingClick = {},

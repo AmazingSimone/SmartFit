@@ -234,7 +234,6 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
         composable("${Screens.CURRENT_ACTIVITY.name}/{indexOfTraining}") { backStackEntry ->
 
-            val groupTrainingState by firebaseViewModel.chosenGroupTrainingState.collectAsStateWithLifecycle()
             val chosenGroupTraining by firebaseViewModel.chosenGroupTrainingState.collectAsStateWithLifecycle()
 
             //TODO preco tam je getString
@@ -277,19 +276,13 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                         popUpTo(0) { inclusive = true }
                     }
                 },
-                chosenGroupTraining = groupTrainingState,
+                chosenGroupTraining = chosenGroupTraining,
                 onCheckAllTrainingInfo = {
 
                     runBlocking {
                         firebaseViewModel.fetchGroupTrainingData(chosenGroupTraining.id)
                         firebaseViewModel.fetchAllParticipantsOfTraining(chosenGroupTraining.id)
                     }
-
-//                    firebaseViewModel.viewModelScope.launch {
-//                        firebaseViewModel.fetchGroupTrainingData(chosenGroupTraining.id)
-//                        firebaseViewModel.fetchAllParticipantsOfTraining(chosenGroupTraining.id)
-//                    }
-                    //true
                 }
             )
         }
@@ -475,13 +468,36 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
             GroupTrainingLobby(
                 chosenGroupTraining = chosenGroupTraining,
-                onDeleteClick = {
+                onDeleteClick = { isListOfParticipantsEmpty ->
+                    if (isListOfParticipantsEmpty) {
+                        firebaseViewModel.viewModelScope.launch {
+                            if (firebaseViewModel.removeGroupTraining(chosenGroupTraining.id)) {
+                                Toast.makeText(
+                                    navController.context,
+                                    "Skupinovy trening bol odstraneny",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                navController.navigate(Screens.HOME.name) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        }
+                    } else {
+                        Toast.makeText(
+                            navController.context,
+                            "Pre odstranenie treningu sa musia vsetci ucastnici odpojit",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
 
                 },
                 currentUser = currentLoggedInUser,
                 onEndGroupTrainingClick = { groupTraining ->
 
                     if (groupTraining.trainingDuration < 5000) {
+                        firebaseViewModel.viewModelScope.launch {
+                            firebaseViewModel.removeGroupTraining(groupTraining.id)
+                        }
                         Toast.makeText(
                             navController.context,
                             "Tréning nebol uložený, pretože trval menej ako 5 sekúnd",

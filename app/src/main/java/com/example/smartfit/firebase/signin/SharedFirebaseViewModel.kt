@@ -379,6 +379,18 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
+    suspend fun removeGroupTraining(groupTrainingId: String): Boolean {
+
+        return try {
+            firebaseFirestore.collection("groupTrainings").document(groupTrainingId).delete()
+                .await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+
+    }
+
     suspend fun getGroupTrainingData(groupTrainingId: String): GroupTraining? {
         return try {
             val documentSnapshot =
