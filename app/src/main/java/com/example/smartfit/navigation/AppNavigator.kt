@@ -473,7 +473,6 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
             val currentLoggedInUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
             val chosenGroupTrainingParticipants by firebaseViewModel.chosenGroupTrainingParticipantsState.collectAsStateWithLifecycle()
 
-
             GroupTrainingLobby(
                 chosenGroupTraining = chosenGroupTraining,
                 onDeleteClick = {
@@ -530,11 +529,6 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                         firebaseViewModel.fetchGroupTrainingData(chosenGroupTraining.id)
                         firebaseViewModel.fetchAllParticipantsOfTraining(chosenGroupTraining.id)
                     }
-//                    firebaseViewModel.viewModelScope.launch {
-//                        firebaseViewModel.fetchGroupTrainingData(chosenGroupTraining.id)
-//                        firebaseViewModel.fetchAllParticipantsOfTraining(chosenGroupTraining.id)
-//                    }
-//                    true
                 },
                 setTrainingState = { state ->
                     firebaseViewModel.viewModelScope.launch {
@@ -546,6 +540,20 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                         navController.navigate("${Screens.CURRENT_ACTIVITY.name}/$indexOfTraining") {
                             popUpTo(0) { inclusive = true }
                         }
+                    }
+                },
+                onRemoveUserFromTrainingClick = { participantId ->
+                    firebaseViewModel.viewModelScope.launch {
+                        firebaseViewModel.removeUserFromGroupTraining(
+                            userId = participantId,
+                            groupTrainingId = chosenGroupTraining.id
+                        )
+                        firebaseViewModel.fetchAllParticipantsOfTraining(chosenGroupTraining.id)
+                    }
+                },
+                onDisconnectUser = {
+                    navController.navigate(Screens.HOME.name) {
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )
@@ -580,6 +588,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                                     groupTrainingId
                                 ) ?: GroupTraining()
                             )
+                            firebaseViewModel.fetchAllParticipantsOfTraining(groupTrainingId)
                             navController.navigate(Screens.GROUP_TRAINING_LOBBY.name) {
                                 popUpTo(0) { inclusive = true }
                             }

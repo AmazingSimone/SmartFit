@@ -71,6 +71,8 @@ fun GroupTrainingLobby(
     setTrainingState: (Int) -> Unit, //0 - initial, 1 - start and send to screens, 2 - pause, 3 - resume, 4 - end
     onDeleteClick: () -> Unit,
     onEndGroupTrainingClick: (GroupTraining) -> Unit,
+    onRemoveUserFromTrainingClick: (String) -> Unit,
+    onDisconnectUser: () -> Unit,
     onSendAllUsers: (Int) -> Unit
 ) {
 
@@ -85,6 +87,11 @@ fun GroupTrainingLobby(
     val stopWatch = remember { StopWatch() }
     val isStopWatchRunning = remember { mutableStateOf(stopWatch.isRunning()) }
 
+    LaunchedEffect(allTrainingParticipants) {
+        if (!allTrainingParticipants.contains(currentUser) && currentUser.id != chosenGroupTraining.trainerId) {
+            onDisconnectUser()
+        }
+    }
 
     LaunchedEffect(chosenGroupTraining.id) {
         val writer = QRCodeWriter()
@@ -107,6 +114,7 @@ fun GroupTrainingLobby(
         }
         qrBitmap = bitmap
 
+
         if (currentUser.id == chosenGroupTraining.trainerId) {
             fullscreenQrState.value = true
         }
@@ -118,6 +126,7 @@ fun GroupTrainingLobby(
             //delay(1000)
         }
     }
+
 
     LaunchedEffect(chosenGroupTraining.trainingState) {
         when (chosenGroupTraining.trainingState) {
@@ -333,17 +342,22 @@ fun GroupTrainingLobby(
                                                 )
                                             },
                                             trailingContent = {
-                                                IconButton(
-                                                    onClick = {
-
+                                                if (currentUser.id == chosenGroupTraining.trainerId && chosenGroupTraining.trainingState == 0) {
+                                                    IconButton(
+                                                        onClick = {
+                                                            onRemoveUserFromTrainingClick(
+                                                                participant.id
+                                                            )
+                                                        }
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Filled.Close,
+                                                            contentDescription = "Kick user icon",
+                                                            tint = MaterialTheme.colorScheme.error
+                                                        )
                                                     }
-                                                ) {
-                                                    Icon(
-                                                        imageVector = Icons.Filled.Close,
-                                                        contentDescription = "Kick user icon",
-                                                        tint = MaterialTheme.colorScheme.error
-                                                    )
                                                 }
+
                                             },
                                             colors = ListItemDefaults.colors(containerColor = Color.Transparent)
 
@@ -365,7 +379,7 @@ fun GroupTrainingLobby(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.9f))
+                    .background(Color.Black.copy(alpha = 0.9f))
                     .clickable {
                         fullscreenQrState.value = false
                     },
@@ -412,34 +426,36 @@ fun GroupTrainingLobbyPreview() {
         ),
         onEndGroupTrainingClick = { },
         allTrainingParticipants =
-        emptyList()
+        //emptyList()
 
-//        listOf(
-//            User(
-//                id = "user1",
-//                displayName = "User One",
-//                profilePicUrl = "https://example.com/user1.jpg",
-//                birthDate = 0,
-//                height = 0F,
-//                weight = 0F,
-//                bio = "Bio of User One",
-//                color = 1,
-//                isTrainer = false
-//            ),
-//            User(
-//                id = "user2",
-//                displayName = "User Two",
-//                profilePicUrl = "https://example.com/user2.jpg",
-//                birthDate = 0,
-//                height = 0F,
-//                weight = 0F,
-//                bio = "Bio of User Two",
-//                color = 2,
-//                isTrainer = false
-//            )
-//        )
-        ,        //onCheckAllTrainingInfo = { return@GroupTrainingLobby false },
+        listOf(
+            User(
+                id = "user1",
+                displayName = "User One",
+                profilePicUrl = "https://example.com/user1.jpg",
+                birthDate = 0,
+                height = 0F,
+                weight = 0F,
+                bio = "Bio of User One",
+                color = 1,
+                isTrainer = false
+            ),
+            User(
+                id = "user2",
+                displayName = "User Two",
+                profilePicUrl = "https://example.com/user2.jpg",
+                birthDate = 0,
+                height = 0F,
+                weight = 0F,
+                bio = "Bio of User Two",
+                color = 2,
+                isTrainer = false
+            )
+        ),        //onCheckAllTrainingInfo = { return@GroupTrainingLobby false },
         setTrainingState = {},
-        onSendAllUsers = {}
+        onSendAllUsers = {},
+        onCheckAllTrainingInfo = {},
+        onRemoveUserFromTrainingClick = {},
+        onDisconnectUser = {}
     )
 }

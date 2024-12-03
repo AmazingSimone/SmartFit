@@ -432,6 +432,16 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
+    suspend fun removeUserFromGroupTraining(userId: String, groupTrainingId: String): Boolean {
+        return try {
+            firebaseFirestore.collection("groupTrainings").document(groupTrainingId)
+                .collection("participants").document(userId).delete().await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     fun setMyCurrentGroupTraining(groupTraining: GroupTraining) {
 
         _chosenGroupTrainingState.value = groupTraining
