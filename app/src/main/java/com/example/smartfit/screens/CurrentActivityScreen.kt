@@ -1,6 +1,7 @@
 package com.example.smartfit.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,7 +40,7 @@ import java.time.ZoneOffset
 @Composable
 fun CurrentActivityScreen(
     chosenTraining: Training,
-    chosenGroupTraining: GroupTraining = GroupTraining(),
+    chosenGroupTraining: GroupTraining? = null,
     onCheckAllTrainingInfo: () -> Unit = {},
     onEndTraining: (Training) -> Unit,
     //onGroupTrainingEnd: (Training) -> Unit,
@@ -53,51 +54,59 @@ fun CurrentActivityScreen(
     val groupTraining = remember { mutableStateOf(chosenGroupTraining) }
 
     //TODO Skus lepsie spravit
-    LaunchedEffect(chosenGroupTraining.trainingState) {
-        while (chosenTraining.isGroupTraining) {
-            withContext(Dispatchers.IO) {
-                onCheckAllTrainingInfo()
+    if (chosenGroupTraining != null) {
+        LaunchedEffect(chosenGroupTraining.id) {
+            while (true) {
+                Log.d("ahoj", "vnutri while")
+                withContext(Dispatchers.IO) {
+                    onCheckAllTrainingInfo()
+                    Log.d("ahoj", "$groupTraining")
+                }
+                //delay(1000)
             }
-            //delay(1000)
+        }
 
+        LaunchedEffect(chosenGroupTraining.trainingState) {
+            when (chosenGroupTraining.trainingState) {
+                0 -> {
+                    stopWatch.start()
+                    isRunning.value = stopWatch.isRunning()
+                }
+
+                1 -> {
+                    stopWatch.start()
+                    isRunning.value = stopWatch.isRunning()
+                }
+
+                2 -> {
+                    stopWatch.pause()
+                    isRunning.value = stopWatch.isRunning()
+                }
+
+                3 -> {
+                    stopWatch.start()
+                    isRunning.value = stopWatch.isRunning()
+                }
+
+                4 -> {
+                    stopWatch.pause()
+                    onCheckAllTrainingInfo()
+                    training.value =
+                        training.value.copy(trainingDuration = stopWatch.getTimeMillis())
+                    training.value =
+                        training.value.copy(
+                            timeDateOfTraining = groupTraining.value?.timeDateOfTraining
+                                ?: 0
+                        )
+                    training.value = training.value.copy(isGroupTraining = true)
+                    training.value = training.value.copy(id = groupTraining.value?.id ?: "")
+
+                    onEndTraining(training.value)
+                }
+            }
         }
     }
 
-    LaunchedEffect(chosenGroupTraining.trainingState) {
-        when (chosenGroupTraining.trainingState) {
-            0 -> {
-                stopWatch.start()
-                isRunning.value = stopWatch.isRunning()
-            }
-
-            1 -> {
-                stopWatch.start()
-                isRunning.value = stopWatch.isRunning()
-            }
-
-            2 -> {
-                stopWatch.pause()
-                isRunning.value = stopWatch.isRunning()
-            }
-
-            3 -> {
-                stopWatch.start()
-                isRunning.value = stopWatch.isRunning()
-            }
-
-            4 -> {
-                stopWatch.pause()
-                onCheckAllTrainingInfo()
-                training.value = training.value.copy(trainingDuration = stopWatch.getTimeMillis())
-                training.value =
-                    training.value.copy(timeDateOfTraining = groupTraining.value.timeDateOfTraining)
-                training.value = training.value.copy(isGroupTraining = true)
-                training.value = training.value.copy(id = groupTraining.value.id)
-
-                onEndTraining(training.value)
-            }
-        }
-    }
 
 
 
@@ -108,7 +117,7 @@ fun CurrentActivityScreen(
             )
         },
         bottomBar = {
-            if (groupTraining.value.trainingState == 0) {
+            if ((groupTraining.value?.trainingState ?: 0) == 0) {
                 Row() {
                     if (isRunning.value) {
                         CustomButton(
