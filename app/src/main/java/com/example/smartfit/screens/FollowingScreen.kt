@@ -40,7 +40,7 @@ fun FollowingScreen(
 
                         },
                         headlineContent = { NormalText(user.displayName) },
-                        supportingContent = { NormalText(user.bio) },
+                        supportingContent = { if (user.bio.isNotEmpty()) NormalText(user.bio) },
                         leadingContent = {
 
                             CustomProfilePictureFrame(

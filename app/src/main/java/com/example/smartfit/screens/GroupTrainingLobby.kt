@@ -73,7 +73,7 @@ fun GroupTrainingLobby(
     onDeleteClick: (Boolean) -> Unit,
     onEndGroupTrainingClick: (GroupTraining) -> Unit,
     onRemoveUserFromTrainingClick: (String) -> Unit,
-    onDisconnectUser: () -> Unit,
+    onSendUserToHomeScreen: () -> Unit,
     onSendAllUsers: (Int) -> Unit
 ) {
 
@@ -90,7 +90,7 @@ fun GroupTrainingLobby(
 
     LaunchedEffect(allTrainingParticipants) {
         if (!allTrainingParticipants.contains(currentUser) && currentUser.id != chosenGroupTraining.trainerId) {
-            onDisconnectUser()
+            onSendUserToHomeScreen()
         }
     }
 
@@ -285,6 +285,14 @@ fun GroupTrainingLobby(
                             )
                         }
                     }
+                } else {
+                    CustomButton(
+                        modifier = Modifier.padding(20.dp),
+                        onClick = {
+                            onRemoveUserFromTrainingClick(currentUser.id)
+                        },
+                        buttonText = "Odist z treningu"
+                    )
                 }
             }
 
@@ -341,7 +349,11 @@ fun GroupTrainingLobby(
 
                                         ListItem(
                                             overlineContent = { NormalText(participant.displayName) },
-                                            headlineContent = { NormalText(participant.bio) },
+                                            headlineContent = {
+                                                if (participant.bio.isNotEmpty()) NormalText(
+                                                    participant.bio
+                                                )
+                                            },
                                             //supportingContent = {},
                                             leadingContent = {
                                                 CustomProfilePictureFrame(
@@ -447,7 +459,7 @@ fun GroupTrainingLobbyPreview() {
                 birthDate = 0,
                 height = 0F,
                 weight = 0F,
-                bio = "Bio of User One",
+                bio = "",
                 color = 1,
                 isTrainer = false
             ),
@@ -467,6 +479,6 @@ fun GroupTrainingLobbyPreview() {
         onSendAllUsers = {},
         onCheckAllTrainingInfo = {},
         onRemoveUserFromTrainingClick = {},
-        onDisconnectUser = {}
+        onSendUserToHomeScreen = {}
     )
 }

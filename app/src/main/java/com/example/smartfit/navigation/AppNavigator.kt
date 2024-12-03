@@ -567,7 +567,12 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                         firebaseViewModel.fetchAllParticipantsOfTraining(chosenGroupTraining.id)
                     }
                 },
-                onDisconnectUser = {
+                onSendUserToHomeScreen = {
+//                    Toast.makeText(
+//                        navController.context,
+//                        "Bol si vyhodeny z treningu!",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
                     navController.navigate(Screens.HOME.name) {
                         popUpTo(0) { inclusive = true }
                     }
