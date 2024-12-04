@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -46,14 +47,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -590,7 +594,7 @@ fun CustomOnlineStateIndicator(
 fun CustomProfilePictureFrame(
     pictureUrl: String,
     frameColor: Color = Color.Unspecified,
-    enabled: Boolean = true,
+    enabled: Boolean = false,
     editOption: Boolean = false,
     onClick: () -> Unit = {},
     frameSize: Dp = 50.dp,
@@ -1378,6 +1382,64 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomBottomModalSheet(
+    sheetState: SheetState = rememberModalBottomSheetState(),
+    onDismissRequest: () -> Unit,
+    stopWatch: String,
+    trainingState: Int,
+    receivedUser: User,
+    completedTrainingsList: List<Training>,
+    followedUsersList: List<User>,
+    loggedInUser: User,
+    onUnFollowButtonClick: (String) -> Unit,
+    onFollowButtonClick: (String) -> Unit,
+    loggedInUserFollowedUsersList: List<User>
+) {
+    ModalBottomSheet(
+        sheetState = sheetState,
+        onDismissRequest = onDismissRequest,
+        dragHandle = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                BottomSheetDefaults.DragHandle()
+                if (trainingState > 0) {
+                    Heading1("Aktualne data")
+                } else {
+                    Heading1("Profil")
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                HorizontalDivider()
+            }
+        }
+    ) {
+
+        Box(
+            modifier = Modifier
+                .padding(20.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+
+            if (trainingState > 0) {
+                RunningTrainingInfoContent(stopWatch)
+            } else {
+                ProfileInfoContent(
+                    onUnFollowButtonClick = onUnFollowButtonClick,
+                    onFollowButtonClick = onFollowButtonClick,
+                    recievedUser = receivedUser,
+                    followedUsersList = followedUsersList,
+                    completedtrainingsList = completedTrainingsList,
+                    loggedInUser = loggedInUser,
+                    loggedInUserfollowedUsersList = loggedInUserFollowedUsersList
+                )
             }
         }
     }
