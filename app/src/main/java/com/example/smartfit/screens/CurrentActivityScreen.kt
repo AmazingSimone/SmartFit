@@ -2,11 +2,8 @@ package com.example.smartfit.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsRun
@@ -24,8 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomButton
-import com.example.smartfit.components.CustomTrainingInfoDisplayCard
 import com.example.smartfit.components.Heading1
+import com.example.smartfit.components.RunningTrainingInfoContent
 import com.example.smartfit.components.StopWatch
 import com.example.smartfit.data.GroupTraining
 import com.example.smartfit.data.Training
@@ -175,73 +172,9 @@ fun CurrentActivityScreen(
                 contentAlignment = Alignment.TopCenter
             ) {
 
-                Column(
+                RunningTrainingInfoContent(stopWatch.getCustomFormattedTime())
 
-                ) {
-                    CustomTrainingInfoDisplayCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(50.dp),
-                        title = "Cas",
-                        timeData = stopWatch.getCustomFormattedTime()
-                    )
-                    Spacer(Modifier.padding(5.dp))
-                    Row {
-                        CustomTrainingInfoDisplayCard(
-                            modifier = Modifier
-                                .fillMaxWidth(0.48f)
-                                .padding(30.dp),
-                            title = "Vzdialenost"
-                        )
-                        Spacer(Modifier.padding(5.dp))
 
-                        CustomTrainingInfoDisplayCard(
-                            modifier = Modifier
-                                .fillMaxWidth(1f)
-                                .padding(30.dp),
-
-                            title = "Srdcovy tep"
-                        )
-                    }
-                    Spacer(Modifier.padding(5.dp))
-                    Row {
-                        CustomTrainingInfoDisplayCard(
-                            modifier = Modifier
-                                .fillMaxWidth(0.48f)
-                                .padding(30.dp),
-
-                            title = "Kadencia"
-                        )
-                        Spacer(Modifier.padding(5.dp))
-
-                        CustomTrainingInfoDisplayCard(
-                            modifier = Modifier
-                                .fillMaxWidth(1f)
-                                .padding(30.dp),
-
-                            title = "Rychlost"
-                        )
-                    }
-                    Spacer(Modifier.padding(5.dp))
-                    Row {
-                        CustomTrainingInfoDisplayCard(
-                            modifier = Modifier
-                                .fillMaxWidth(0.48f)
-                                .padding(30.dp),
-
-                            title = "Spalene kalorie"
-                        )
-                        Spacer(Modifier.padding(5.dp))
-
-                        CustomTrainingInfoDisplayCard(
-                            modifier = Modifier
-                                .fillMaxWidth(1f)
-                                .padding(43.dp),
-
-                            title = "Teplota"
-                        )
-                    }
-                }
             }
         }
     }

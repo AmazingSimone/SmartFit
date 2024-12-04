@@ -98,7 +98,8 @@ fun NavigationUpAndBottomBar(
                                 CustomProfilePictureFrame(
                                     pictureUrl = recievedUser.profilePicUrl.toString(),
                                     frameColor = Color(frameColors[recievedUser.color]),
-                                    onClick = { onProfilePictureClick(recievedUser.id) }
+                                    onClick = { onProfilePictureClick(recievedUser.id) },
+                                    enabled = true
                                 )
                             } else if (selectedItem == 1) {
                                 CustomIconButton(

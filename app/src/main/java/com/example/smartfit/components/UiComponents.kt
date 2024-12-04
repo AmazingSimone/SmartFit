@@ -719,6 +719,180 @@ fun CustomProfileInfoTable(
 }
 
 @Composable
+fun ProfileInfoContent(
+    padding: Dp = 8.dp,
+    onEditClick: () -> Unit = {},
+    onUnFollowButtonClick: (String) -> Unit,
+    onFollowButtonClick: (String) -> Unit,
+    recievedUser: User,
+    followedUsersList: List<User>,
+    completedtrainingsList: List<Training>,
+    loggedInUser: User?,
+    loggedInUserfollowedUsersList: List<User>,
+    editOption: Boolean = false,
+    enabled: Boolean = false
+) {
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        CustomProfilePictureFrame(
+            pictureUrl = recievedUser.profilePicUrl.toString(),
+            editOption = editOption,
+            enabled = enabled,
+            frameColor = Color(frameColors[recievedUser.color]),
+            frameSize = 200.dp,
+            onClick = { onEditClick() }
+        )
+        Spacer(Modifier.padding(padding))
+
+        HeadlineText(recievedUser.displayName ?: "")
+
+        Spacer(Modifier.padding(padding - 6.dp))
+
+        Row {
+            Box(
+                modifier = Modifier
+                    .background(
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(18.dp)
+                    )
+                    .padding(8.dp)
+            ) {
+                Heading3("Trenigy ${completedtrainingsList.size}")
+            }
+            Spacer(Modifier.padding(padding))
+            Box(
+                modifier = Modifier
+                    .background(
+                        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(18.dp)
+                    )
+                    .padding(8.dp)
+            ) {
+                Heading3("Sleduje ${followedUsersList.size}")
+            }
+        }
+
+        if (recievedUser.bio.isNotEmpty()) {
+
+            Spacer(Modifier.padding(padding - 6.dp))
+
+            NormalText(recievedUser.bio ?: "")
+
+        }
+
+        Spacer(Modifier.padding(padding))
+
+        if (recievedUser != loggedInUser) {
+
+            if (loggedInUserfollowedUsersList.contains(recievedUser)) {
+
+                CustomButton(
+                    onClick = { onUnFollowButtonClick(recievedUser.id) },
+                    buttonText = "Sledujes"
+                )
+            } else {
+                CustomButton(
+                    onClick = { onFollowButtonClick(recievedUser.id) },
+                    buttonText = "Zacat sledovat",
+                    outlined = true
+                )
+            }
+            Spacer(Modifier.padding(padding))
+
+        }
+
+
+
+        CustomProfileInfoTable(
+            avgTimeOfActivity = "0min",
+            avgCountOfSteps = 0,
+            avgBurnedCalories = 0,
+            favouriteTraining = "--"
+        )
+
+
+    }
+
+}
+
+@Composable
+fun RunningTrainingInfoContent(
+    stopWatch: String
+) {
+
+    Column {
+        CustomTrainingInfoDisplayCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(50.dp),
+            title = "Cas",
+            timeData = stopWatch
+        )
+        Spacer(Modifier.padding(5.dp))
+        Row {
+            CustomTrainingInfoDisplayCard(
+                modifier = Modifier
+                    .fillMaxWidth(0.48f)
+                    .padding(30.dp),
+                title = "Vzdialenost"
+            )
+            Spacer(Modifier.padding(5.dp))
+
+            CustomTrainingInfoDisplayCard(
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .padding(30.dp),
+
+                title = "Srdcovy tep"
+            )
+        }
+        Spacer(Modifier.padding(5.dp))
+        Row {
+            CustomTrainingInfoDisplayCard(
+                modifier = Modifier
+                    .fillMaxWidth(0.48f)
+                    .padding(30.dp),
+
+                title = "Kadencia"
+            )
+            Spacer(Modifier.padding(5.dp))
+
+            CustomTrainingInfoDisplayCard(
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .padding(30.dp),
+
+                title = "Rychlost"
+            )
+        }
+        Spacer(Modifier.padding(5.dp))
+        Row {
+            CustomTrainingInfoDisplayCard(
+                modifier = Modifier
+                    .fillMaxWidth(0.48f)
+                    .padding(30.dp),
+
+                title = "Spalene kalorie"
+            )
+            Spacer(Modifier.padding(5.dp))
+
+            CustomTrainingInfoDisplayCard(
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .padding(43.dp),
+
+                title = "Teplota"
+            )
+        }
+    }
+
+}
+
+
+@Composable
 fun CustomIconButton(
     onClick: () -> Unit,
     icon: ImageVector,
