@@ -31,11 +31,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.smartfit.components.CustomBottomModalSheet
 import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.Heading1
@@ -54,6 +57,7 @@ import com.example.smartfit.components.HeadlineText
 import com.example.smartfit.components.NormalText
 import com.example.smartfit.components.StopWatch
 import com.example.smartfit.data.GroupTraining
+import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
 import com.example.smartfit.data.frameColors
 import com.example.smartfit.data.trainingList
@@ -67,10 +71,17 @@ import kotlinx.coroutines.withContext
 fun GroupTrainingLobby(
     chosenGroupTraining: GroupTraining,
     currentUser: User,
+    loggedInUserfollowedUsersList: List<User>,
     allTrainingParticipants: List<User>,
-    onCheckAllTrainingInfo: () -> Unit = {},
+    chosenUser: User,
+    chosenUserCompletedTrainings: List<Training>,
+    chosenUserFollowing: List<User>,
+    onCheckAllTrainingInfo: () -> Unit,
+    onUnFollowButtonClick: (String) -> Unit,
+    onFollowButtonClick: (String) -> Unit,
     setTrainingState: (Int) -> Unit, //0 - initial, 1 - start and send to screens, 2 - pause, 3 - resume, 4 - end
     onDeleteClick: (Boolean) -> Unit,
+    onUserClick: (String) -> Unit,
     onEndGroupTrainingClick: (GroupTraining) -> Unit,
     onRemoveUserFromTrainingClick: (String) -> Unit,
     onSendUserToHomeScreen: () -> Unit,
@@ -87,6 +98,13 @@ fun GroupTrainingLobby(
 
     val stopWatch = remember { StopWatch() }
     val isStopWatchRunning = remember { mutableStateOf(stopWatch.isRunning()) }
+
+    //
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
+    //
+
 
     LaunchedEffect(allTrainingParticipants) {
         if (!allTrainingParticipants.contains(currentUser) && currentUser.id != chosenGroupTraining.trainerId) {
@@ -298,7 +316,6 @@ fun GroupTrainingLobby(
 
         ) { innerPadding ->
 
-
             val padding: Dp = 8.dp
             Surface(modifier = Modifier.padding(innerPadding)) {
 
@@ -348,6 +365,10 @@ fun GroupTrainingLobby(
 
 
                                         ListItem(
+                                            modifier = Modifier.clickable {
+                                                showBottomSheet = true
+                                                onUserClick(participant.id)
+                                            },
                                             overlineContent = { NormalText(participant.displayName) },
                                             headlineContent = {
                                                 if (participant.bio.isNotEmpty()) NormalText(
@@ -392,10 +413,24 @@ fun GroupTrainingLobby(
                         }
                     }
                 }
-
-
             }
 
+            if (showBottomSheet) {
+
+                CustomBottomModalSheet(
+                    sheetState = sheetState,
+                    onDismissRequest = { showBottomSheet = false },
+                    stopWatch = stopWatch.getCustomFormattedTime(),
+                    trainingState = chosenGroupTraining.trainingState,
+                    receivedUser = chosenUser,
+                    completedTrainingsList = chosenUserCompletedTrainings,
+                    followedUsersList = chosenUserFollowing,
+                    loggedInUser = currentUser,
+                    onUnFollowButtonClick = onUnFollowButtonClick,
+                    onFollowButtonClick = onFollowButtonClick,
+                    loggedInUserFollowedUsersList = loggedInUserfollowedUsersList
+                )
+            }
         }
         if (fullscreenQrState.value) {
             Box(
@@ -479,6 +514,13 @@ fun GroupTrainingLobbyPreview() {
         onSendAllUsers = {},
         onCheckAllTrainingInfo = {},
         onRemoveUserFromTrainingClick = {},
-        onSendUserToHomeScreen = {}
+        onSendUserToHomeScreen = {},
+        loggedInUserfollowedUsersList = emptyList(),
+        chosenUser = User(),
+        chosenUserCompletedTrainings = emptyList(),
+        chosenUserFollowing = emptyList(),
+        onUnFollowButtonClick = {},
+        onFollowButtonClick = {},
+        onUserClick = {}
     )
 }

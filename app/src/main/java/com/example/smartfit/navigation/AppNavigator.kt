@@ -167,7 +167,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                         if (firebaseViewModel.removeUserFromFollowing(userId)) {
                             Toast.makeText(
                                 navController.context,
-                                "Pouzivatel bol odstraneni zo zoznamu sledovanich",
+                                "Pouzivatel bol odstraneny zo zoznamu sledovanich",
                                 Toast.LENGTH_SHORT
                             ).show()
                             firebaseViewModel.checkCurrentUser()
@@ -411,7 +411,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                         if (firebaseViewModel.removeUserFromFollowing(userId)) {
                             Toast.makeText(
                                 navController.context,
-                                "Pouzivatel bol odstraneni zo zoznamu sledovanich",
+                                "Pouzivatel bol odstraneny zo zoznamu sledovanich",
                                 Toast.LENGTH_SHORT
                             ).show()
                             firebaseViewModel.checkCurrentUser()
@@ -464,7 +464,15 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
 
             val chosenGroupTraining by firebaseViewModel.chosenGroupTrainingState.collectAsStateWithLifecycle()
             val currentLoggedInUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
+            val sharedSignedInUserFollowing by firebaseViewModel.sharedUserFollowingState.collectAsStateWithLifecycle()
+
             val chosenGroupTrainingParticipants by firebaseViewModel.chosenGroupTrainingParticipantsState.collectAsStateWithLifecycle()
+
+            val chosenUser = firebaseViewModel.chosenUserState.collectAsStateWithLifecycle()
+            val chosenUserCompletedTrainings =
+                firebaseViewModel.chosenUserTrainingsState.collectAsStateWithLifecycle()
+            val chosenUserFollowing =
+                firebaseViewModel.chosenUserFollowingState.collectAsStateWithLifecycle()
 
             GroupTrainingLobby(
                 chosenGroupTraining = chosenGroupTraining,
@@ -576,10 +584,53 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                     navController.navigate(Screens.HOME.name) {
                         popUpTo(0) { inclusive = true }
                     }
+                },
+                onUserClick = { chosenUserId ->
+                    firebaseViewModel.viewModelScope.launch {
+                        firebaseViewModel.chooseUser(chosenUserId)
+                    }
+                },
+                loggedInUserfollowedUsersList = sharedSignedInUserFollowing,
+                chosenUser = chosenUser.value,
+                chosenUserCompletedTrainings = chosenUserCompletedTrainings.value,
+                chosenUserFollowing = chosenUserFollowing.value,
+                onUnFollowButtonClick = { userId ->
+                    firebaseViewModel.viewModelScope.launch {
+                        if (firebaseViewModel.removeUserFromFollowing(userId)) {
+                            Toast.makeText(
+                                navController.context,
+                                "Pouzivatel bol odstraneny zo zoznamu sledovanich",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            firebaseViewModel.checkCurrentUser()
+                        } else {
+                            Toast.makeText(
+                                navController.context,
+                                "Nastala chyba pri ukladani udajov",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                },
+                onFollowButtonClick = { userId ->
+                    firebaseViewModel.viewModelScope.launch {
+                        if (firebaseViewModel.addUserToFollowing(userId)) {
+                            Toast.makeText(
+                                navController.context,
+                                "Sledujes pouzivatela",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            firebaseViewModel.checkCurrentUser()
+                        } else {
+                            Toast.makeText(
+                                navController.context,
+                                "Nastala chyba pri ukladani udajov",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 }
             )
-
-
         }
 
         composable(Screens.QR_READER_SCREEN.name) {
