@@ -99,7 +99,7 @@ fun SearchForUserScreen(
 
                         ListItem(
                             headlineContent = { Text(user.displayName) },
-                            supportingContent = { Text(user.bio) },
+                            supportingContent = { if (user.bio.isNotEmpty()) Text(user.bio) },
                             leadingContent = {
                                 CustomProfilePictureFrame(
                                     pictureUrl = user.profilePicUrl,
