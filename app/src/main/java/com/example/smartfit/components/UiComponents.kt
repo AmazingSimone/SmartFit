@@ -2,6 +2,7 @@ package com.example.smartfit.components
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -71,6 +72,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -82,6 +84,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.smartfit.R
 import com.example.smartfit.data.GroupTraining
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
@@ -921,14 +924,14 @@ fun CustomIconButton(
 
 
 //TODO - este niesom velmi isty na 100% s designom plus by som farby mohol nastavit podla typu
-// nameranych dat nejake urcit...
+// nameranych dat nejake urcit... (farba ikony a rovnaka ale tmavsia farba karty)
 @Composable
 fun CustomInfoCardFromDevice(
     heading: String,
     data: Int,
     goal: Int = 0,
     unit: String = "",
-    icon: ImageVector
+    image: Int
 ) {
     ElevatedCard(
         modifier = Modifier.height(150.dp)
@@ -951,7 +954,10 @@ fun CustomInfoCardFromDevice(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        HeadlineText(data.toString(), fontWeight = FontWeight.Bold)
+                        HeadlineText(
+                            if (data == 0) "--" else data.toString(),
+                            fontWeight = FontWeight.Bold
+                        )
                         if (goal > 0) HeadlineText(
                             " / ${goal}",
                             fontWeight = FontWeight.Bold
@@ -965,10 +971,10 @@ fun CustomInfoCardFromDevice(
                             .weight(1f),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = "Device info card icon",
-                            modifier = Modifier.fillMaxSize()
+                        Image(
+                            modifier = Modifier.fillMaxSize(0.7f),
+                            painter = painterResource(image),
+                            contentDescription = "Image of card"
                         )
                     }
                 }
@@ -1450,27 +1456,10 @@ fun CustomBottomModalSheet(
 @Preview(showBackground = true)
 @Composable
 fun PreviewComponents() {
-    CustomGroupTrainingParticipantsDetailsCard(
-        participant = User(
-            id = "MZ6M79VA9zetdUHX4NtgRE6UDzx2",
-            displayName = "Simon Bartanus",
-            profilePicUrl = "https://lh3.googleusercontent.com/a/ACg8ocIlxeLUaG-f883-a5lmUuQaqHiiaeuouQnzFf-SZFIND2HBCLf3=s96-c",
-            bio = "Toto je uzastne bio",
-            color = 1
-        ),
-        training = trainingList[0].copy(
-            trainingDuration = 7363,
-            timeDateOfTraining = 1732746897,
-            avgSpeed = 0F,
-            burnedCalories = 0F,
-            avgHeartRate = 0,
-            avgTempo = 0,
-            steps = 0,
-            trainingTemperature = 0,
-            isGroupTraining = true,
-            id = "pYqROgvqtzWm5cYskr1Z"
-        ),
-        onCardClick = {}
+    CustomInfoCardFromDevice(
+        heading = "Kroky",
+        data = 0,
+        image = R.drawable.steps
     )
 }
 
