@@ -2,6 +2,7 @@ package com.example.smartfit.navigation
 
 import QrReaderScreen
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -24,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.smartfit.R
+import com.example.smartfit.ble_device.BLEClient
 import com.example.smartfit.data.GroupTraining
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
@@ -45,11 +47,9 @@ import kotlinx.coroutines.runBlocking
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppNavigator(navController: NavHostController = rememberNavController()) {
-
+fun AppNavigator(navController: NavHostController = rememberNavController(), bleClient: BLEClient) {
 
     GoogleAuthProvider.create(credentials = GoogleAuthCredentials(serverId = stringResource(R.string.default_web_client_id)))
-
 
     val firebaseViewModel = viewModel<SharedFirebaseViewModel>()
     firebaseViewModel.checkCurrentUser()
@@ -65,6 +65,17 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
             val sharedUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
 
             val sharedUserFollowingList by firebaseViewModel.sharedUserFollowingState.collectAsStateWithLifecycle()
+
+            val bleConnectionState by bleClient.stateOfDevice.collectAsStateWithLifecycle()
+
+            val bleData by bleClient.data.collectAsStateWithLifecycle()
+            Log.d("AHOJBLE", "$bleData")
+            bleClient.startScan { device ->
+                bleClient.connectToDevice(device)
+            }
+//            if (bleConnectionState == 2) {
+//                bleClient.startReading()
+//            }
 
             if (isLoading) {
                 Box(
@@ -113,7 +124,9 @@ fun AppNavigator(navController: NavHostController = rememberNavController()) {
                     recievedListOfUsers = sharedUserFollowingList,
                     onFAButtonClick = { trainerId ->
                         navController.navigate("${Screens.CREATE_GROUP_TRAINING.name}/${trainerId}")
-                    }
+                    },
+                    isBLEConnected = bleConnectionState,
+                    nrfData = bleData
                 )
             }
         }
