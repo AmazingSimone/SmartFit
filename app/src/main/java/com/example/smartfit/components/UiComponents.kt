@@ -928,7 +928,7 @@ fun CustomIconButton(
 @Composable
 fun CustomInfoCardFromDevice(
     heading: String,
-    data: Int,
+    data: String,
     goal: Int = 0,
     unit: String = "",
     image: Int
@@ -955,7 +955,7 @@ fun CustomInfoCardFromDevice(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         HeadlineText(
-                            if (data == 0) "--" else data.toString(),
+                            if (data.equals("0") || data.equals("0.0")) "--" else data.toString(),
                             fontWeight = FontWeight.Bold
                         )
                         if (goal > 0) HeadlineText(
@@ -1458,7 +1458,7 @@ fun CustomBottomModalSheet(
 fun PreviewComponents() {
     CustomInfoCardFromDevice(
         heading = "Kroky",
-        data = 0,
+        data = "0",
         image = R.drawable.steps
     )
 }
