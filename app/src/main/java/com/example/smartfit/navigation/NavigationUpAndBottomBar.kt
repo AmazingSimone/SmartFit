@@ -21,6 +21,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -41,6 +42,7 @@ import com.example.smartfit.components.CustomIconButton
 import com.example.smartfit.components.CustomOnlineStateIndicator
 import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.HeadlineText
+import com.example.smartfit.data.NrfData
 import com.example.smartfit.data.User
 import com.example.smartfit.data.frameColors
 import com.example.smartfit.screens.ActivityScreen
@@ -58,8 +60,11 @@ fun NavigationUpAndBottomBar(
     onUserClick: (String) -> Unit,
     onSearchClick: () -> Unit,
     recievedUser: User,
-    recievedListOfUsers: List<User>
+    recievedListOfUsers: List<User>,
+    isBLEConnected: Int,
+    nrfData: NrfData
 ) {
+
 
     var selectedItem by rememberSaveable { mutableIntStateOf(0) }
     val navBarItemsStrings = listOf("Domov", "Aktivita", "Sledujes")
@@ -93,7 +98,15 @@ fun NavigationUpAndBottomBar(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             if (selectedItem == 0) {
-                                CustomOnlineStateIndicator(onClick = { onDeviceIndicatorClick() })
+                                CustomOnlineStateIndicator(
+                                    onClick = { onDeviceIndicatorClick() },
+                                    indicatorColor = when (isBLEConnected) {
+                                        0 -> MaterialTheme.colorScheme.error
+                                        1 -> Color.Yellow
+                                        2 -> Color.Green
+                                        else -> MaterialTheme.colorScheme.error
+                                    }
+                                )
                                 Spacer(Modifier.padding(horizontal = 5.dp))
                                 CustomProfilePictureFrame(
                                     pictureUrl = recievedUser.profilePicUrl.toString(),
@@ -163,7 +176,7 @@ fun NavigationUpAndBottomBar(
             ) {
 
                 if (selectedItem == 0) {
-                    HomeScreen()
+                    HomeScreen(nrfData)
                 } else if (selectedItem == 1) {
                     ActivityScreen(onActivityClick)
                 } else {
@@ -192,6 +205,8 @@ fun PreviewNavbar() {
         onSearchClick = {},
         recievedUser = User(),
         recievedListOfUsers = emptyList(),
-        onFAButtonClick = {}
+        onFAButtonClick = {},
+        isBLEConnected = 0,
+        nrfData = NrfData()
     )
 }
