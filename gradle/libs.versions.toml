@@ -33,6 +33,7 @@ firebaseFirestore = "25.1.1"
 cameraCore = "1.4.0"
 cameraLifecycle = "1.4.0"
 cameraView = "1.4.0"
+bluetooth = "1.0.0-alpha02"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -75,6 +76,7 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraLifecycle" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraView" }
+androidx-bluetooth = { group = "androidx.bluetooth", name = "bluetooth", version.ref = "bluetooth" }
 
 
 [plugins]
