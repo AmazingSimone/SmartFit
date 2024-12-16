@@ -1,6 +1,7 @@
 package com.example.smartfit.ble_device
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
@@ -39,6 +40,9 @@ class BLEClient(private val context: Context) {
     private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
     private var bluetoothGatt: BluetoothGatt? = null
 
+    private val _listOfBleDevices = MutableStateFlow<List<ScanResult>>(emptyList())
+    val listOfBleDevices = _listOfBleDevices.asStateFlow()
+
     private val _data = MutableStateFlow(NrfData())
     val data = _data.asStateFlow()
 
@@ -49,6 +53,8 @@ class BLEClient(private val context: Context) {
 
     private var coroutineScope = CoroutineScope(Dispatchers.Default)
 
+    private lateinit var scanCallback: ScanCallback
+
     fun startScan(callback: (BluetoothDevice) -> Unit) {
         if (ActivityCompat.checkSelfPermission(
                 context,
@@ -58,17 +64,20 @@ class BLEClient(private val context: Context) {
             Log.e("AHOJBLE", "Permission BLUETOOTH_SCAN not granted")
             return
         }
-        bluetoothAdapter?.bluetoothLeScanner?.startScan(object : ScanCallback() {
+        scanCallback = object : ScanCallback() {
+            @SuppressLint("MissingPermission")
             override fun onScanResult(callbackType: Int, result: ScanResult) {
-                if (result.device.address == DEVICE_ADDRESS) {
-                    callback(result.device)
-                    stopScan(this)
+                if (_listOfBleDevices.value.none { it.device.address == result.device.address }) {
+                    _listOfBleDevices.value += result
                 }
             }
-        })
+        }
+        bluetoothAdapter?.bluetoothLeScanner?.startScan(scanCallback)
     }
 
-    fun stopScan(scanCallback: ScanCallback) {
+    fun stopScan(
+        //    scanCallback: ScanCallback
+    ) {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.BLUETOOTH_SCAN
@@ -163,10 +172,10 @@ class BLEClient(private val context: Context) {
                 status: Int
             ) {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
-                    Log.i(
-                        "AHOJBLE",
-                        "onRead ${getParsedToObject(characteristic.value?.toString(Charsets.UTF_8) ?: "")}"
-                    )
+//                    Log.i(
+//                        "AHOJBLE",
+//                        "onRead ${getParsedToObject(characteristic.value?.toString(Charsets.UTF_8) ?: "")}"
+//                    )
                     //_data.value = getParsedToObject(characteristic.value?.toString(Charsets.UTF_8) ?: "")
                 }
             }
@@ -209,6 +218,10 @@ class BLEClient(private val context: Context) {
             }
         })
     }
+
+//    fun getListOfScannedDevices(): MutableList<ScanResult> {
+//        return listOfBleDevices
+//    }
 
     fun startReading() {
         if (ActivityCompat.checkSelfPermission(
@@ -272,6 +285,7 @@ class BLEClient(private val context: Context) {
         bluetoothGatt = null
         //_isReady.value = false
         _stateOfDevice.value = 0
+        _listOfBleDevices.value = mutableListOf()
     }
 
     private fun getParsedToObject(input: String): NrfData {
