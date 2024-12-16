@@ -175,17 +175,23 @@ fun NavigationUpAndBottomBar(
                     .clip(RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp))
             ) {
 
-                if (selectedItem == 0) {
-                    HomeScreen(nrfData)
-                } else if (selectedItem == 1) {
-                    ActivityScreen(onActivityClick)
-                } else {
-                    FollowingScreen(
-                        listOfUsers = recievedListOfUsers,
-                        onUserClick = { userId ->
-                            onUserClick(userId)
-                        }
-                    )
+                when (selectedItem) {
+                    0 -> {
+                        HomeScreen(nrfData)
+                    }
+
+                    1 -> {
+                        ActivityScreen(onActivityClick)
+                    }
+
+                    else -> {
+                        FollowingScreen(
+                            listOfUsers = recievedListOfUsers,
+                            onUserClick = { userId ->
+                                onUserClick(userId)
+                            }
+                        )
+                    }
                 }
             }
         }

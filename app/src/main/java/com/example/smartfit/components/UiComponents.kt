@@ -741,6 +741,7 @@ fun ProfileInfoContent(
 ) {
 
     Column(
+        modifier = Modifier.padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -1262,11 +1263,16 @@ fun CustomGroupTrainingParticipantsDetailsCard(
         modifier = modifier.clickable {
             onCardClick()
         },
-        colors = CardDefaults.cardColors(
-            containerColor = Color(frameColors[participant.color]).copy(
-                alpha = 0.07f
+        colors = if (participant.color != 0) {
+            CardDefaults.cardColors(
+                Color(frameColors[participant.color]).copy(
+                    alpha = 0.07f
+                )
             )
-        )
+        } else {
+            CardDefaults.cardColors()
+        }
+
     ) {
 
         Column() {

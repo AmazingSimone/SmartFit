@@ -1,5 +1,6 @@
 package com.example.smartfit.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,9 +13,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -23,6 +26,7 @@ import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.ProfileInfoContent
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
+import com.example.smartfit.data.frameColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,7 +55,15 @@ fun UserProfileScreen(
                     IconButton(onClick = { onCloseClick() }) {
                         Icon(imageVector = Icons.Filled.Close, contentDescription = "Close")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = if (recievedUser.color != 0)
+                        Color(frameColors[recievedUser.color]).copy(
+                            alpha = 0.07f
+                        )
+                    else
+                        MaterialTheme.colorScheme.background
+                )
             )
         },
         bottomBar = {
@@ -64,7 +76,7 @@ fun UserProfileScreen(
                     buttonText = "Odhlasit sa"
                 )
             }
-        }
+        },
 
     ) { innerPadding ->
         val padding: Dp = 8.dp
@@ -73,7 +85,15 @@ fun UserProfileScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 20.dp),
+                    //.padding(horizontal = 20.dp)
+                    .background(
+                        if (recievedUser.color != 0)
+                            Color(frameColors[recievedUser.color]).copy(
+                                alpha = 0.07f
+                            )
+                        else
+                            MaterialTheme.colorScheme.background
+                    ),
                 contentAlignment = Alignment.TopCenter
             ) {
 
