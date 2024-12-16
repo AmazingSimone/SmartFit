@@ -34,6 +34,7 @@ import com.example.smartfit.firebase.signin.SharedFirebaseViewModel
 import com.example.smartfit.screens.ActivityDetailScreen
 import com.example.smartfit.screens.CreateGroupTrainingScreen
 import com.example.smartfit.screens.CurrentActivityScreen
+import com.example.smartfit.screens.DeviceScreen
 import com.example.smartfit.screens.EditProfileInfoScreen
 import com.example.smartfit.screens.GroupTrainingLobby
 import com.example.smartfit.screens.LoginScreen
@@ -70,9 +71,9 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
 
             val bleData by bleClient.data.collectAsStateWithLifecycle()
             Log.d("AHOJBLE", "$bleData")
-            bleClient.startScan { device ->
-                bleClient.connectToDevice(device)
-            }
+//            bleClient.startScan { device ->
+//                bleClient.connectToDevice(device)
+//            }
 //            if (bleConnectionState == 2) {
 //                bleClient.startReading()
 //            }
@@ -91,7 +92,9 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                 NavigationUpAndBottomBar(
 
                     recievedUser = sharedUser,
-                    onDeviceIndicatorClick = {},
+                    onDeviceIndicatorClick = {
+                        navController.navigate(Screens.DEVICE_SCREEN.name)
+                    },
                     onProfilePictureClick = {
                         firebaseViewModel.viewModelScope.launch {
                             firebaseViewModel.chooseUser(it)
@@ -679,6 +682,16 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                             }
                         }
                     }
+                }
+            )
+        }
+
+        composable(Screens.DEVICE_SCREEN.name) {
+
+            DeviceScreen(
+                bleClient = bleClient,
+                onBackClick = {
+                    navController.navigateUp()
                 }
             )
         }
