@@ -53,7 +53,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
     GoogleAuthProvider.create(credentials = GoogleAuthCredentials(serverId = stringResource(R.string.default_web_client_id)))
 
     val firebaseViewModel = viewModel<SharedFirebaseViewModel>()
-    firebaseViewModel.checkCurrentUser()
+    firebaseViewModel.getCurrentUserDataFromFirebase()
 
     NavHost(
         navController = navController,
@@ -98,7 +98,6 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                     onProfilePictureClick = {
                         firebaseViewModel.viewModelScope.launch {
                             firebaseViewModel.chooseUser(it)
-
                         }
                         navController.navigate(Screens.USER_PROFILE.name) {
                             popUpTo(Screens.USER_PROFILE.name) {
@@ -186,7 +185,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                                 "Pouzivatel bol odstraneny zo zoznamu sledovanich",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            firebaseViewModel.checkCurrentUser()
+                            firebaseViewModel.getCurrentUserDataFromFirebase()
                         } else {
                             Toast.makeText(
                                 navController.context,
@@ -204,7 +203,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                                 "Sledujes pouzivatela",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            firebaseViewModel.checkCurrentUser()
+                            firebaseViewModel.getCurrentUserDataFromFirebase()
                         } else {
                             Toast.makeText(
                                 navController.context,
@@ -225,6 +224,9 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                 recievedUser = sharedUser,
                 onBackClick = {
                     //TODO toto inac vobec nefunguje stale mozem rychlim dvojklikom popnut ostatne obrazovky
+                    firebaseViewModel.viewModelScope.launch {
+                        firebaseViewModel.chooseUser(sharedUser.id)
+                    }
                     navController.navigateUp()
                 },
                 onSaveClick = {
@@ -235,7 +237,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                                 "Udaje boli uspesne ulozene",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            firebaseViewModel.checkCurrentUser()
+                            firebaseViewModel.getCurrentUserDataFromFirebase()
                         } else {
                             Toast.makeText(
                                 navController.context,
@@ -285,7 +287,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
-                            firebaseViewModel.checkCurrentUser()
+                            firebaseViewModel.getCurrentUserDataFromFirebase()
                         }
                     }
                     navController.navigate(Screens.HOME.name) {
@@ -411,7 +413,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                                 "Sledujes pouzivatela",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            firebaseViewModel.checkCurrentUser()
+                            firebaseViewModel.getCurrentUserDataFromFirebase()
                         } else {
                             Toast.makeText(
                                 navController.context,
@@ -430,7 +432,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                                 "Pouzivatel bol odstraneny zo zoznamu sledovanich",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            firebaseViewModel.checkCurrentUser()
+                            firebaseViewModel.getCurrentUserDataFromFirebase()
                         } else {
                             Toast.makeText(
                                 navController.context,
@@ -618,7 +620,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                                 "Pouzivatel bol odstraneny zo zoznamu sledovanich",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            firebaseViewModel.checkCurrentUser()
+                            firebaseViewModel.getCurrentUserDataFromFirebase()
                         } else {
                             Toast.makeText(
                                 navController.context,
@@ -636,7 +638,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                                 "Sledujes pouzivatela",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            firebaseViewModel.checkCurrentUser()
+                            firebaseViewModel.getCurrentUserDataFromFirebase()
                         } else {
                             Toast.makeText(
                                 navController.context,

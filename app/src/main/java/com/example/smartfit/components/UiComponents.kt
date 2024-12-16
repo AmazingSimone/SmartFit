@@ -792,23 +792,25 @@ fun ProfileInfoContent(
 
         Spacer(Modifier.padding(padding))
 
-        if (recievedUser != loggedInUser) {
+        if (loggedInUser != null) {
+            if (recievedUser.id != loggedInUser.id) {
 
-            if (loggedInUserfollowedUsersList.contains(recievedUser)) {
+                if (loggedInUserfollowedUsersList.contains(recievedUser)) {
 
-                CustomButton(
-                    onClick = { onUnFollowButtonClick(recievedUser.id) },
-                    buttonText = "Sledujes"
-                )
-            } else {
-                CustomButton(
-                    onClick = { onFollowButtonClick(recievedUser.id) },
-                    buttonText = "Zacat sledovat",
-                    outlined = true
-                )
+                    CustomButton(
+                        onClick = { onUnFollowButtonClick(recievedUser.id) },
+                        buttonText = "Sledujes"
+                    )
+                } else {
+                    CustomButton(
+                        onClick = { onFollowButtonClick(recievedUser.id) },
+                        buttonText = "Zacat sledovat",
+                        outlined = true
+                    )
+                }
+                Spacer(Modifier.padding(padding))
+
             }
-            Spacer(Modifier.padding(padding))
-
         }
 
 

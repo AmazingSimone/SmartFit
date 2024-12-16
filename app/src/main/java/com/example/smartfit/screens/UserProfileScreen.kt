@@ -77,18 +77,20 @@ fun UserProfileScreen(
                 contentAlignment = Alignment.TopCenter
             ) {
 
-                ProfileInfoContent(
-                    onEditClick = onEditClick,
-                    onUnFollowButtonClick = onUnFollowButtonClick,
-                    onFollowButtonClick = onFollowButtonClick,
-                    recievedUser = recievedUser,
-                    followedUsersList = followedUsersList,
-                    completedtrainingsList = completedtrainingsList,
-                    loggedInUser = loggedInUser,
-                    loggedInUserfollowedUsersList = loggedInUserfollowedUsersList,
-                    enabled = loggedInUser == recievedUser,
-                    editOption = loggedInUser == recievedUser
-                )
+                if (loggedInUser != null) {
+                    ProfileInfoContent(
+                        onEditClick = onEditClick,
+                        onUnFollowButtonClick = onUnFollowButtonClick,
+                        onFollowButtonClick = onFollowButtonClick,
+                        recievedUser = recievedUser,
+                        followedUsersList = followedUsersList,
+                        completedtrainingsList = completedtrainingsList,
+                        loggedInUser = loggedInUser,
+                        loggedInUserfollowedUsersList = loggedInUserfollowedUsersList,
+                        enabled = loggedInUser.id == recievedUser.id,
+                        editOption = loggedInUser.id == recievedUser.id
+                    )
+                }
             }
         }
     }

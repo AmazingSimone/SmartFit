@@ -66,7 +66,7 @@ class SharedFirebaseViewModel : ViewModel() {
     private val _isLoadingUserData = MutableStateFlow(false)
     val isLoading = _isLoadingUserData.onStart {
         _isLoadingUserData.value = true
-        checkCurrentUser()
+        getCurrentUserDataFromFirebase()
         _isLoadingUserData.value = false
 
     }.stateIn(
@@ -75,7 +75,7 @@ class SharedFirebaseViewModel : ViewModel() {
         false
     )
 
-    fun checkCurrentUser() {
+    fun getCurrentUserDataFromFirebase() {
 
         viewModelScope.launch {
             _sharedUserState.value = getUserData(firebaseAuth.currentUser?.uid ?: "") ?: User()
