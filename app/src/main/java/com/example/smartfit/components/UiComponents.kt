@@ -1131,11 +1131,12 @@ fun CustomTrainingInfoDisplayCard(
 @Composable
 fun CustomAlertDialog(
     onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
+    onConfirmation: () -> Unit = {},
     dialogTitle: String,
-    dialogText: @Composable () -> Unit,
-    icon: @Composable () -> Unit,
-    isConfirmEnabled: Boolean = true
+    dialogContent: @Composable () -> Unit,
+    icon: @Composable () -> Unit = {},
+    isConfirmEnabled: Boolean = true,
+    showConfirm: Boolean = false
 ) {
     AlertDialog(
         icon = {
@@ -1146,19 +1147,21 @@ fun CustomAlertDialog(
             Text(text = dialogTitle)
         },
         text = {
-            dialogText()
+            dialogContent()
         },
         onDismissRequest = {
             onDismissRequest()
         },
         confirmButton = {
-            TextButton(
-                onClick = {
-                    onConfirmation()
-                },
-                enabled = isConfirmEnabled
-            ) {
-                Text("Confirm")
+            if (showConfirm) {
+                TextButton(
+                    onClick = {
+                        onConfirmation()
+                    },
+                    enabled = isConfirmEnabled
+                ) {
+                    Text("Confirm")
+                }
             }
         },
         dismissButton = {
@@ -1189,7 +1192,7 @@ fun CustomAlertDialogGroupTraining(
             ?: "",
         isConfirmEnabled = groupTraining?.numberOfParticipants != groupTraining?.maxUsers && (groupTraining?.trainingState
             ?: 4) < 4,
-        dialogText = {
+        dialogContent = {
             Column(verticalArrangement = Arrangement.SpaceEvenly) {
                 Row {
                     if (groupTraining?.name?.isNotEmpty() != false) NormalText(
