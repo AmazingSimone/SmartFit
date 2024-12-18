@@ -35,19 +35,19 @@ fun HomeScreen(
                 image = R.drawable.temperature
             )
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            CustomInfoCardFromDevice("Kroky", nrfData.steps, unit = "", image = R.drawable.step)
-            Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            CustomInfoCardFromDevice(
-                "Kadencia",
-                nrfData.kadencia,
-                unit = "",
-                image = R.drawable.runn
-            )
+            CustomInfoCardFromDevice("Kroky", nrfData.kroky, unit = "", image = R.drawable.step)
+//            Spacer(modifier = Modifier.padding(vertical = 8.dp))
+//            CustomInfoCardFromDevice(
+//                "Kadencia",
+//                nrfData.kadencia,
+//                unit = "",
+//                image = R.drawable.runn
+//            )
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
             CustomInfoCardFromDevice(
                 "Spalene kalorie",
                 nrfData.spaleneKalorie,
-                unit = "",
+                unit = "kcal",
                 image = R.drawable.fire
             )
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
@@ -64,15 +64,15 @@ fun HomeScreen(
                 unit = "%",
                 image = R.drawable.blood
             )
-            Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            CustomInfoCardFromDevice(
-                "Rychlost",
-                nrfData.rychlost,
-                unit = "km/h",
-                image = R.drawable.speed
-            )
-            Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            CustomInfoCardFromDevice("Vo2 max", nrfData.vo2Max, unit = "", image = R.drawable.vo2)
+//            Spacer(modifier = Modifier.padding(vertical = 8.dp))
+//            CustomInfoCardFromDevice(
+//                "Rychlost",
+//                nrfData.rychlost,
+//                unit = "km/h",
+//                image = R.drawable.speed
+//            )
+//            Spacer(modifier = Modifier.padding(vertical = 8.dp))
+//            CustomInfoCardFromDevice("Vo2 max", nrfData.vo2Max, unit = "", image = R.drawable.vo2)
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
 
         }

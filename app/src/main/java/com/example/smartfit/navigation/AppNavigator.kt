@@ -71,12 +71,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
 
             val bleData by bleClient.data.collectAsStateWithLifecycle()
             Log.d("AHOJBLE", "$bleData")
-//            bleClient.startScan { device ->
-//                bleClient.connectToDevice(device)
-//            }
-//            if (bleConnectionState == 2) {
-//                bleClient.startReading()
-//            }
+
 
             if (isLoading) {
                 Box(
