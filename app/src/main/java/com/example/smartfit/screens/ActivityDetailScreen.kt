@@ -173,7 +173,7 @@ fun ActivityDetailScreen(
                                 .fillMaxWidth()
                                 .padding(50.dp),
                             title = "Cas",
-                            timeData = LocalTime.ofSecondOfDay((training.trainingDuration / 1000).toLong())
+                            data = LocalTime.ofSecondOfDay((training.trainingDuration / 1000).toLong())
                                 .format(DateTimeFormatter.ofPattern("HH:mm:ss"))
                         )
                         Spacer(Modifier.padding(5.dp))

@@ -84,8 +84,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.smartfit.R
 import com.example.smartfit.data.GroupTraining
+import com.example.smartfit.data.NrfData
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
 import com.example.smartfit.data.frameColors
@@ -830,75 +830,91 @@ fun ProfileInfoContent(
 
 @Composable
 fun RunningTrainingInfoContent(
-    stopWatch: String
+    stopWatch: StopWatch,
+    nrfData: NrfData
 ) {
 
-    Column {
+    Column(Modifier.fillMaxSize()) {
         CustomTrainingInfoDisplayCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(50.dp),
+                .weight(1f),
             title = "Cas",
-            timeData = stopWatch
+            data = stopWatch.getCustomFormattedTime()
         )
         Spacer(Modifier.padding(5.dp))
-        Row {
+        Row(Modifier.weight(1f)) {
             CustomTrainingInfoDisplayCard(
                 modifier = Modifier
-                    .fillMaxWidth(0.48f)
-                    .padding(30.dp),
-                title = "Vzdialenost"
+                    .fillMaxSize()
+                    .weight(1f),
+                title = "Vzdialenost",
+                data = nrfData.vzdialenost,
+                unit = "m"
             )
             Spacer(Modifier.padding(5.dp))
-
             CustomTrainingInfoDisplayCard(
                 modifier = Modifier
-                    .fillMaxWidth(1f)
-                    .padding(30.dp),
+                    .fillMaxSize()
+                    .weight(1f),
+                title = "Srdcovy tep",
+                data = nrfData.tep,
+                unit = "t/m"
+            )
+        }
+        //pocet krokov za minutu
+        Spacer(Modifier.padding(5.dp))
+        Row(Modifier.weight(1f)) {
+            CustomTrainingInfoDisplayCard(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f),
+                title = "Kadencia",
+                data = if (stopWatch.getTimeMillis() <= 0L) {
+                    "0"
+                } else {
+                    val timeInSeconds = stopWatch.getTimeMillis() / 1000
+                    if (timeInSeconds == 0L) {
+                        "0"
+                    } else {
+                        ((nrfData.kroky.toInt() / timeInSeconds) * 60).toInt().toString()
+                    }
+                },
+                unit = "kr/min"
+            )
 
-                title = "Srdcovy tep"
+            Spacer(Modifier.padding(5.dp))
+            CustomTrainingInfoDisplayCard(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f),
+                title = "Rychlost",
+                data = ((nrfData.vzdialenost.replace(",", ".")
+                    .toDouble() / (stopWatch.getTimeMillis() / 1000)) * 3.6).toInt().toString(),
+                unit = "km/h"
             )
         }
         Spacer(Modifier.padding(5.dp))
-        Row {
+        Row(Modifier.weight(1f)) {
             CustomTrainingInfoDisplayCard(
                 modifier = Modifier
-                    .fillMaxWidth(0.48f)
-                    .padding(30.dp),
-
-                title = "Kadencia"
+                    .fillMaxSize()
+                    .weight(1f),
+                title = "Spalene kalorie",
+                data = nrfData.spaleneKalorie,
+                unit = "kcal"
             )
             Spacer(Modifier.padding(5.dp))
-
             CustomTrainingInfoDisplayCard(
                 modifier = Modifier
-                    .fillMaxWidth(1f)
-                    .padding(30.dp),
-
-                title = "Rychlost"
-            )
-        }
-        Spacer(Modifier.padding(5.dp))
-        Row {
-            CustomTrainingInfoDisplayCard(
-                modifier = Modifier
-                    .fillMaxWidth(0.48f)
-                    .padding(30.dp),
-
-                title = "Spalene kalorie"
-            )
-            Spacer(Modifier.padding(5.dp))
-
-            CustomTrainingInfoDisplayCard(
-                modifier = Modifier
-                    .fillMaxWidth(1f)
-                    .padding(43.dp),
-
-                title = "Teplota"
+                    .fillMaxSize()
+                    .weight(1f),
+                title = "Teplota",
+                data = nrfData.teplota,
+                unit = "°C"
             )
         }
     }
-
 }
 
 
@@ -1108,24 +1124,22 @@ fun CustomTrainingInfoCardWithDate(
 fun CustomTrainingInfoDisplayCard(
     modifier: Modifier = Modifier,
     title: String,
-    timeData: String = "",
-    data: Float = 0f,
+    data: String = "",
     unit: String = ""
 ) {
-    Card {
+    Card(modifier = modifier) {
         Column(
-            modifier = modifier,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Heading1(title)
-
+            Heading2(title)
+            Spacer(Modifier.padding(3.dp))
             Row {
-                if (timeData != null) HeadlineText(
-                    timeData.toString(),
-                    color = MaterialTheme.colorScheme.primary
-                ) else HeadlineText(data.toString(), color = MaterialTheme.colorScheme.primary)
-                HeadlineText(unit, color = MaterialTheme.colorScheme.secondary)
+                Heading1(data, color = MaterialTheme.colorScheme.primary)
+                Heading1(unit, color = MaterialTheme.colorScheme.secondary)
             }
         }
     }
@@ -1139,7 +1153,7 @@ fun CustomAlertDialog(
     dialogContent: @Composable () -> Unit,
     icon: @Composable () -> Unit = {},
     isConfirmEnabled: Boolean = true,
-    showConfirm: Boolean = false
+    showConfirm: Boolean = true
 ) {
     AlertDialog(
         icon = {
@@ -1409,7 +1423,7 @@ fun CustomGroupTrainingParticipantsDetailsCard(
 fun CustomBottomModalSheet(
     sheetState: SheetState = rememberModalBottomSheetState(),
     onDismissRequest: () -> Unit,
-    stopWatch: String,
+    stopWatch: StopWatch,
     trainingState: Int,
     receivedUser: User,
     completedTrainingsList: List<Training>,
@@ -1446,7 +1460,7 @@ fun CustomBottomModalSheet(
         ) {
 
             if (trainingState > 0) {
-                RunningTrainingInfoContent(stopWatch)
+                RunningTrainingInfoContent(stopWatch = stopWatch, nrfData = NrfData())
             } else {
                 ProfileInfoContent(
                     onUnFollowButtonClick = onUnFollowButtonClick,
@@ -1467,10 +1481,9 @@ fun CustomBottomModalSheet(
 @Preview(showBackground = true)
 @Composable
 fun PreviewComponents() {
-    CustomInfoCardFromDevice(
-        heading = "Kroky",
-        data = "0",
-        image = R.drawable.steps
+    RunningTrainingInfoContent(
+        stopWatch = StopWatch(),
+        nrfData = NrfData()
     )
 }
 

@@ -172,7 +172,7 @@ fun CurrentActivityScreen(
                 contentAlignment = Alignment.TopCenter
             ) {
 
-                RunningTrainingInfoContent(stopWatch.getCustomFormattedTime())
+                RunningTrainingInfoContent(stopWatch, nrfData)
 
 
             }

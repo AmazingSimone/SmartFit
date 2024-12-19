@@ -420,7 +420,7 @@ fun GroupTrainingLobby(
                 CustomBottomModalSheet(
                     sheetState = sheetState,
                     onDismissRequest = { showBottomSheet = false },
-                    stopWatch = stopWatch.getCustomFormattedTime(),
+                    stopWatch = stopWatch,
                     trainingState = chosenGroupTraining.trainingState,
                     receivedUser = chosenUser,
                     completedTrainingsList = chosenUserCompletedTrainings,
