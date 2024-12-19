@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +56,36 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
     val firebaseViewModel = viewModel<SharedFirebaseViewModel>()
     firebaseViewModel.getCurrentUserDataFromFirebase()
 
+    val bleConnectionState by bleClient.stateOfDevice.collectAsStateWithLifecycle()
+
+    LaunchedEffect(bleConnectionState) {
+        when (bleConnectionState) {
+            2 -> {
+                Toast.makeText(
+                    navController.context,
+                    "Zariadenie je pripravene",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            1 -> {
+                Toast.makeText(
+                    navController.context,
+                    "Zariadenie sa pripaja",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            else -> {
+                Toast.makeText(
+                    navController.context,
+                    "Pripojte zariadenie",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = if (firebaseViewModel.isSignedIn()) Screens.HOME.name else Screens.LOGIN.name
@@ -71,7 +102,6 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
 
             val bleData by bleClient.data.collectAsStateWithLifecycle()
             Log.d("AHOJBLE", "$bleData")
-
 
             if (isLoading) {
                 Box(
@@ -102,7 +132,28 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                         }
                     },
                     onActivityClick = {
-                        navController.navigate("${Screens.CURRENT_ACTIVITY.name}/${it}")
+                        when (bleConnectionState) {
+                            2 -> {
+                                bleClient.resetCharacteristic()
+                                navController.navigate("${Screens.CURRENT_ACTIVITY.name}/${it}")
+                            }
+
+                            1 -> {
+                                Toast.makeText(
+                                    navController.context,
+                                    "Pockaj kym bude zariadenie pripravene",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            else -> {
+                                Toast.makeText(
+                                    navController.context,
+                                    "Najskor sa pripoj k zariadeniu",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
                     },
                     onHistoryClick = {
                         navController.navigate(Screens.HISTORY.name)
@@ -691,6 +742,13 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                 bleClient = bleClient,
                 onBackClick = {
                     navController.navigateUp()
+                },
+                onDisconnectClick = {
+                    Toast.makeText(
+                        navController.context,
+                        "Zariadenie je odpojene",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             )
         }
