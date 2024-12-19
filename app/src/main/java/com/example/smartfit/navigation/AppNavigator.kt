@@ -248,6 +248,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
         composable("${Screens.CURRENT_ACTIVITY.name}/{indexOfTraining}") { backStackEntry ->
 
             val chosenGroupTraining by firebaseViewModel.chosenGroupTrainingState.collectAsStateWithLifecycle()
+            val bleData by bleClient.data.collectAsStateWithLifecycle()
 
             //TODO preco tam je getString
             val indexOfChosenTraining =
@@ -296,7 +297,8 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                         firebaseViewModel.fetchGroupTrainingData(chosenGroupTraining.id)
                         firebaseViewModel.fetchAllParticipantsOfTraining(chosenGroupTraining.id)
                     }
-                }
+                },
+                nrfData = bleData
             )
         }
 

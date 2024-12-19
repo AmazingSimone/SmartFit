@@ -25,6 +25,7 @@ import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.RunningTrainingInfoContent
 import com.example.smartfit.components.StopWatch
 import com.example.smartfit.data.GroupTraining
+import com.example.smartfit.data.NrfData
 import com.example.smartfit.data.Training
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -39,6 +40,7 @@ fun CurrentActivityScreen(
     chosenGroupTraining: GroupTraining? = null,
     onCheckAllTrainingInfo: () -> Unit = {},
     onEndTraining: (Training) -> Unit,
+    nrfData: NrfData
     //onGroupTrainingEnd: (Training) -> Unit,
 ) {
 
@@ -134,7 +136,7 @@ fun CurrentActivityScreen(
                                 stopWatch.start()
                                 isRunning.value = stopWatch.isRunning()
                             },
-                            containerColor = MaterialTheme.colorScheme.onSecondary,
+                            containerColor = MaterialTheme.colorScheme.tertiary,
                             buttonText = "Sputstit"
                         )
                     }
@@ -185,6 +187,9 @@ fun CurrentActivityScreen(
 fun CurrentActivityPreview() {
     CurrentActivityScreen(
         Training("Beh", Icons.Default.DirectionsRun),
-        onEndTraining = {}
+        onEndTraining = {},
+        chosenGroupTraining = GroupTraining(),
+        onCheckAllTrainingInfo = {},
+        nrfData = NrfData()
     )
 }
