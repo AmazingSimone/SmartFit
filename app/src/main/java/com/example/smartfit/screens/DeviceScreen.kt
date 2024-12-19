@@ -49,7 +49,8 @@ import com.example.smartfit.components.NormalText
 @Composable
 fun DeviceScreen(
     bleClient: BLEClient? = null,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onDisconnectClick: () -> Unit
 ) {
     val openAlertDialog = remember { mutableStateOf(false) }
     val bleConnectionState = bleClient?.stateOfDevice?.collectAsStateWithLifecycle()?.value
@@ -133,6 +134,7 @@ fun DeviceScreen(
                     modifier = Modifier.padding(20.dp),
                     onClick = {
                         bleClient?.disconnect()
+                        onDisconnectClick()
                     },
                     buttonText = "Odpojit sa"
                 )
@@ -191,7 +193,8 @@ fun DeviceScreenPreview() {
 
     DeviceScreen(
         onBackClick = {},
-        bleClient = null
+        bleClient = null,
+        onDisconnectClick = {}
     )
 
 }
