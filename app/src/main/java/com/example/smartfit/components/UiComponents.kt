@@ -950,52 +950,59 @@ fun CustomInfoCardFromDevice(
     data: String,
     goal: Int = 0,
     unit: String = "",
-    image: Int
+    image: Int,
+    color: Color
 ) {
     ElevatedCard(
-        modifier = Modifier.height(150.dp)
+        modifier = Modifier
+            .height(150.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = color.copy(alpha = 0.17f)
+                .compositeOver(MaterialTheme.colorScheme.surface)
+        )
     ) {
-        Box {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
+
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+                .background(Color.Transparent)
+        ) {
+            Heading1(heading)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                Heading1(heading)
+
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    HeadlineText(
+                        if (data.equals("0") || data.equals("0.0")) "--" else data.toString(),
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (goal > 0) HeadlineText(
+                        " / ${goal}",
+                        fontWeight = FontWeight.Bold
+                    )
+                    HeadlineText(unit, fontWeight = FontWeight.Bold)
+                }
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        HeadlineText(
-                            if (data.equals("0") || data.equals("0.0")) "--" else data.toString(),
-                            fontWeight = FontWeight.Bold
-                        )
-                        if (goal > 0) HeadlineText(
-                            " / ${goal}",
-                            fontWeight = FontWeight.Bold
-                        )
-                        HeadlineText(unit, fontWeight = FontWeight.Bold)
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            modifier = Modifier.fillMaxSize(0.7f),
-                            painter = painterResource(image),
-                            contentDescription = "Image of card"
-                        )
-                    }
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        modifier = Modifier.fillMaxSize(0.7f),
+                        painter = painterResource(image),
+                        contentDescription = "Image of card",
+                        colorFilter = ColorFilter.tint(color)
+                    )
                 }
             }
         }

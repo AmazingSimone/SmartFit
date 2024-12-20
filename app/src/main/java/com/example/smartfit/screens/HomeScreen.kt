@@ -8,9 +8,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.R
+import com.example.smartfit.components.CustomDailyActivityCard
 import com.example.smartfit.components.CustomInfoCardFromDevice
 import com.example.smartfit.data.NrfData
 
@@ -27,15 +29,23 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             CustomInfoCardFromDevice("Tep", nrfData.tep, unit = "t/m", image = R.drawable.heart)
+            CustomInfoCardFromDevice(
+                "Tep", nrfData.tep, unit = "t/m", image = R.drawable.heart,
+                color = Color(0xFFB71C1C)
+            )
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
             CustomInfoCardFromDevice(
                 "Teplota",
                 nrfData.teplota,
                 unit = "°C",
-                image = R.drawable.temperature
+                image = R.drawable.temperature,
+                color = Color(0xFF6200EE)
             )
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            CustomInfoCardFromDevice("Kroky", nrfData.kroky, unit = "", image = R.drawable.step)
+            CustomInfoCardFromDevice(
+                "Kroky", nrfData.kroky, unit = "", image = R.drawable.step,
+                color = Color(0xFF4CAF50)
+            )
 //            Spacer(modifier = Modifier.padding(vertical = 8.dp))
 //            CustomInfoCardFromDevice(
 //                "Kadencia",
@@ -48,21 +58,24 @@ fun HomeScreen(
                 "Spalene kalorie",
                 nrfData.spaleneKalorie,
                 unit = "kcal",
-                image = R.drawable.fire
+                image = R.drawable.fire,
+                color = Color(0xFFFFC107)
             )
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
             CustomInfoCardFromDevice(
                 "Vzdialenost",
                 nrfData.vzdialenost,
                 unit = "m",
-                image = R.drawable.steps
+                image = R.drawable.steps,
+                color = Color(0xFF388E3C)
             )
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
             CustomInfoCardFromDevice(
                 "Saturacia",
                 nrfData.saturacia,
                 unit = "%",
-                image = R.drawable.blood
+                image = R.drawable.blood,
+                color = Color(0xFF0D47A1)
             )
 //            Spacer(modifier = Modifier.padding(vertical = 8.dp))
 //            CustomInfoCardFromDevice(
