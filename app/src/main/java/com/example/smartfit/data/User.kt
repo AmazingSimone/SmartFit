@@ -9,5 +9,8 @@ data class User(
     val weight: Float = 0f,
     val bio: String = "",
     val color: Int = 0,
-    val isTrainer: Boolean = false
+    val isTrainer: Boolean = false,
+    val activityGoal: String = "",
+    val stepsGoal: String = "",
+    val caloriesGoal: String = ""
 )

@@ -89,16 +89,16 @@ fun EditProfileInfoScreen(
                 modifier = Modifier.padding(20.dp),
                 onClick = {
                     onSaveClick(currentUser)
-                    Log.d("errorFB", "$currentUser")
+                    Log.d("AHOJ", "save $currentUser")
                 },
-                enabled = currentUser != recievedUser,
+                enabled = (currentUser != recievedUser) && (currentUser.activityGoal.toInt() != 0 && currentUser.stepsGoal.toInt() != 0 && currentUser.caloriesGoal.toInt() != 0),
                 buttonText = "Ulozit zmeny"
             )
         }
 
     ) { paddingValues ->
 
-        val (nameFR, surnameFR, birthDateFR, weightFR, heightFR, bioFR) = remember { FocusRequester.createRefs() }
+        val (nameFR, surnameFR, birthDateFR, weightFR, heightFR, activityGoal, stepsGoal, caloriesGoal, bioFR) = remember { FocusRequester.createRefs() }
 
         var selectedColorIndex by remember { mutableIntStateOf(currentUser.color) }
         val colors = listOf(
@@ -196,6 +196,7 @@ fun EditProfileInfoScreen(
 //                        enterButtonAction = ImeAction.Next,
 //                        onTextChanged = { }
 //                    )
+                    Spacer(Modifier.padding(8.dp))
 
                     CustomDateOutlineInput(
                         currentFocusRequester = birthDateFR,
@@ -208,6 +209,8 @@ fun EditProfileInfoScreen(
                             //currentUser = currentUser?.copy(birthDate = it)
                         }
                     )
+                    Spacer(Modifier.padding(8.dp))
+
                     //TODO na toto bude pravdepodobne treba viewmodel
                     val weightValue = remember {
                         mutableStateOf(currentUser.weight.toString())
@@ -225,13 +228,13 @@ fun EditProfileInfoScreen(
                         enterButtonAction = ImeAction.Next,
                         suffix = { NormalText("kg") }
                     )
-
+                    Spacer(Modifier.padding(8.dp))
                     val heightValue = remember {
                         mutableStateOf(currentUser.height.toString())
                     }
                     CustomOutlinedTextInput(
                         currentFocusRequester = heightFR,
-                        onNext = { bioFR.requestFocus() },
+                        onNext = { activityGoal.requestFocus() },
                         keyBoardType = KeyboardType.Number,
                         label = "Vyska",
                         value = if (heightValue.value == "0.0") "0" else heightValue.value,
@@ -242,7 +245,78 @@ fun EditProfileInfoScreen(
                         enterButtonAction = ImeAction.Next,
                         suffix = { NormalText("cm") }
                     )
-
+                    Spacer(Modifier.padding(8.dp))
+                    val activityGoalValue = remember {
+                        mutableStateOf(currentUser.activityGoal)
+                    }
+                    CustomOutlinedTextInput(
+                        currentFocusRequester = activityGoal,
+                        onNext = { stepsGoal.requestFocus() },
+                        keyBoardType = KeyboardType.Number,
+                        label = "Cielova doba aktivity za den",
+                        value = activityGoalValue.value,
+                        onTextChanged = {
+                            activityGoalValue.value = it.filter { char -> char.isDigit() }
+                            currentUser =
+                                currentUser.copy(activityGoal = if (activityGoalValue.value.isEmpty()) "0" else activityGoalValue.value)
+                        },
+                        enterButtonAction = ImeAction.Next,
+                        suffix = { NormalText("min.") },
+                        isError = (activityGoalValue.value.toIntOrNull() ?: 0) <= 0,
+                        supportingText = {
+                            if ((activityGoalValue.value.toIntOrNull()
+                                    ?: 0) <= 0
+                            ) NormalText("Hodnota musi byt vacsia ako 0")
+                        }
+                    )
+                    Spacer(Modifier.padding(3.dp))
+                    val stepsGoalValue = remember {
+                        mutableStateOf(currentUser.stepsGoal)
+                    }
+                    CustomOutlinedTextInput(
+                        currentFocusRequester = stepsGoal,
+                        onNext = { caloriesGoal.requestFocus() },
+                        keyBoardType = KeyboardType.Number,
+                        label = "Cielovy pocet krokov za den",
+                        value = stepsGoalValue.value,
+                        onTextChanged = {
+                            stepsGoalValue.value = it.filter { char -> char.isDigit() }
+                            currentUser =
+                                currentUser.copy(stepsGoal = if (stepsGoalValue.value.isEmpty()) "0" else stepsGoalValue.value)
+                        },
+                        enterButtonAction = ImeAction.Next,
+                        isError = (stepsGoalValue.value.toIntOrNull() ?: 0) <= 0,
+                        supportingText = {
+                            if ((stepsGoalValue.value.toIntOrNull()
+                                    ?: 0) <= 0
+                            ) NormalText("Hodnota musi byt vacsia ako 0")
+                        }
+                    )
+                    Spacer(Modifier.padding(3.dp))
+                    val caloriesGoalValue = remember {
+                        mutableStateOf(currentUser.caloriesGoal)
+                    }
+                    CustomOutlinedTextInput(
+                        currentFocusRequester = caloriesGoal,
+                        onNext = { bioFR.requestFocus() },
+                        keyBoardType = KeyboardType.Number,
+                        label = "Cielovy pocet spal. kalorii za den",
+                        value = caloriesGoalValue.value,
+                        onTextChanged = {
+                            caloriesGoalValue.value = it.filter { char -> char.isDigit() }
+                            currentUser =
+                                currentUser.copy(caloriesGoal = if (caloriesGoalValue.value.isEmpty()) "0" else caloriesGoalValue.value)
+                        },
+                        enterButtonAction = ImeAction.Next,
+                        suffix = { NormalText("kcal") },
+                        isError = (caloriesGoalValue.value.toIntOrNull() ?: 0) <= 0,
+                        supportingText = {
+                            if ((caloriesGoalValue.value.toIntOrNull()
+                                    ?: 0) <= 0
+                            ) NormalText("Hodnota musi byt vacsia ako 0")
+                        }
+                    )
+                    Spacer(Modifier.padding(3.dp))
                     CustomOutlinedTextInput(
                         currentFocusRequester = bioFR,
                         onNext = { bioFR.freeFocus() },
@@ -257,7 +331,7 @@ fun EditProfileInfoScreen(
                         },
                         enterButtonAction = ImeAction.Done
                     )
-
+                    Spacer(Modifier.padding(8.dp))
                     CustomSwitch(
                         text = "Profil trenera",
                         defaultPosition = remember { mutableStateOf(currentUser.isTrainer) }.value,

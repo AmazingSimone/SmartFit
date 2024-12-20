@@ -177,7 +177,7 @@ fun NavigationUpAndBottomBar(
 
                 when (selectedItem) {
                     0 -> {
-                        HomeScreen(nrfData)
+                        HomeScreen(nrfData, recievedUser)
                     }
 
                     1 -> {

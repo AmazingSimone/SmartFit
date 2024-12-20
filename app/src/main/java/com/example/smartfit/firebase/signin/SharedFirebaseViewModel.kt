@@ -126,7 +126,11 @@ class SharedFirebaseViewModel : ViewModel() {
                     "weight" to 0f,
                     "bio" to "",
                     "color" to Color.Unspecified.toArgb(),
-                    "isTrainer" to false
+                    "isTrainer" to false,
+                    "activityGoal" to "90",
+                    "stepsGoal" to "10000",
+                    "caloriesGoal" to "500"
+
                 )
             ).await()
         } else {
@@ -155,7 +159,10 @@ class SharedFirebaseViewModel : ViewModel() {
                 weight = (data["weight"] as Number).toFloat(),
                 bio = data["bio"] as String,
                 color = (data["color"] as Number).toInt(),
-                isTrainer = data["isTrainer"] as Boolean
+                isTrainer = data["isTrainer"] as Boolean,
+                activityGoal = data["activityGoal"] as String,
+                stepsGoal = data["stepsGoal"] as String,
+                caloriesGoal = data["caloriesGoal"] as String
             )
         } else {
             null
@@ -181,7 +188,10 @@ class SharedFirebaseViewModel : ViewModel() {
                     "weight" to user.weight,
                     "bio" to user.bio,
                     "color" to user.color,
-                    "isTrainer" to user.isTrainer
+                    "isTrainer" to user.isTrainer,
+                    "activityGoal" to user.activityGoal,
+                    "stepsGoal" to user.stepsGoal,
+                    "caloriesGoal" to user.caloriesGoal
                 )
             ).await()
             true

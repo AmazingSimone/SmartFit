@@ -15,10 +15,12 @@ import com.example.smartfit.R
 import com.example.smartfit.components.CustomDailyActivityCard
 import com.example.smartfit.components.CustomInfoCardFromDevice
 import com.example.smartfit.data.NrfData
+import com.example.smartfit.data.User
 
 @Composable
 fun HomeScreen(
-    nrfData: NrfData
+    nrfData: NrfData,
+    user: User
 ) {
 
     Surface {
@@ -31,11 +33,11 @@ fun HomeScreen(
             CustomDailyActivityCard(
                 heading = "Denna aktivita",
                 activity = "0",
-                activityGoal = "45",
+                activityGoal = user.activityGoal.ifEmpty { "90" },
                 steps = "0",
-                stepsGoal = "1000",
+                stepsGoal = user.stepsGoal.ifEmpty { "10000" },
                 calories = "0",
-                caloriesGoal = "450"
+                caloriesGoal = user.caloriesGoal.ifEmpty { "500" }
             )
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
 
@@ -107,6 +109,9 @@ fun HomeScreen(
 @Composable
 fun HomePreview() {
 
-    HomeScreen(NrfData())
+    HomeScreen(
+        NrfData(),
+        user = User()
+    )
 
 }
