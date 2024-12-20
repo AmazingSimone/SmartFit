@@ -25,6 +25,7 @@ import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessAlarm
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
@@ -47,6 +48,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -70,6 +72,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -84,6 +88,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.smartfit.R
 import com.example.smartfit.data.GroupTraining
 import com.example.smartfit.data.NrfData
 import com.example.smartfit.data.Training
@@ -941,6 +946,128 @@ fun CustomIconButton(
     }
 }
 
+@Composable
+fun CustomDailyActivityCard(
+    heading: String,
+    activity: String,
+    activityGoal: String,
+    steps: String,
+    stepsGoal: String,
+    calories: String,
+    caloriesGoal: String
+) {
+
+    ElevatedCard(
+        modifier = Modifier.height(170.dp)
+    ) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(10.dp)
+        ) {
+            Heading1(heading)
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                Row(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        modifier = Modifier.width(18.dp),
+                        imageVector = Icons.Filled.AccessAlarm,
+                        contentDescription = "Icon of activity",
+                        tint = Color(0xFF00BCD4)
+                    )
+                    Spacer(Modifier.padding(horizontal = 2.dp))
+                    NormalText(
+                        activity,
+                        color = if (activity.toFloat() / activityGoal.toFloat() >= 1F) Color(
+                            0xFF00BCD4
+                        ) else Color.Unspecified
+                    )
+                    NormalText("/")
+                    NormalText(activityGoal)
+                    NormalText("min")
+                }
+
+                LinearProgressIndicator(
+                    progress = { activity.toFloat() / activityGoal.toFloat() },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color(0xFF00BCD4)
+                )
+            }
+
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                Row(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.step),
+                        contentDescription = "Image of steps",
+                        colorFilter = ColorFilter.tint(Color(0xFF4CAF50))
+                    )
+                    Spacer(Modifier.padding(horizontal = 2.dp))
+                    NormalText(
+                        steps,
+                        color = if (steps.toFloat() / stepsGoal.toFloat() >= 1F) Color(0xFF4CAF50) else Color.Unspecified
+                    )
+                    NormalText("/")
+                    NormalText(stepsGoal)
+                }
+
+                LinearProgressIndicator(
+                    progress = { steps.toFloat() / stepsGoal.toFloat() },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color(0xFF4CAF50)
+                )
+            }
+
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                Row(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.fire),
+                        contentDescription = "Image of calories",
+                        colorFilter = ColorFilter.tint(Color(0xFFFFC107))
+                    )
+                    Spacer(Modifier.padding(horizontal = 2.dp))
+                    NormalText(
+                        calories,
+                        color = if (calories.toFloat() / caloriesGoal.toFloat() >= 1F) Color(
+                            0xFFFFC107
+                        ) else Color.Unspecified
+                    )
+                    NormalText("/")
+                    NormalText(caloriesGoal)
+                    NormalText("kcal")
+                }
+
+                LinearProgressIndicator(
+                    progress = { calories.toFloat() / caloriesGoal.toFloat() },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color(0xFFFFC107)
+                )
+            }
+        }
+
+
+    }
+
+}
 
 //TODO - este niesom velmi isty na 100% s designom plus by som farby mohol nastavit podla typu
 // nameranych dat nejake urcit... (farba ikony a rovnaka ale tmavsia farba karty)
@@ -1488,9 +1615,13 @@ fun CustomBottomModalSheet(
 @Preview(showBackground = true)
 @Composable
 fun PreviewComponents() {
-    RunningTrainingInfoContent(
-        stopWatch = StopWatch(),
-        nrfData = NrfData()
+    CustomDailyActivityCard(
+        heading = "Denna aktivita",
+        activity = "15",
+        activityGoal = "45",
+        steps = "20",
+        stepsGoal = "1000",
+        calories = "14",
+        caloriesGoal = "400"
     )
 }
-

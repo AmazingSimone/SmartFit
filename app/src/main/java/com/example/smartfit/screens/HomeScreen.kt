@@ -28,7 +28,17 @@ fun HomeScreen(
                 .padding(horizontal = 8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            CustomInfoCardFromDevice("Tep", nrfData.tep, unit = "t/m", image = R.drawable.heart)
+            CustomDailyActivityCard(
+                heading = "Denna aktivita",
+                activity = "0",
+                activityGoal = "45",
+                steps = "0",
+                stepsGoal = "1000",
+                calories = "0",
+                caloriesGoal = "450"
+            )
+            Spacer(modifier = Modifier.padding(vertical = 8.dp))
+
             CustomInfoCardFromDevice(
                 "Tep", nrfData.tep, unit = "t/m", image = R.drawable.heart,
                 color = Color(0xFFB71C1C)
