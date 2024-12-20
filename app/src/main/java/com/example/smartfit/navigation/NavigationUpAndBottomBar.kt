@@ -43,6 +43,7 @@ import com.example.smartfit.components.CustomOnlineStateIndicator
 import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.HeadlineText
 import com.example.smartfit.data.NrfData
+import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
 import com.example.smartfit.data.frameColors
 import com.example.smartfit.screens.ActivityScreen
@@ -62,7 +63,8 @@ fun NavigationUpAndBottomBar(
     recievedUser: User,
     recievedListOfUsers: List<User>,
     isBLEConnected: Int,
-    nrfData: NrfData
+    nrfData: NrfData,
+    listOfTrainings: List<Training>
 ) {
 
 
@@ -177,7 +179,7 @@ fun NavigationUpAndBottomBar(
 
                 when (selectedItem) {
                     0 -> {
-                        HomeScreen(nrfData, recievedUser)
+                        HomeScreen(nrfData, recievedUser, listOfTrainings)
                     }
 
                     1 -> {
@@ -213,6 +215,7 @@ fun PreviewNavbar() {
         recievedListOfUsers = emptyList(),
         onFAButtonClick = {},
         isBLEConnected = 0,
-        nrfData = NrfData()
+        nrfData = NrfData(),
+        listOfTrainings = emptyList()
     )
 }

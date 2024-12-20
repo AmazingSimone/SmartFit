@@ -98,6 +98,8 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
 
             val sharedUserFollowingList by firebaseViewModel.sharedUserFollowingState.collectAsStateWithLifecycle()
 
+            val listOfTrainings by firebaseViewModel.sharedUserTrainingsState.collectAsStateWithLifecycle()
+
             val bleConnectionState by bleClient.stateOfDevice.collectAsStateWithLifecycle()
 
             val bleData by bleClient.data.collectAsStateWithLifecycle()
@@ -174,7 +176,8 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                         navController.navigate("${Screens.CREATE_GROUP_TRAINING.name}/${trainerId}")
                     },
                     isBLEConnected = bleConnectionState,
-                    nrfData = bleData
+                    nrfData = bleData,
+                    listOfTrainings = listOfTrainings
                 )
             }
         }

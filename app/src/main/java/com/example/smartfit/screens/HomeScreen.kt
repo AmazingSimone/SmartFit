@@ -15,12 +15,16 @@ import com.example.smartfit.R
 import com.example.smartfit.components.CustomDailyActivityCard
 import com.example.smartfit.components.CustomInfoCardFromDevice
 import com.example.smartfit.data.NrfData
+import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
+import java.time.LocalDate
+import java.time.ZoneId
 
 @Composable
 fun HomeScreen(
     nrfData: NrfData,
-    user: User
+    user: User,
+    listOfTrainings: List<Training>
 ) {
 
     Surface {
@@ -32,7 +36,7 @@ fun HomeScreen(
         ) {
             CustomDailyActivityCard(
                 heading = "Denna aktivita",
-                activity = "0",
+                activity = getTodayTrainingsTotalMinutesDuration(listOfTrainings).toString(),
                 activityGoal = user.activityGoal.ifEmpty { "90" },
                 steps = "0",
                 stepsGoal = user.stepsGoal.ifEmpty { "10000" },
@@ -105,13 +109,29 @@ fun HomeScreen(
 
 }
 
+private fun getTodayTrainingsTotalMinutesDuration(listOfTrainings: List<Training>): Long {
+    if (listOfTrainings.isEmpty()) return 0
+
+    val today = LocalDate.now()
+    val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toEpochSecond()
+    val endOfDay = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toEpochSecond()
+
+    val todayTrainings = listOfTrainings.filter { training ->
+        training.timeDateOfTraining in startOfDay until endOfDay
+    }
+
+    val totalDurationMillis = todayTrainings.sumOf { it.trainingDuration }
+    return totalDurationMillis / 60000
+}
+
 @Preview
 @Composable
 fun HomePreview() {
 
     HomeScreen(
         NrfData(),
-        user = User()
+        user = User(),
+        listOfTrainings = emptyList()
     )
 
 }
