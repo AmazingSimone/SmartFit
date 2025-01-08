@@ -52,7 +52,7 @@ fun LoginScreen(
                         if (result.isSuccess) {
                             onLoginClick(result.getOrNull())
                         } else {
-                            Log.d("errorFB", "error")
+                            Log.d("errorFB", "error $result")
                         }
                     }
                 )

@@ -168,81 +168,84 @@ fun ActivityDetailScreen(
                         }
 
                     } else {
-                        CustomTrainingInfoDisplayCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(50.dp),
-                            title = "Cas",
-                            data = LocalTime.ofSecondOfDay((training.trainingDuration / 1000).toLong())
-                                .format(DateTimeFormatter.ofPattern("HH:mm:ss"))
-                        )
-                        Spacer(Modifier.padding(5.dp))
-                        Row {
+
+                        Column(Modifier.fillMaxSize()) {
                             CustomTrainingInfoDisplayCard(
                                 modifier = Modifier
-                                    .fillMaxWidth(0.48f)
-                                    .padding(30.dp),
-                                title = "Prejdena Vzdialenost"
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                title = "Cas",
+                                data = LocalTime.ofSecondOfDay((training.trainingDuration / 1000).toLong())
+                                    .format(DateTimeFormatter.ofPattern("HH:mm:ss"))
                             )
                             Spacer(Modifier.padding(5.dp))
-
-                            CustomTrainingInfoDisplayCard(
-                                modifier = Modifier
-                                    .fillMaxWidth(1f)
-                                    .padding(30.dp),
-
-                                title = "Priemerny Srdcovy tep"
-                            )
-                        }
-                        Spacer(Modifier.padding(5.dp))
-                        Row {
-                            CustomTrainingInfoDisplayCard(
-                                modifier = Modifier
-                                    .fillMaxWidth(0.48f)
-                                    .padding(30.dp),
-
-                                title = "Priemerna Kadencia"
-                            )
+                            Row(Modifier.weight(1f)) {
+                                CustomTrainingInfoDisplayCard(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .weight(1f),
+                                    title = "Prejdena Vzdialenost",
+                                    data = "",
+                                    unit = "m"
+                                )
+                                Spacer(Modifier.padding(5.dp))
+                                CustomTrainingInfoDisplayCard(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .weight(1f),
+                                    title = "Priemerny Srdcovy tep",
+                                    data = "",
+                                    unit = "t/m"
+                                )
+                            }
+                            //pocet krokov za minutu
                             Spacer(Modifier.padding(5.dp))
+                            Row(Modifier.weight(1f)) {
+                                CustomTrainingInfoDisplayCard(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .weight(1f),
+                                    title = "Priemerna Kadencia",
+                                    data = "",
+                                    unit = "kr/min"
+                                )
 
-                            CustomTrainingInfoDisplayCard(
-                                modifier = Modifier
-                                    .fillMaxWidth(1f)
-                                    .padding(30.dp),
-
-                                title = "Priemerna Rychlost"
-                            )
-                        }
-                        Spacer(Modifier.padding(5.dp))
-                        Row {
-                            CustomTrainingInfoDisplayCard(
-                                modifier = Modifier
-                                    .fillMaxWidth(0.48f)
-                                    .padding(30.dp),
-
-                                title = "Spalene kalorie"
-                            )
+                                Spacer(Modifier.padding(5.dp))
+                                CustomTrainingInfoDisplayCard(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .weight(1f),
+                                    title = "Priemerna Rychlost",
+                                    data = "",
+                                    unit = "km/h"
+                                )
+                            }
                             Spacer(Modifier.padding(5.dp))
-
-                            CustomTrainingInfoDisplayCard(
-                                modifier = Modifier
-                                    .fillMaxWidth(1f)
-                                    .padding(43.dp),
-
-                                title = "Teplota"
-                            )
+                            Row(Modifier.weight(1f)) {
+                                CustomTrainingInfoDisplayCard(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .weight(1f),
+                                    title = "Spalene kalorie",
+                                    data = "",
+                                    unit = "kcal"
+                                )
+                                Spacer(Modifier.padding(5.dp))
+                                CustomTrainingInfoDisplayCard(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .weight(1f),
+                                    title = "Teplota",
+                                    data = "",
+                                    unit = "°C"
+                                )
+                            }
                         }
                     }
-
-
-
-
-
                 }
             }
         }
     }
-
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -255,31 +258,36 @@ fun ActivityDetailPreview() {
             id = "KmkDqINeWhmtx1ipJyIN",
             trainingDuration = 7363,
             timeDateOfTraining = 1732746897,
-            isGroupTraining = true
+            isGroupTraining = false
         ),
-        listOfParticipantsOfGroupTraining = { listOf("MZ6M79VA9zetdUHX4NtgRE6UDzx2") },
+        listOfParticipantsOfGroupTraining = {
+            //listOf("MZ6M79VA9zetdUHX4NtgRE6UDzx2")
+            emptyList()
+        },
         onRequestParticipantInfo = {
-            User(
-                id = "MZ6M79VA9zetdUHX4NtgRE6UDzx2",
-                displayName = "Simon Bartanus",
-                profilePicUrl = "https://lh3.googleusercontent.com/a/ACg8ocIlxeLUaG-f883-a5lmUuQaqHiiaeuouQnzFf-SZFIND2HBCLf3=s96-c",
-                bio = "Toto je uzastne bio",
-                color = 1
-            )
+            null
+//            User(
+//                id = "MZ6M79VA9zetdUHX4NtgRE6UDzx2",
+//                displayName = "Simon Bartanus",
+//                profilePicUrl = "https://lh3.googleusercontent.com/a/ACg8ocIlxeLUaG-f883-a5lmUuQaqHiiaeuouQnzFf-SZFIND2HBCLf3=s96-c",
+//                bio = "Toto je uzastne bio",
+//                color = 1
+//            )
         },
         onRequestParticipantTrainingInfo = {
-            trainingList[0].copy(
-                trainingDuration = 7363,
-                timeDateOfTraining = 1732746897,
-                avgSpeed = 0F,
-                burnedCalories = 0F,
-                avgHeartRate = 0,
-                avgTempo = 0,
-                steps = 0,
-                trainingTemperature = 0,
-                isGroupTraining = true,
-                id = "pYqROgvqtzWm5cYskr1Z"
-            )
+            null
+//            trainingList[0].copy(
+//                trainingDuration = 7363,
+//                timeDateOfTraining = 1732746897,
+//                avgSpeed = 0F,
+//                burnedCalories = 0F,
+//                avgHeartRate = 0,
+//                avgTempo = 0,
+//                steps = 0,
+//                trainingTemperature = 0,
+//                isGroupTraining = true,
+//                id = "pYqROgvqtzWm5cYskr1Z"
+//            )
         },
         onTrainerClick = {},
         onParticipantClick = {}

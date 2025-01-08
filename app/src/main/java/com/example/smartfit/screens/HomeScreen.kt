@@ -77,6 +77,7 @@ fun HomeScreen(
                 image = R.drawable.fire,
                 color = Color(0xFFFFC107)
             )
+            //TODO treba dorobit aby sa to zmenilo neskor na kilometre to plati aj pre prebiehajuci trening
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
             CustomInfoCardFromDevice(
                 "Vzdialenost",
