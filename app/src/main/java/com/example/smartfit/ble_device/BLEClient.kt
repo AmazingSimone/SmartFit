@@ -323,11 +323,7 @@ class BLEClient(private val context: Context) {
                 "%.2f",
                 ((step_distance / 100) * parts[2].toFloat())
             ),
-            spaleneKalorie = String.format(
-                Locale.getDefault(),
-                "%.2f",
-                (caloriesPerStep * parts[2].toFloat())
-            )
+            spaleneKalorie = (caloriesPerStep * parts[2].toFloat()).toInt().toString()
         )
     }
 }
