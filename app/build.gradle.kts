@@ -92,9 +92,9 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
 
 
-    implementation("io.github.mirzemehdi:kmpauth-google:2.2.0") //Google One Tap Sign-In
-    implementation("io.github.mirzemehdi:kmpauth-firebase:2.2.0") //Integrated Authentications with Firebase
-    implementation("io.github.mirzemehdi:kmpauth-uihelper:2.2.0") //UiHelper SignIn buttons (AppleSignIn, GoogleSignInButton)
+    implementation(libs.kmpauth.google.v220) //Google One Tap Sign-In
+    implementation(libs.kmpauth.firebase.v220) //Integrated Authentications with Firebase
+    implementation(libs.kmpauth.uihelper) //UiHelper SignIn buttons (AppleSignIn, GoogleSignInButton)
 
 
     implementation(libs.koin.android)
@@ -105,7 +105,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.serialization.json.v151)
 
-    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation(libs.coil.compose)
 
 
     //qr
