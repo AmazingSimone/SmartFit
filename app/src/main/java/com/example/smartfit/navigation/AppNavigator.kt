@@ -301,7 +301,9 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
 
         composable("${Screens.CURRENT_ACTIVITY.name}/{indexOfTraining}") { backStackEntry ->
 
+            val participantOfTraining by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle() 
             val chosenGroupTraining by firebaseViewModel.chosenGroupTrainingState.collectAsStateWithLifecycle()
+            val chosenTraining by firebaseViewModel.chosenTrainingState.collectAsStateWithLifecycle()
             val bleData by bleClient.data.collectAsStateWithLifecycle()
 
             //TODO preco tam je getString

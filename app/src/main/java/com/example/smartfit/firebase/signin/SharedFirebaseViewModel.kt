@@ -56,6 +56,11 @@ class SharedFirebaseViewModel : ViewModel() {
     private val _chosenGroupTrainingParticipantsState = MutableStateFlow<List<User>>(emptyList())
     val chosenGroupTrainingParticipantsState = _chosenGroupTrainingParticipantsState.asStateFlow()
 
+    //-- TRAINING
+
+    private val _chosenTrainingState = MutableStateFlow(Training())
+    val chosenTrainingState = _chosenTrainingState.asStateFlow()
+
     //--
 
     private val _searchResults = MutableStateFlow<List<User>>(emptyList())
@@ -200,6 +205,38 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
+    suspend fun createLoggedInUserTraining(indexOfTraining: Int, groupTrainingId: String): String {
+        val training = Training()
+        return try {
+            val documentReference = if (groupTrainingId.isEmpty()) {
+                firebaseFirestore.collection("users").document(firebaseAuth.currentUser?.uid ?: "")
+                    .collection("trainings").document()
+            } else {
+                firebaseFirestore.collection("users").document(firebaseAuth.currentUser?.uid ?: "")
+                    .collection("trainings").document(groupTrainingId)
+            }
+            documentReference.set(
+                mapOf(
+                    "indexOfTraining" to indexOfTraining,
+                    "trainingDuration" to training.trainingDuration,
+                    "timeDateOfTraining" to training.timeDateOfTraining,
+                    //"avgSpeed" to training.avgSpeed,
+                    "burnedCalories" to training.burnedCalories,
+                    //"avgHeartRate" to training.avgHeartRate,
+                    //"avgTempo" to training.avgTempo,
+                    "steps" to training.steps,
+                    //"trainingTemperature" to training.trainingTemperature,
+                    "isGroupTraining" to training.isGroupTraining,
+                    "id" to documentReference.id
+                )
+            ).await()
+            _chosenTrainingState.value = training.copy(id = documentReference.id)
+            documentReference.id
+        } catch (e: Exception) {
+            ""
+        }
+    }
+
     suspend fun uploadLoggedInUserTrainingData(indexOfTraining: Int, training: Training): Boolean {
         return try {
             val documentReference = if (training.id.isNotEmpty()) {
@@ -209,20 +246,20 @@ class SharedFirebaseViewModel : ViewModel() {
                 firebaseFirestore.collection("users").document(firebaseAuth.currentUser?.uid ?: "")
                     .collection("trainings").document()
             }
-            documentReference.set(
+            documentReference.update(
                     mapOf(
-                        "indexOfTraining" to indexOfTraining,
-                        //"creatorId" to training.creatorId,
+                        //"indexOfTraining" to indexOfTraining,
+                        ////"creatorId" to training.creatorId,
                         "trainingDuration" to training.trainingDuration,
                         "timeDateOfTraining" to training.timeDateOfTraining,
-                        "avgSpeed" to training.avgSpeed,
+                        ////"avgSpeed" to training.avgSpeed,
                         "burnedCalories" to training.burnedCalories,
-                        "avgHeartRate" to training.avgHeartRate,
-                        "avgTempo" to training.avgTempo,
+                        ////"avgHeartRate" to training.avgHeartRate,
+                        ////"avgTempo" to training.avgTempo,
                         "steps" to training.steps,
-                        "trainingTemperature" to training.trainingTemperature,
-                        "isGroupTraining" to training.isGroupTraining,
-                        "id" to training.id
+                        ////"trainingTemperature" to training.trainingTemperature,
+                        //"isGroupTraining" to training.isGroupTraining,
+                        //"id" to training.id
                     )
                 ).await()
             true
@@ -246,12 +283,12 @@ class SharedFirebaseViewModel : ViewModel() {
                 //creatorId = data?.get("creatorId") as? String ?: "",
                 trainingDuration = (data?.get("trainingDuration") as? Number)?.toLong() ?: 0L,
                 timeDateOfTraining = (data?.get("timeDateOfTraining") as? Number)?.toLong() ?: 0L,
-                avgSpeed = (data?.get("avgSpeed") as? Number)?.toFloat() ?: 0f,
-                burnedCalories = (data?.get("burnedCalories") as? Number)?.toFloat() ?: 0f,
-                avgHeartRate = (data?.get("avgHeartRate") as? Number)?.toInt() ?: 0,
+                //avgSpeed = (data?.get("avgSpeed") as? Number)?.toFloat() ?: 0f,
+                burnedCalories = (data?.get("burnedCalories") as? Number)?.toInt() ?: 0,
+                //avgHeartRate = (data?.get("avgHeartRate") as? Number)?.toInt() ?: 0,
                 avgTempo = (data?.get("avgTempo") as? Number)?.toInt() ?: 0,
                 steps = (data?.get("steps") as? Number)?.toInt() ?: 0,
-                trainingTemperature = (data?.get("trainingTemperature") as? Number)?.toInt() ?: 0,
+                //trainingTemperature = (data?.get("trainingTemperature") as? Number)?.toInt() ?: 0,
                 isGroupTraining = data?.get("isGroupTraining") as? Boolean ?: false,
                 id = trainingId
             )
