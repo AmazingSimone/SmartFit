@@ -11,12 +11,12 @@ data class Training(
     //val creatorId: String = "",
     val trainingDuration: Long = 0L,
     val timeDateOfTraining: Long = 0L,
-    val avgSpeed: Float = 0F,
-    val burnedCalories: Float = 0F,
-    val avgHeartRate: Int = 0,
+    //val avgSpeed: Int = 0,
+    val burnedCalories: Int = 0,
+    //val avgHeartRate: Int = 0,
     val avgTempo: Int = 0,
     val steps: Int = 0,
-    val trainingTemperature: Int = 0,
+    //val trainingTemperature: Int = 0,
     val isGroupTraining: Boolean = false,
     val id: String = ""
 )
