@@ -10,6 +10,8 @@ credentials = "1.3.0"
 firebaseAuthKtx = "23.1.0"
 googleid = "1.1.1"
 guava = "32.0.1-jre"
+influxdbClientKotlin = "6.6.0"
+javaDotenv = "5.2.2"
 kmpauthFirebase = "v2.3.0-beta01"
 kmpauthFirebaseVersion = "2.2.0"
 kmpauthGoogle = "v2.3.0-beta01"
@@ -52,6 +54,8 @@ core = { module = "com.google.zxing:core", version.ref = "core" }
 firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
+influxdb-client-kotlin = { module = "com.influxdb:influxdb-client-kotlin", version.ref = "influxdbClientKotlin" }
+java-dotenv = { module = "io.github.cdimascio:java-dotenv", version.ref = "javaDotenv" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

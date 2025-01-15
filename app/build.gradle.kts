@@ -1,11 +1,18 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.kotlin.serialization)
-
 }
+
+val localProperties = gradleLocalProperties(rootDir, providers)
+val influxToken: String = localProperties.getProperty("INFLUX_TOKEN")
+val influxOrg: String = localProperties.getProperty("INFLUX_ORG")
+val influxBucket: String = localProperties.getProperty("INFLUX_BUCKET")
+val influxUrl: String = localProperties.getProperty("INFLUX_URL")
 
 android {
     namespace = "com.example.smartfit"
@@ -17,6 +24,11 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "INFLUX_TOKEN", "\"$influxToken\"")
+        buildConfigField("String", "INFLUX_ORG", "\"$influxOrg\"")
+        buildConfigField("String", "INFLUX_BUCKET", "\"$influxBucket\"")
+        buildConfigField("String", "INFLUX_URL", "\"$influxUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -39,6 +51,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
 }
@@ -117,7 +130,7 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle.v110)
     implementation(libs.androidx.camera.view.v100alpha31)
-    
+
     //permissions
     implementation(libs.accompanist.permissions)
 
