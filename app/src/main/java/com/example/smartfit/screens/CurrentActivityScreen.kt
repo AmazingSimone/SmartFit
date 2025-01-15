@@ -1,6 +1,7 @@
 package com.example.smartfit.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,15 +21,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.smartfit.BuildConfig
 import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.RunningTrainingInfoContent
 import com.example.smartfit.components.StopWatch
 import com.example.smartfit.data.GroupTraining
+import com.example.smartfit.data.InfluxTrainingMeasurement
 import com.example.smartfit.data.NrfData
 import com.example.smartfit.data.Training
+import com.example.smartfit.data.User
+import com.example.smartfit.data.trainingList
+import com.influxdb.client.domain.WritePrecision
+import com.influxdb.client.kotlin.InfluxDBClientKotlinFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -36,20 +44,39 @@ import java.time.ZoneOffset
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrentActivityScreen(
-    chosenTraining: Training,
+    participant: User,
+    createdTraining: Training = Training(),
+    indexOfTraining: Int,
     chosenGroupTraining: GroupTraining? = null,
     onCheckAllTrainingInfo: () -> Unit = {},
+    onCreateTraining: (String) -> Unit,
     onEndTraining: (Training) -> Unit,
-    nrfData: NrfData
+    nrfData: NrfData,
     //onGroupTrainingEnd: (Training) -> Unit,
 ) {
 
-    val training = remember { mutableStateOf(chosenTraining) }
+    val training = remember { mutableStateOf(createdTraining) }
     val stopWatch = remember { StopWatch() }
     val isRunning = remember { mutableStateOf(stopWatch.isRunning()) }
     val timeDateOfTraining = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
 
     val groupTraining = remember { mutableStateOf(chosenGroupTraining) }
+
+    val data = remember { mutableStateOf(nrfData) }
+
+    val isTrainingCreated = remember { mutableStateOf(false) }
+
+    val influxDBClientKotlin = InfluxDBClientKotlinFactory.create(
+        BuildConfig.INFLUX_URL,
+        BuildConfig.INFLUX_TOKEN.toCharArray(),
+        BuildConfig.INFLUX_ORG,
+        BuildConfig.INFLUX_BUCKET
+    )
+
+
+    LaunchedEffect(createdTraining) {
+        training.value = createdTraining
+    }
 
     //TODO Skus lepsie spravit
     if (chosenGroupTraining != null) {
@@ -60,6 +87,61 @@ fun CurrentActivityScreen(
                 }
                 //delay(1000)
             }
+        }
+
+        LaunchedEffect(nrfData) {
+
+            if (stopWatch.getTimeMillis() >= 5000 && !isTrainingCreated.value) {
+                onCreateTraining(groupTraining.value?.id ?: "")
+                isTrainingCreated.value = true
+            }
+
+            data.value = nrfData
+
+            data.value = data.value.copy(
+                rychlost = ((nrfData.vzdialenost.replace(",", ".")
+                    .toDouble() / (stopWatch.getTimeMillis() / 1000)) * 3.6).toInt().toString(),
+            )
+
+            data.value = data.value.copy(
+                kadencia = if (stopWatch.getTimeMillis() <= 0L) {
+                    "0"
+                } else {
+                    val timeInSeconds = stopWatch.getTimeMillis() / 1000
+                    if (timeInSeconds == 0L) {
+                        "0"
+                    } else {
+                        ((nrfData.kroky.toInt() / timeInSeconds) * 60).toInt().toString()
+                    }
+                }
+            )
+
+            if (training.value.id.isNotEmpty()) {
+                withContext(Dispatchers.IO) {
+                    influxDBClientKotlin.use {
+                        Log.d("AHOJ", " data ${nrfData.toString()}")
+                        val writeApi = influxDBClientKotlin.getWriteKotlinApi()
+                        val mem = InfluxTrainingMeasurement(
+                            userId = participant.id,
+                            trainingId = createdTraining.id,
+                            tep = data.value.tep.toInt(),
+                            teplota = data.value.teplota.replace(",", ".").toDouble(),
+                            kroky = data.value.kroky.toInt(),
+                            kadencia = data.value.kadencia.toInt(),
+                            spaleneKalorie = data.value.spaleneKalorie.toInt(),
+                            vzdialenost = data.value.vzdialenost.replace(",", ".").toDouble(),
+                            saturacia = data.value.saturacia.replace(",", ".").toDouble(),
+                            rychlost = data.value.rychlost.toInt(),
+                            time = Instant.now()
+                        )
+                        writeApi.writeMeasurement(mem, WritePrecision.NS)
+
+                        Log.d("AHOJ", "influx write ${mem.toString()}")
+                    }
+                }
+            }
+
+
         }
 
         LaunchedEffect(chosenGroupTraining.trainingState) {
@@ -94,8 +176,14 @@ fun CurrentActivityScreen(
                             timeDateOfTraining = groupTraining.value?.timeDateOfTraining
                                 ?: 0
                         )
+                    training.value =
+                        training.value.copy(burnedCalories = nrfData.spaleneKalorie.toInt())
+                    training.value = training.value.copy(steps = nrfData.kroky.toInt())
+
                     training.value = training.value.copy(isGroupTraining = true)
-                    training.value = training.value.copy(id = groupTraining.value?.id ?: "")
+                    //training.value = training.value.copy(id = groupTraining.value?.id ?: "")
+
+                    influxDBClientKotlin.close()
 
                     onEndTraining(training.value)
                 }
@@ -109,7 +197,7 @@ fun CurrentActivityScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Heading1(training.value.name) }
+                title = { Heading1(trainingList[indexOfTraining].name) }
             )
         },
         bottomBar = {
@@ -151,6 +239,16 @@ fun CurrentActivityScreen(
                                 training.value.copy(trainingDuration = stopWatch.getTimeMillis())
                             training.value =
                                 training.value.copy(timeDateOfTraining = timeDateOfTraining)
+
+                            training.value =
+                                training.value.copy(burnedCalories = nrfData.spaleneKalorie.toInt())
+                            training.value = training.value.copy(steps = nrfData.kroky.toInt())
+
+
+                            Log.d("AHOJ", "end of training ${training.toString()}")
+
+                            influxDBClientKotlin.close()
+
                             onEndTraining(training.value)
 
                         },
@@ -174,7 +272,7 @@ fun CurrentActivityScreen(
                 contentAlignment = Alignment.TopCenter
             ) {
 
-                RunningTrainingInfoContent(stopWatch, nrfData)
+                RunningTrainingInfoContent(stopWatch, data.value)
 
 
             }
@@ -186,10 +284,13 @@ fun CurrentActivityScreen(
 @Composable
 fun CurrentActivityPreview() {
     CurrentActivityScreen(
-        Training("Beh", Icons.Default.DirectionsRun),
+        createdTraining = Training("Beh", Icons.Default.DirectionsRun),
         onEndTraining = {},
         chosenGroupTraining = GroupTraining(),
         onCheckAllTrainingInfo = {},
-        nrfData = NrfData()
+        nrfData = NrfData(),
+        participant = User(),
+        onCreateTraining = {},
+        indexOfTraining = 0,
     )
 }

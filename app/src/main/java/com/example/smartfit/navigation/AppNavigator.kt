@@ -311,7 +311,8 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                 backStackEntry.arguments?.getString("indexOfTraining")?.toIntOrNull() ?: 0
 
             CurrentActivityScreen(
-                chosenTraining = trainingList[indexOfChosenTraining],
+                createdTraining = chosenTraining,
+                indexOfTraining = indexOfChosenTraining,
                 onEndTraining = {
 
                     if (it.trainingDuration < 5000) {
@@ -354,7 +355,16 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                         firebaseViewModel.fetchAllParticipantsOfTraining(chosenGroupTraining.id)
                     }
                 },
-                nrfData = bleData
+                nrfData = bleData,
+                participant = participantOfTraining,
+                onCreateTraining = { groupTrainingId ->
+                    firebaseViewModel.viewModelScope.launch {
+                        firebaseViewModel.createLoggedInUserTraining(
+                            indexOfChosenTraining,
+                            groupTrainingId
+                        )
+                    }
+                },
             )
         }
 
@@ -759,3 +769,4 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
         }
     }
 }
+
