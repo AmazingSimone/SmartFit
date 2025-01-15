@@ -135,6 +135,8 @@ dependencies {
     implementation(libs.accompanist.permissions)
 
 
+    //influx
+    implementation(libs.influxdb.client.kotlin)
 
 
 }
