@@ -286,7 +286,7 @@ class SharedFirebaseViewModel : ViewModel() {
                 //avgSpeed = (data?.get("avgSpeed") as? Number)?.toFloat() ?: 0f,
                 burnedCalories = (data?.get("burnedCalories") as? Number)?.toInt() ?: 0,
                 //avgHeartRate = (data?.get("avgHeartRate") as? Number)?.toInt() ?: 0,
-                avgTempo = (data?.get("avgTempo") as? Number)?.toInt() ?: 0,
+                //avgTempo = (data?.get("avgTempo") as? Number)?.toInt() ?: 0,
                 steps = (data?.get("steps") as? Number)?.toInt() ?: 0,
                 //trainingTemperature = (data?.get("trainingTemperature") as? Number)?.toInt() ?: 0,
                 isGroupTraining = data?.get("isGroupTraining") as? Boolean ?: false,

@@ -14,7 +14,7 @@ data class Training(
     //val avgSpeed: Int = 0,
     val burnedCalories: Int = 0,
     //val avgHeartRate: Int = 0,
-    val avgTempo: Int = 0,
+    //val avgTempo: Int = 0,
     val steps: Int = 0,
     //val trainingTemperature: Int = 0,
     val isGroupTraining: Boolean = false,
