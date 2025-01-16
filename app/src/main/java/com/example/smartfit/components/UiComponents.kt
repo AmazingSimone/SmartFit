@@ -90,6 +90,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.smartfit.R
 import com.example.smartfit.data.GroupTraining
+import com.example.smartfit.data.InfluxData
 import com.example.smartfit.data.NrfData
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
@@ -875,16 +876,7 @@ fun RunningTrainingInfoContent(
                     .fillMaxSize()
                     .weight(1f),
                 title = "Kadencia",
-                data = if (stopWatch.getTimeMillis() <= 0L) {
-                    "0"
-                } else {
-                    val timeInSeconds = stopWatch.getTimeMillis() / 1000
-                    if (timeInSeconds == 0L) {
-                        "0"
-                    } else {
-                        ((nrfData.kroky.toInt() / timeInSeconds) * 60).toInt().toString()
-                    }
-                },
+                data = nrfData.kadencia,
                 unit = "kr/min"
             )
 
@@ -894,8 +886,7 @@ fun RunningTrainingInfoContent(
                     .fillMaxSize()
                     .weight(1f),
                 title = "Rychlost",
-                data = ((nrfData.vzdialenost.replace(",", ".")
-                    .toDouble() / (stopWatch.getTimeMillis() / 1000)) * 3.6).toInt().toString(),
+                data = nrfData.rychlost,
                 unit = "km/h"
             )
         }
@@ -1265,7 +1256,7 @@ fun CustomTrainingInfoDisplayCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp),
+                .padding(10.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -1403,7 +1394,8 @@ fun CustomAlertDialogGroupTraining(
 fun CustomGroupTrainingParticipantsDetailsCard(
     participant: User,
     training: Training? = null,
-    onCardClick: () -> Unit
+    onCardClick: () -> Unit,
+    influxData: InfluxData? = null
 ) {
     val modifier = Modifier.fillMaxWidth()
     val horizontalAlignment = Alignment.CenterHorizontally
@@ -1452,7 +1444,7 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                                     horizontalAlignment = horizontalAlignment
                                 ) {
                                     NormalText("Priemerna rychlost")
-                                    Heading1(training.avgSpeed.toString())
+                                    Heading1(influxData?.avgRychlost ?: "")
                                 }
                             }
                             VerticalDivider(
@@ -1469,7 +1461,7 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                                     horizontalAlignment = horizontalAlignment
                                 ) {
                                     NormalText("Spalene kalorie")
-                                    Heading1(training.burnedCalories.toString())
+                                    Heading1(influxData?.spaleneKalorie ?: "")
                                 }
                             }
 
@@ -1488,7 +1480,7 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                                     horizontalAlignment = horizontalAlignment
                                 ) {
                                     NormalText("Priemerny srdcovy tep")
-                                    Heading1(training.avgHeartRate.toString())
+                                    Heading1("${influxData?.tepMin} - ${influxData?.tepMax}")
                                 }
                             }
                             VerticalDivider(
@@ -1505,7 +1497,7 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                                     horizontalAlignment = horizontalAlignment
                                 ) {
                                     NormalText("Priemerne tempo")
-                                    Heading1(training.avgSpeed.toString())
+                                    Heading1(influxData?.avgKadencia ?: "")
                                 }
                             }
 
@@ -1524,7 +1516,7 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                                     horizontalAlignment = horizontalAlignment
                                 ) {
                                     NormalText("Kroky")
-                                    Heading1(training.steps.toString())
+                                    Heading1(influxData?.kroky ?: "")
                                 }
                             }
                             VerticalDivider(
@@ -1541,7 +1533,7 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                                     horizontalAlignment = horizontalAlignment
                                 ) {
                                     NormalText("Teplota")
-                                    Heading1(training.trainingTemperature.toString())
+                                    Heading1(influxData?.teplota ?: "")
                                 }
                             }
                         }
@@ -1615,13 +1607,9 @@ fun CustomBottomModalSheet(
 @Preview(showBackground = true)
 @Composable
 fun PreviewComponents() {
-    CustomDailyActivityCard(
-        heading = "Denna aktivita",
-        activity = "15",
-        activityGoal = "45",
-        steps = "20",
-        stepsGoal = "1000",
-        calories = "14",
-        caloriesGoal = "400"
+    CustomTrainingInfoDisplayCard(
+        title = "Tep",
+        data = "0 - 107",
+        unit = "t/m"
     )
 }
