@@ -1,6 +1,8 @@
 package com.example.smartfit.screens
 
 import android.os.Build
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,7 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,48 +25,103 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.smartfit.BuildConfig
+import com.example.smartfit.components.CustomBottomModalSheet
 import com.example.smartfit.components.CustomGroupTrainingParticipantsDetailsCard
 import com.example.smartfit.components.CustomTrainingInfoDisplayCard
 import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.Heading2
+import com.example.smartfit.data.InfluxData
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
 import com.example.smartfit.data.trainingList
+import com.influxdb.client.kotlin.InfluxDBClientKotlinFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActivityDetailScreen(
+    loggedInUser: User,
+    loggedInUserfollowedUsersList: List<User> = emptyList(),
     training: Training,
     trainerDetails: () -> User? = { null },
-    listOfParticipantsOfGroupTraining: suspend (String) -> List<String> = { emptyList() },
+    listOfParticipantsIdsOfGroupTraining: suspend (String) -> List<String> = { emptyList() },
     onRequestParticipantInfo: suspend (String) -> User? = { null },
     onRequestParticipantTrainingInfo: suspend (String) -> Training? = { null },
-    onTrainerClick: (String) -> Unit,
+    //onTrainerClick: (String) -> Unit,
     onParticipantClick: (String) -> Unit,
+    chosenParticipant: User = User(),
+    chosenParticipantCompletedTrainings: List<Training> = emptyList(),
+    chosenParticipantFollowing: List<User> = emptyList(),
+    onUnFollowButtonClick: (String) -> Unit = {},
+    onFollowButtonClick: (String) -> Unit = {},
     onBackClick: () -> Unit
 ) {
-    val participants = remember { mutableStateOf(emptyList<String>()) }
+    val groupTrainingParticipantsIds = remember { mutableStateOf(emptyList<String>()) }
     val trainer = remember { mutableStateOf(User()) }
     val isLoading = remember { mutableStateOf(true) }
 
-    LaunchedEffect(training.id) {
-        participants.value = listOfParticipantsOfGroupTraining(training.id)
-        trainer.value = trainerDetails() ?: User()
-        //isLoading.value = false
+    val userInfluxData = remember { mutableStateOf(InfluxData()) }
+
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+
+    val policy = ThreadPolicy.Builder().permitAll().build()
+    StrictMode.setThreadPolicy(policy)
+
+    LaunchedEffect(Unit) {
+        userInfluxData.value = fetchInfluxData(loggedInUser.id, training.id)
     }
+
+    val participants = remember { mutableStateListOf<User>() }
+    val participantsInfluxData = remember { mutableStateListOf<InfluxData>() }
+    val participantsTrainings = remember { mutableStateListOf<Training>() }
+
+    if (training.isGroupTraining) {
+
+
+        LaunchedEffect(Unit) {
+            groupTrainingParticipantsIds.value = listOfParticipantsIdsOfGroupTraining(training.id)
+            trainer.value = trainerDetails() ?: User()
+            //isLoading.value = false
+
+            groupTrainingParticipantsIds.value.forEach { participantId ->
+                val participant = onRequestParticipantInfo(participantId) ?: User()
+                val participantTraining =
+                    onRequestParticipantTrainingInfo(participantId) ?: Training()
+                val participantInfluxData = fetchInfluxData(participantId, training.id)
+                participants.add(participant)
+                participantsInfluxData.add(participantInfluxData)
+                participantsTrainings.add(participantTraining)
+            }
+
+            isLoading.value = false
+        }
+    }
+
+
 
     Scaffold(
         topBar = {
@@ -131,24 +188,18 @@ fun ActivityDetailScreen(
                         } else {
                             CustomGroupTrainingParticipantsDetailsCard(
                                 trainer.value,
-                                onCardClick = { onTrainerClick(trainer.value.id) }
+                                onCardClick = {
+                                    //onTrainerClick(trainer.value.id)
+                                    showBottomSheet = true
+                                    onParticipantClick(trainer.value.id)
+                                }
                             )
                         }
                         Spacer(Modifier.padding(8.dp))
 
                         LazyColumn {
-                            items(participants.value) { participantId ->
-                                val participant = remember { mutableStateOf(User()) }
-                                val participantTraining = remember { mutableStateOf(Training()) }
+                            itemsIndexed(participants) { index, participant ->
 
-                                LaunchedEffect(participantId) {
-                                    participant.value =
-                                        onRequestParticipantInfo(participantId) ?: User()
-                                    participantTraining.value =
-                                        onRequestParticipantTrainingInfo(participantId)
-                                            ?: Training()
-                                    isLoading.value = false
-                                }
                                 if (isLoading.value) {
                                     Box(
                                         Modifier.fillMaxWidth(),
@@ -158,9 +209,13 @@ fun ActivityDetailScreen(
                                     }
                                 } else {
                                     CustomGroupTrainingParticipantsDetailsCard(
-                                        participant = participant.value,
-                                        training = participantTraining.value,
-                                        onCardClick = { onParticipantClick(participantId) }
+                                        participant = participant,
+                                        influxData = participantsInfluxData[index],
+                                        training = participantsTrainings[index],
+                                        onCardClick = {
+                                            showBottomSheet = true
+                                            onParticipantClick(participant.id)
+                                        }
                                     )
                                 }
                                 Spacer(Modifier.padding(8.dp))
@@ -185,7 +240,7 @@ fun ActivityDetailScreen(
                                         .fillMaxSize()
                                         .weight(1f),
                                     title = "Prejdena Vzdialenost",
-                                    data = "",
+                                    data = userInfluxData.value.vzdialenost,
                                     unit = "m"
                                 )
                                 Spacer(Modifier.padding(5.dp))
@@ -194,7 +249,7 @@ fun ActivityDetailScreen(
                                         .fillMaxSize()
                                         .weight(1f),
                                     title = "Priemerny Srdcovy tep",
-                                    data = "",
+                                    data = "${userInfluxData.value.tepMin} - ${userInfluxData.value.tepMax}",
                                     unit = "t/m"
                                 )
                             }
@@ -206,7 +261,7 @@ fun ActivityDetailScreen(
                                         .fillMaxSize()
                                         .weight(1f),
                                     title = "Priemerna Kadencia",
-                                    data = "",
+                                    data = userInfluxData.value.avgKadencia,
                                     unit = "kr/min"
                                 )
 
@@ -216,7 +271,7 @@ fun ActivityDetailScreen(
                                         .fillMaxSize()
                                         .weight(1f),
                                     title = "Priemerna Rychlost",
-                                    data = "",
+                                    data = userInfluxData.value.avgRychlost,
                                     unit = "km/h"
                                 )
                             }
@@ -227,7 +282,7 @@ fun ActivityDetailScreen(
                                         .fillMaxSize()
                                         .weight(1f),
                                     title = "Spalene kalorie",
-                                    data = "",
+                                    data = userInfluxData.value.spaleneKalorie,
                                     unit = "kcal"
                                 )
                                 Spacer(Modifier.padding(5.dp))
@@ -236,7 +291,7 @@ fun ActivityDetailScreen(
                                         .fillMaxSize()
                                         .weight(1f),
                                     title = "Teplota",
-                                    data = "",
+                                    data = userInfluxData.value.teplota,
                                     unit = "°C"
                                 )
                             }
@@ -244,6 +299,21 @@ fun ActivityDetailScreen(
                     }
                 }
             }
+        }
+        if (showBottomSheet) {
+
+            //TODO tu nemusim realne posielat plny list doslova userov ktorych sleduje a treningov staci cisla taktiez aj v lobby
+            CustomBottomModalSheet(
+                sheetState = sheetState,
+                onDismissRequest = { showBottomSheet = false },
+                receivedUser = chosenParticipant,
+                completedTrainingsList = chosenParticipantCompletedTrainings,
+                followedUsersList = chosenParticipantFollowing,
+                loggedInUser = loggedInUser,
+                onUnFollowButtonClick = onUnFollowButtonClick,
+                onFollowButtonClick = onFollowButtonClick,
+                loggedInUserFollowedUsersList = loggedInUserfollowedUsersList
+            )
         }
     }
 }
@@ -260,7 +330,7 @@ fun ActivityDetailPreview() {
             timeDateOfTraining = 1732746897,
             isGroupTraining = false
         ),
-        listOfParticipantsOfGroupTraining = {
+        listOfParticipantsIdsOfGroupTraining = {
             //listOf("MZ6M79VA9zetdUHX4NtgRE6UDzx2")
             emptyList()
         },
@@ -289,7 +359,135 @@ fun ActivityDetailPreview() {
 //                id = "pYqROgvqtzWm5cYskr1Z"
 //            )
         },
-        onTrainerClick = {},
-        onParticipantClick = {}
+        //onTrainerClick = {},
+        onParticipantClick = {},
+        loggedInUser = User()
     )
+}
+
+suspend fun fetchInfluxData(userId: String, trainingId: String): InfluxData {
+
+    val influxDBClientKotlin = InfluxDBClientKotlinFactory.create(
+        BuildConfig.INFLUX_URL,
+        BuildConfig.INFLUX_TOKEN.toCharArray(),
+        BuildConfig.INFLUX_ORG,
+        BuildConfig.INFLUX_BUCKET
+    )
+
+    var influxData = InfluxData()
+
+    withContext(Dispatchers.IO) {
+        influxDBClientKotlin.use {
+            val queryApi = influxDBClientKotlin.getQueryKotlinApi()
+
+            val minValuesDeferred = async {
+                val minValues = mutableMapOf<String, Any>()
+                val fluxQueryMin = """from(bucket: "${BuildConfig.INFLUX_BUCKET}")
+                |> range(start: 0)
+                |> filter(fn: (r) => r["_measurement"] == "training")
+                |> filter(fn: (r) => r["userId"] == "$userId")
+                |> filter(fn: (r) => r["trainingId"] == "$trainingId")
+                |> filter(fn: (r) => r["_field"] == "tep" or r["_field"] == "teplota")
+                |> group(columns: ["_field"])
+                |> min()"""
+                queryApi.query(fluxQueryMin).consumeAsFlow().collect { record ->
+                    minValues[record.values["_field"].toString()] = record.values["_value"]!!
+                }
+                minValues
+            }
+
+            val maxValuesDeferred = async {
+                val maxValues = mutableMapOf<String, Any>()
+                val fluxQueryMax = """from(bucket: "${BuildConfig.INFLUX_BUCKET}")
+                |> range(start: 0)
+                |> filter(fn: (r) => r["_measurement"] == "training")
+                |> filter(fn: (r) => r["userId"] == "$userId")
+                |> filter(fn: (r) => r["trainingId"] == "$trainingId")
+                |> filter(fn: (r) => r["_field"] == "tep" or r["_field"] == "teplota")
+                |> group(columns: ["_field"])
+                |> max()"""
+                queryApi.query(fluxQueryMax).consumeAsFlow().collect { record ->
+                    maxValues[record.values["_field"].toString()] = record.values["_value"]!!
+                }
+                maxValues
+            }
+
+            val avgValuesDeferred = async {
+                val fluxQueryAvg = """from(bucket: "${BuildConfig.INFLUX_BUCKET}")
+                |> range(start: 0)
+                |> filter(fn: (r) => r["_measurement"] == "training")
+                |> filter(fn: (r) => r["userId"] == "$userId")
+                |> filter(fn: (r) => r["trainingId"] == "$trainingId")
+                |> filter(fn: (r) => r["_field"] == "rychlost" or r["_field"] == "kadencia" or r["_field"] == "saturacia" or r["_field"] == "teplota")
+                |> mean()"""
+                queryApi.query(fluxQueryAvg).consumeAsFlow().collect { record ->
+                    when (record.values["_field"].toString()) {
+                        "rychlost" -> influxData = influxData.copy(
+                            avgRychlost = record.values["_value"].toString().toFloat().toInt()
+                                .toString()
+                        )
+
+                        "kadencia" -> influxData = influxData.copy(
+                            avgKadencia = record.values["_value"].toString().toFloat().toInt()
+                                .toString()
+                        )
+
+                        "saturacia" -> influxData =
+                            influxData.copy(avgSaturacia = record.values["_value"].toString())
+
+                        "teplota" -> influxData = influxData.copy(
+                            teplota = String.format(
+                                Locale.US,
+                                "%.1f",
+                                record.values["_value"].toString().toFloat()
+                            )
+                        )
+
+                    }
+                }
+            }
+
+            val lastValuesDeferred = async {
+                val fluxQueryLast = """from(bucket: "${BuildConfig.INFLUX_BUCKET}")
+                |> range(start: 0)
+                |> filter(fn: (r) => r["_measurement"] == "training")
+                |> filter(fn: (r) => r["userId"] == "$userId")
+                |> filter(fn: (r) => r["trainingId"] == "$trainingId")
+                |> filter(fn: (r) => r["_field"] == "vzdialenost" or r["_field"] == "spaleneKalorie" or r["_field"] == "kroky")
+                |> last()"""
+                queryApi.query(fluxQueryLast).consumeAsFlow().collect { record ->
+                    when (record.values["_field"].toString()) {
+                        "vzdialenost" -> influxData =
+                            influxData.copy(vzdialenost = record.values["_value"].toString())
+
+                        "spaleneKalorie" -> influxData =
+                            influxData.copy(spaleneKalorie = record.values["_value"].toString())
+
+                        "kroky" -> influxData =
+                            influxData.copy(kroky = record.values["_value"].toString())
+                    }
+                }
+            }
+
+            val minValues = minValuesDeferred.await()
+            val maxValues = maxValuesDeferred.await()
+            avgValuesDeferred.await()
+            lastValuesDeferred.await()
+
+            minValues.forEach { (field, minValue) ->
+                when (field) {
+                    "tep" -> influxData = influxData.copy(tepMin = minValue.toString())
+                }
+            }
+
+            maxValues.forEach { (field, maxValue) ->
+                when (field) {
+                    "tep" -> influxData = influxData.copy(tepMax = maxValue.toString())
+                }
+            }
+        }
+    }
+    influxDBClientKotlin.close()
+    println(influxData.toString())
+    return influxData
 }

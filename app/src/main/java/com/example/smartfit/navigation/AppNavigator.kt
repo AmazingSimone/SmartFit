@@ -390,6 +390,15 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
 
             val training by firebaseViewModel.sharedUserTrainingsState.collectAsStateWithLifecycle()
 
+            val firebaseSharedUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
+
+            val chosenUser = firebaseViewModel.chosenUserState.collectAsStateWithLifecycle()
+            val chosenUserCompletedTrainings =
+                firebaseViewModel.chosenUserTrainingsState.collectAsStateWithLifecycle()
+            val chosenUserFollowing =
+                firebaseViewModel.chosenUserFollowingState.collectAsStateWithLifecycle()
+            val sharedSignedInUserFollowing by firebaseViewModel.sharedUserFollowingState.collectAsStateWithLifecycle()
+
             ActivityDetailScreen(
                 training = training[indexOfChosenTraining],
                 trainerDetails = {
@@ -405,7 +414,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                     }
                     trainer
                 },
-                listOfParticipantsOfGroupTraining = { trainingId ->
+                listOfParticipantsIdsOfGroupTraining = { trainingId ->
                     var participants = emptyList<String>()
                     runBlocking {
                         participants = firebaseViewModel.getParticipantsOfGroupTraining(trainingId)
@@ -437,17 +446,58 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                 onBackClick = {
                     navController.navigateUp()
                 },
-                onTrainerClick = { trainerId ->
-                    firebaseViewModel.viewModelScope.launch {
-                        firebaseViewModel.chooseUser(trainerId)
-                    }
-                    navController.navigate(Screens.USER_PROFILE.name)
-                },
+//                onTrainerClick = { trainerId ->
+//                    firebaseViewModel.viewModelScope.launch {
+//                        firebaseViewModel.chooseUser(trainerId)
+//                    }
+//                    navController.navigate(Screens.USER_PROFILE.name)
+//                },
                 onParticipantClick = { participantId ->
                     firebaseViewModel.viewModelScope.launch {
                         firebaseViewModel.chooseUser(participantId)
                     }
-                    navController.navigate(Screens.USER_PROFILE.name)
+                    //navController.navigate(Screens.USER_PROFILE.name)
+                },
+                chosenParticipant = chosenUser.value,
+                chosenParticipantCompletedTrainings = chosenUserCompletedTrainings.value,
+                chosenParticipantFollowing = chosenUserFollowing.value,
+                loggedInUser = firebaseSharedUser,
+                loggedInUserfollowedUsersList = sharedSignedInUserFollowing,
+                onUnFollowButtonClick = { userId ->
+                    firebaseViewModel.viewModelScope.launch {
+                        if (firebaseViewModel.removeUserFromFollowing(userId)) {
+                            Toast.makeText(
+                                navController.context,
+                                "Pouzivatel bol odstraneny zo zoznamu sledovanich",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            firebaseViewModel.getCurrentUserDataFromFirebase()
+                        } else {
+                            Toast.makeText(
+                                navController.context,
+                                "Nastala chyba pri ukladani udajov",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                },
+                onFollowButtonClick = { userId ->
+                    firebaseViewModel.viewModelScope.launch {
+                        if (firebaseViewModel.addUserToFollowing(userId)) {
+                            Toast.makeText(
+                                navController.context,
+                                "Sledujes pouzivatela",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            firebaseViewModel.getCurrentUserDataFromFirebase()
+                        } else {
+                            Toast.makeText(
+                                navController.context,
+                                "Nastala chyba pri ukladani udajov",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 }
             )
         }
