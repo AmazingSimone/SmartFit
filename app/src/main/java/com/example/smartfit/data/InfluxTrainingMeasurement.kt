@@ -13,7 +13,7 @@ data class InfluxTrainingMeasurement(
     @Column val kroky: Int,
     @Column val kadencia: Int,
     @Column val spaleneKalorie: Int,
-    @Column val vzdialenost: Double,
+    @Column val vzdialenost: Int,
     @Column val saturacia: Double,
     @Column val rychlost: Int,
     @Column(timestamp = true) val time: Instant

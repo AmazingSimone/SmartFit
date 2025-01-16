@@ -129,7 +129,7 @@ fun CurrentActivityScreen(
                             kroky = data.value.kroky.toInt(),
                             kadencia = data.value.kadencia.toInt(),
                             spaleneKalorie = data.value.spaleneKalorie.toInt(),
-                            vzdialenost = data.value.vzdialenost.replace(",", ".").toDouble(),
+                            vzdialenost = data.value.vzdialenost.replace(",", ".").toInt(),
                             saturacia = data.value.saturacia.replace(",", ".").toDouble(),
                             rychlost = data.value.rychlost.toInt(),
                             time = Instant.now()
