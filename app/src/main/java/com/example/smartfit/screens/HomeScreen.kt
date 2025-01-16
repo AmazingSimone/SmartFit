@@ -38,9 +38,9 @@ fun HomeScreen(
                 heading = "Denna aktivita",
                 activity = getTodayTrainingsTotalMinutesDuration(listOfTrainings).toString(),
                 activityGoal = user.activityGoal.ifEmpty { "90" },
-                steps = "0",
+                steps = getTodayTrainingsTotalSteps(listOfTrainings).toString(),
                 stepsGoal = user.stepsGoal.ifEmpty { "10000" },
-                calories = "0",
+                calories = getTodayTrainingsTotalCalories(listOfTrainings).toString(),
                 caloriesGoal = user.caloriesGoal.ifEmpty { "500" }
             )
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
@@ -123,6 +123,34 @@ private fun getTodayTrainingsTotalMinutesDuration(listOfTrainings: List<Training
 
     val totalDurationMillis = todayTrainings.sumOf { it.trainingDuration }
     return totalDurationMillis / 60000
+}
+
+private fun getTodayTrainingsTotalCalories(listOfTrainings: List<Training>): Long {
+    if (listOfTrainings.isEmpty()) return 0
+
+    val today = LocalDate.now()
+    val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toEpochSecond()
+    val endOfDay = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toEpochSecond()
+
+    val todayTrainings = listOfTrainings.filter { training ->
+        training.timeDateOfTraining in startOfDay until endOfDay
+    }
+
+    return todayTrainings.sumOf { it.burnedCalories.toLong() }
+}
+
+private fun getTodayTrainingsTotalSteps(listOfTrainings: List<Training>): Long {
+    if (listOfTrainings.isEmpty()) return 0
+
+    val today = LocalDate.now()
+    val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toEpochSecond()
+    val endOfDay = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toEpochSecond()
+
+    val todayTrainings = listOfTrainings.filter { training ->
+        training.timeDateOfTraining in startOfDay until endOfDay
+    }
+
+    return todayTrainings.sumOf { it.steps.toLong() }
 }
 
 @Preview
