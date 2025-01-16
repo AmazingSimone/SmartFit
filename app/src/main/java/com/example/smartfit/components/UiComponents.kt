@@ -101,6 +101,8 @@ import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButtonIconOnly
 import dev.gitlive.firebase.auth.FirebaseUser
 import java.text.SimpleDateFormat
+import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneOffset
@@ -661,19 +663,30 @@ fun CustomProfilePictureFrame(
 
 @Composable
 fun CustomProfileInfoTable(
+    week: String,
     avgTimeOfActivity: String,
-    avgCountOfSteps: Int,
-    avgBurnedCalories: Int,
+    avgCountOfSteps: String,
+    avgBurnedCalories: String,
     favouriteTraining: String
 ) {
 
     Column(Modifier.fillMaxWidth()) {
         Row(
             Modifier.fillMaxWidth(),
+            //horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Heading3("(Tyzdenny suhrn $week)")
+        }
+        Spacer(Modifier.padding(2.dp))
+        Row(
+            Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Heading3("Priem. doba aktivity")
+
+
+            Heading3("Celkova doba aktivity")
             HorizontalDivider(
                 Modifier
                     .weight(1f)
@@ -688,7 +701,7 @@ fun CustomProfileInfoTable(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Heading3("Priem. pocet krokov")
+            Heading3("Pocet krokov")
             HorizontalDivider(
                 Modifier
                     .weight(1f)
@@ -703,7 +716,7 @@ fun CustomProfileInfoTable(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Heading3("Priem. pocet spal. kalorii")
+            Heading3("Pocet spal. kalorii")
             HorizontalDivider(
                 Modifier
                     .weight(1f)
@@ -731,6 +744,7 @@ fun CustomProfileInfoTable(
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileInfoContent(
     padding: Dp = 8.dp,
@@ -745,6 +759,46 @@ fun ProfileInfoContent(
     editOption: Boolean = false,
     enabled: Boolean = false
 ) {
+
+    val current = LocalDate.now()
+    val startOfWeek = current.with(DayOfWeek.MONDAY)
+    val endOfWeek = current.with(DayOfWeek.SUNDAY)
+    val formatter = DateTimeFormatter.ofPattern("dd.")
+    val week = "${startOfWeek.format(formatter)} - ${endOfWeek.format(formatter)}"
+
+    val trainingsThisWeek = completedtrainingsList.filter { training ->
+        val trainingDate = LocalDate.ofEpochDay(training.timeDateOfTraining / (24 * 60 * 60))
+        trainingDate in startOfWeek..endOfWeek
+    }
+
+    val totalTimeOfActivity = if (trainingsThisWeek.isNotEmpty()) {
+        val totalDurationMillis = trainingsThisWeek.sumOf { it.trainingDuration }
+        "${totalDurationMillis / 60000}min"
+    } else {
+        "N/A"
+    }
+
+    val totalCountOfSteps = if (trainingsThisWeek.isNotEmpty()) {
+        val totalSteps = trainingsThisWeek.sumOf { it.steps }
+        "${totalSteps}"
+    } else {
+        "N/A"
+    }
+
+    val totalBurnedCalories = if (trainingsThisWeek.isNotEmpty()) {
+        val totalCalories = trainingsThisWeek.sumOf { it.burnedCalories }
+        "${totalCalories}kcal"
+    } else {
+        "N/A"
+    }
+
+    val favouriteTraining = if (trainingsThisWeek.isNotEmpty()) {
+        trainingsThisWeek.groupBy { it.name }
+            .maxByOrNull { it.value.size }
+            ?.key ?: "N/A"
+    } else {
+        "N/A"
+    }
 
     Column(
         modifier = Modifier.padding(20.dp),
@@ -823,13 +877,12 @@ fun ProfileInfoContent(
 
 
         CustomProfileInfoTable(
-            avgTimeOfActivity = "0min",
-            avgCountOfSteps = 0,
-            avgBurnedCalories = 0,
-            favouriteTraining = "--"
+            week = week,
+            avgTimeOfActivity = totalTimeOfActivity,
+            avgCountOfSteps = totalCountOfSteps,
+            avgBurnedCalories = totalBurnedCalories,
+            favouriteTraining = favouriteTraining,
         )
-
-
     }
 
 }
@@ -1651,9 +1704,11 @@ fun CustomBottomModalSheet(
 @Preview(showBackground = true)
 @Composable
 fun PreviewComponents() {
-    CustomTrainingInfoDisplayCard(
-        title = "Tep",
-        data = "0 - 107",
-        unit = "t/m"
+    CustomProfileInfoTable(
+        week = "17. - 22.",
+        avgTimeOfActivity = "",
+        avgCountOfSteps = "",
+        avgBurnedCalories = "",
+        favouriteTraining = ""
     )
 }
