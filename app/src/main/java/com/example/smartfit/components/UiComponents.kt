@@ -1444,7 +1444,16 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                                     horizontalAlignment = horizontalAlignment
                                 ) {
                                     NormalText("Priemerna rychlost")
-                                    Heading1(influxData?.avgRychlost ?: "")
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Heading1(
+                                            influxData?.avgRychlost ?: "",
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Heading1(
+                                            "km/h",
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
+                                    }
                                 }
                             }
                             VerticalDivider(
@@ -1461,7 +1470,16 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                                     horizontalAlignment = horizontalAlignment
                                 ) {
                                     NormalText("Spalene kalorie")
-                                    Heading1(influxData?.spaleneKalorie ?: "")
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Heading1(
+                                            influxData?.spaleneKalorie ?: "",
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Heading1(
+                                            "kcal",
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
+                                    }
                                 }
                             }
 
@@ -1479,8 +1497,14 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                                     Modifier.padding(8.dp),
                                     horizontalAlignment = horizontalAlignment
                                 ) {
-                                    NormalText("Priemerny srdcovy tep")
-                                    Heading1("${influxData?.tepMin} - ${influxData?.tepMax}")
+                                    NormalText("Srdcovy tep")
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Heading1(
+                                            "${influxData?.tepMin} - ${influxData?.tepMax}",
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Heading1("t/m", color = MaterialTheme.colorScheme.secondary)
+                                    }
                                 }
                             }
                             VerticalDivider(
@@ -1497,7 +1521,16 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                                     horizontalAlignment = horizontalAlignment
                                 ) {
                                     NormalText("Priemerne tempo")
-                                    Heading1(influxData?.avgKadencia ?: "")
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Heading1(
+                                            influxData?.avgKadencia ?: "",
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Heading1(
+                                            "kr/min",
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
+                                    }
                                 }
                             }
 
@@ -1516,7 +1549,10 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                                     horizontalAlignment = horizontalAlignment
                                 ) {
                                     NormalText("Kroky")
-                                    Heading1(influxData?.kroky ?: "")
+                                    Heading1(
+                                        influxData?.kroky ?: "",
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
                                 }
                             }
                             VerticalDivider(
@@ -1533,7 +1569,13 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                                     horizontalAlignment = horizontalAlignment
                                 ) {
                                     NormalText("Teplota")
-                                    Heading1(influxData?.teplota ?: "")
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Heading1(
+                                            influxData?.teplota ?: "",
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Heading1("°C", color = MaterialTheme.colorScheme.secondary)
+                                    }
                                 }
                             }
                         }
@@ -1549,8 +1591,8 @@ fun CustomGroupTrainingParticipantsDetailsCard(
 fun CustomBottomModalSheet(
     sheetState: SheetState = rememberModalBottomSheetState(),
     onDismissRequest: () -> Unit,
-    stopWatch: StopWatch,
-    trainingState: Int,
+    stopWatch: StopWatch? = null,
+    trainingState: Int = 0,
     receivedUser: User,
     completedTrainingsList: List<Training>,
     followedUsersList: List<User>,
@@ -1586,7 +1628,9 @@ fun CustomBottomModalSheet(
         ) {
 
             if (trainingState > 0) {
-                RunningTrainingInfoContent(stopWatch = stopWatch, nrfData = NrfData())
+                if (stopWatch != null) {
+                    RunningTrainingInfoContent(stopWatch = stopWatch, nrfData = NrfData())
+                }
             } else {
                 ProfileInfoContent(
                     onUnFollowButtonClick = onUnFollowButtonClick,
