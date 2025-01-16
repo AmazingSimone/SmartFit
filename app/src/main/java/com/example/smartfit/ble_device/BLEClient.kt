@@ -315,14 +315,10 @@ class BLEClient(private val context: Context) {
         val parts = input.split(";")
         return NrfData(
             tep = parts[0],
-            teplota = parts[1],
+            teplota = String.format(Locale.US, "%.1f", parts[1].toFloat()),
             kroky = parts[2],
             saturacia = parts[3],
-            vzdialenost = String.format(
-                Locale.getDefault(),
-                "%.2f",
-                ((step_distance / 100) * parts[2].toFloat())
-            ),
+            vzdialenost = ((step_distance / 100) * parts[2].toFloat()).toInt().toString(),
             spaleneKalorie = (caloriesPerStep * parts[2].toFloat()).toInt().toString()
         )
     }
