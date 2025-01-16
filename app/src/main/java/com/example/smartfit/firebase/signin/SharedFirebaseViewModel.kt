@@ -258,7 +258,7 @@ class SharedFirebaseViewModel : ViewModel() {
                         ////"avgTempo" to training.avgTempo,
                         "steps" to training.steps,
                         ////"trainingTemperature" to training.trainingTemperature,
-                        //"isGroupTraining" to training.isGroupTraining,
+                        "isGroupTraining" to training.isGroupTraining,
                         //"id" to training.id
                     )
                 ).await()
