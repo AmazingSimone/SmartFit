@@ -37,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.smartfit.BuildConfig
 import com.example.smartfit.components.CustomBottomModalSheet
 import com.example.smartfit.components.CustomGroupTrainingParticipantsDetailsCard
 import com.example.smartfit.components.CustomTrainingInfoDisplayCard
@@ -47,16 +46,11 @@ import com.example.smartfit.data.InfluxData
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
 import com.example.smartfit.data.trainingList
-import com.influxdb.client.kotlin.InfluxDBClientKotlinFactory
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.withContext
+import com.example.smartfit.influx.InfluxClient
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,6 +72,9 @@ fun ActivityDetailScreen(
     onFollowButtonClick: (String) -> Unit = {},
     onBackClick: () -> Unit
 ) {
+
+    val influxClient = remember { InfluxClient() }
+
     val groupTrainingParticipantsIds = remember { mutableStateOf(emptyList<String>()) }
     val trainer = remember { mutableStateOf(User()) }
     val isLoading = remember { mutableStateOf(true) }
@@ -92,7 +89,8 @@ fun ActivityDetailScreen(
     StrictMode.setThreadPolicy(policy)
 
     LaunchedEffect(Unit) {
-        userInfluxData.value = fetchInfluxData(loggedInUser.id, training.id)
+        userInfluxData.value = influxClient.fetchInfluxData(loggedInUser.id, training.id)
+        influxClient.closeConnection()
     }
 
     val participants = remember { mutableStateListOf<User>() }
@@ -111,12 +109,12 @@ fun ActivityDetailScreen(
                 val participant = onRequestParticipantInfo(participantId) ?: User()
                 val participantTraining =
                     onRequestParticipantTrainingInfo(participantId) ?: Training()
-                val participantInfluxData = fetchInfluxData(participantId, training.id)
+                val participantInfluxData = influxClient.fetchInfluxData(participantId, training.id)
                 participants.add(participant)
                 participantsInfluxData.add(participantInfluxData)
                 participantsTrainings.add(participantTraining)
             }
-
+            influxClient.closeConnection()
             isLoading.value = false
         }
     }
@@ -363,131 +361,4 @@ fun ActivityDetailPreview() {
         onParticipantClick = {},
         loggedInUser = User()
     )
-}
-
-suspend fun fetchInfluxData(userId: String, trainingId: String): InfluxData {
-
-    val influxDBClientKotlin = InfluxDBClientKotlinFactory.create(
-        BuildConfig.INFLUX_URL,
-        BuildConfig.INFLUX_TOKEN.toCharArray(),
-        BuildConfig.INFLUX_ORG,
-        BuildConfig.INFLUX_BUCKET
-    )
-
-    var influxData = InfluxData()
-
-    withContext(Dispatchers.IO) {
-        influxDBClientKotlin.use {
-            val queryApi = influxDBClientKotlin.getQueryKotlinApi()
-
-            val minValuesDeferred = async {
-                val minValues = mutableMapOf<String, Any>()
-                val fluxQueryMin = """from(bucket: "${BuildConfig.INFLUX_BUCKET}")
-                |> range(start: 0)
-                |> filter(fn: (r) => r["_measurement"] == "training")
-                |> filter(fn: (r) => r["userId"] == "$userId")
-                |> filter(fn: (r) => r["trainingId"] == "$trainingId")
-                |> filter(fn: (r) => r["_field"] == "tep" or r["_field"] == "teplota")
-                |> group(columns: ["_field"])
-                |> min()"""
-                queryApi.query(fluxQueryMin).consumeAsFlow().collect { record ->
-                    minValues[record.values["_field"].toString()] = record.values["_value"]!!
-                }
-                minValues
-            }
-
-            val maxValuesDeferred = async {
-                val maxValues = mutableMapOf<String, Any>()
-                val fluxQueryMax = """from(bucket: "${BuildConfig.INFLUX_BUCKET}")
-                |> range(start: 0)
-                |> filter(fn: (r) => r["_measurement"] == "training")
-                |> filter(fn: (r) => r["userId"] == "$userId")
-                |> filter(fn: (r) => r["trainingId"] == "$trainingId")
-                |> filter(fn: (r) => r["_field"] == "tep" or r["_field"] == "teplota")
-                |> group(columns: ["_field"])
-                |> max()"""
-                queryApi.query(fluxQueryMax).consumeAsFlow().collect { record ->
-                    maxValues[record.values["_field"].toString()] = record.values["_value"]!!
-                }
-                maxValues
-            }
-
-            val avgValuesDeferred = async {
-                val fluxQueryAvg = """from(bucket: "${BuildConfig.INFLUX_BUCKET}")
-                |> range(start: 0)
-                |> filter(fn: (r) => r["_measurement"] == "training")
-                |> filter(fn: (r) => r["userId"] == "$userId")
-                |> filter(fn: (r) => r["trainingId"] == "$trainingId")
-                |> filter(fn: (r) => r["_field"] == "rychlost" or r["_field"] == "kadencia" or r["_field"] == "saturacia" or r["_field"] == "teplota")
-                |> mean()"""
-                queryApi.query(fluxQueryAvg).consumeAsFlow().collect { record ->
-                    when (record.values["_field"].toString()) {
-                        "rychlost" -> influxData = influxData.copy(
-                            avgRychlost = record.values["_value"].toString().toFloat().toInt()
-                                .toString()
-                        )
-
-                        "kadencia" -> influxData = influxData.copy(
-                            avgKadencia = record.values["_value"].toString().toFloat().toInt()
-                                .toString()
-                        )
-
-                        "saturacia" -> influxData =
-                            influxData.copy(avgSaturacia = record.values["_value"].toString())
-
-                        "teplota" -> influxData = influxData.copy(
-                            teplota = String.format(
-                                Locale.US,
-                                "%.1f",
-                                record.values["_value"].toString().toFloat()
-                            )
-                        )
-
-                    }
-                }
-            }
-
-            val lastValuesDeferred = async {
-                val fluxQueryLast = """from(bucket: "${BuildConfig.INFLUX_BUCKET}")
-                |> range(start: 0)
-                |> filter(fn: (r) => r["_measurement"] == "training")
-                |> filter(fn: (r) => r["userId"] == "$userId")
-                |> filter(fn: (r) => r["trainingId"] == "$trainingId")
-                |> filter(fn: (r) => r["_field"] == "vzdialenost" or r["_field"] == "spaleneKalorie" or r["_field"] == "kroky")
-                |> last()"""
-                queryApi.query(fluxQueryLast).consumeAsFlow().collect { record ->
-                    when (record.values["_field"].toString()) {
-                        "vzdialenost" -> influxData =
-                            influxData.copy(vzdialenost = record.values["_value"].toString())
-
-                        "spaleneKalorie" -> influxData =
-                            influxData.copy(spaleneKalorie = record.values["_value"].toString())
-
-                        "kroky" -> influxData =
-                            influxData.copy(kroky = record.values["_value"].toString())
-                    }
-                }
-            }
-
-            val minValues = minValuesDeferred.await()
-            val maxValues = maxValuesDeferred.await()
-            avgValuesDeferred.await()
-            lastValuesDeferred.await()
-
-            minValues.forEach { (field, minValue) ->
-                when (field) {
-                    "tep" -> influxData = influxData.copy(tepMin = minValue.toString())
-                }
-            }
-
-            maxValues.forEach { (field, maxValue) ->
-                when (field) {
-                    "tep" -> influxData = influxData.copy(tepMax = maxValue.toString())
-                }
-            }
-        }
-    }
-    influxDBClientKotlin.close()
-    println(influxData.toString())
-    return influxData
 }
