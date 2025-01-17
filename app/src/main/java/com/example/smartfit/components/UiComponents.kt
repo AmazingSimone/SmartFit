@@ -769,6 +769,12 @@ fun ProfileInfoContent(
     val trainingsThisWeek = completedtrainingsList.filter { training ->
         val trainingDate = LocalDate.ofEpochDay(training.timeDateOfTraining / (24 * 60 * 60))
         trainingDate in startOfWeek..endOfWeek
+    }.map { training ->
+        if (training.steps == 0 && training.burnedCalories == 0) {
+            training.copy(trainingDuration = 0L)
+        } else {
+            training
+        }
     }
 
     val totalTimeOfActivity = if (trainingsThisWeek.isNotEmpty()) {

@@ -119,6 +119,12 @@ private fun getTodayTrainingsTotalMinutesDuration(listOfTrainings: List<Training
 
     val todayTrainings = listOfTrainings.filter { training ->
         training.timeDateOfTraining in startOfDay until endOfDay
+    }.map { training ->
+        if (training.steps == 0 && training.burnedCalories == 0) {
+            training.copy(trainingDuration = 0L)
+        } else {
+            training
+        }
     }
 
     val totalDurationMillis = todayTrainings.sumOf { it.trainingDuration }
