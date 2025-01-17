@@ -2,6 +2,8 @@ package com.example.smartfit.screens
 
 //import android.graphics.Color
 import android.graphics.Bitmap
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,13 +59,16 @@ import com.example.smartfit.components.HeadlineText
 import com.example.smartfit.components.NormalText
 import com.example.smartfit.components.StopWatch
 import com.example.smartfit.data.GroupTraining
+import com.example.smartfit.data.NrfData
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
 import com.example.smartfit.data.frameColors
 import com.example.smartfit.data.trainingList
+import com.example.smartfit.influx.InfluxClient
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -105,6 +110,13 @@ fun GroupTrainingLobby(
     var showBottomSheet by remember { mutableStateOf(false) }
     //
 
+    val policy = ThreadPolicy.Builder().permitAll().build()
+    StrictMode.setThreadPolicy(policy)
+
+    val influxDBClientKotlin = remember { InfluxClient() }
+
+    val chosenParticipant = remember { mutableStateOf("") }
+    val chosenUserNrfData = remember { mutableStateOf(NrfData()) }
 
     LaunchedEffect(allTrainingParticipants) {
         if (!allTrainingParticipants.contains(currentUser) && currentUser.id != chosenGroupTraining.trainerId) {
@@ -179,6 +191,15 @@ fun GroupTrainingLobby(
         }
     }
 
+    LaunchedEffect(showBottomSheet) {
+        while (showBottomSheet && chosenGroupTraining.trainingState > 0) {
+            delay(2000)
+            chosenUserNrfData.value = influxDBClientKotlin.fetchMostRecentInfluxData(
+                chosenParticipant.value,
+                groupTraining.id
+            )
+        }
+    }
     qrBitmap?.let { bitmap ->
 
         Scaffold(
@@ -293,6 +314,7 @@ fun GroupTrainingLobby(
                                 onClick = {
                                     //stopWatch.pause()
                                     setTrainingState(4)
+                                    influxDBClientKotlin.closeConnection()
 //                                    groupTraining =
 //                                        groupTraining.copy(trainingDuration = stopWatch.getTimeMillis())
                                     //onEndGroupTrainingClick(groupTraining)
@@ -367,6 +389,7 @@ fun GroupTrainingLobby(
                                         ListItem(
                                             modifier = Modifier.clickable {
                                                 showBottomSheet = true
+                                                chosenParticipant.value = participant.id
                                                 onUserClick(participant.id)
                                             },
                                             overlineContent = { NormalText(participant.displayName) },
@@ -421,6 +444,7 @@ fun GroupTrainingLobby(
                     sheetState = sheetState,
                     onDismissRequest = { showBottomSheet = false },
                     stopWatch = stopWatch,
+                    nrfData = chosenUserNrfData.value,
                     trainingState = chosenGroupTraining.trainingState,
                     receivedUser = chosenUser,
                     completedTrainingsList = chosenUserCompletedTrainings,

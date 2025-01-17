@@ -695,6 +695,13 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                         navController.navigate("${Screens.CURRENT_ACTIVITY.name}/$indexOfTraining") {
                             popUpTo(0) { inclusive = true }
                         }
+                    } else {
+                        firebaseViewModel.viewModelScope.launch {
+                            firebaseViewModel.createLoggedInUserTraining(
+                                indexOfTraining,
+                                chosenGroupTraining.id
+                            )
+                        }
                     }
                 },
                 onRemoveUserFromTrainingClick = { participantId ->
