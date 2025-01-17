@@ -896,7 +896,7 @@ fun ProfileInfoContent(
 @Composable
 fun RunningTrainingInfoContent(
     stopWatch: StopWatch,
-    nrfData: NrfData
+    influxData: NrfData
 ) {
 
     Column(Modifier.fillMaxSize()) {
@@ -914,7 +914,7 @@ fun RunningTrainingInfoContent(
                     .fillMaxSize()
                     .weight(1f),
                 title = "Vzdialenost",
-                data = nrfData.vzdialenost,
+                data = influxData.vzdialenost,
                 unit = "m"
             )
             Spacer(Modifier.padding(5.dp))
@@ -923,7 +923,7 @@ fun RunningTrainingInfoContent(
                     .fillMaxSize()
                     .weight(1f),
                 title = "Srdcovy tep",
-                data = nrfData.tep,
+                data = influxData.tep,
                 unit = "t/m"
             )
         }
@@ -935,7 +935,7 @@ fun RunningTrainingInfoContent(
                     .fillMaxSize()
                     .weight(1f),
                 title = "Kadencia",
-                data = nrfData.kadencia,
+                data = influxData.kadencia,
                 unit = "kr/min"
             )
 
@@ -945,7 +945,7 @@ fun RunningTrainingInfoContent(
                     .fillMaxSize()
                     .weight(1f),
                 title = "Rychlost",
-                data = nrfData.rychlost,
+                data = influxData.rychlost,
                 unit = "km/h"
             )
         }
@@ -956,7 +956,7 @@ fun RunningTrainingInfoContent(
                     .fillMaxSize()
                     .weight(1f),
                 title = "Spalene kalorie",
-                data = nrfData.spaleneKalorie,
+                data = influxData.spaleneKalorie,
                 unit = "kcal"
             )
             Spacer(Modifier.padding(5.dp))
@@ -965,7 +965,7 @@ fun RunningTrainingInfoContent(
                     .fillMaxSize()
                     .weight(1f),
                 title = "Teplota",
-                data = nrfData.teplota,
+                data = influxData.teplota,
                 unit = "°C"
             )
         }
@@ -1652,6 +1652,7 @@ fun CustomBottomModalSheet(
     onDismissRequest: () -> Unit,
     stopWatch: StopWatch? = null,
     trainingState: Int = 0,
+    nrfData: NrfData? = null,
     receivedUser: User,
     completedTrainingsList: List<Training>,
     followedUsersList: List<User>,
@@ -1687,8 +1688,8 @@ fun CustomBottomModalSheet(
         ) {
 
             if (trainingState > 0) {
-                if (stopWatch != null) {
-                    RunningTrainingInfoContent(stopWatch = stopWatch, nrfData = NrfData())
+                if (stopWatch != null && nrfData != null) {
+                    RunningTrainingInfoContent(stopWatch = stopWatch, influxData = nrfData)
                 }
             } else {
                 ProfileInfoContent(
