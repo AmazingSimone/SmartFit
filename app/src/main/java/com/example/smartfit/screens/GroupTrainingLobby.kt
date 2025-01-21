@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomBottomModalSheet
 import com.example.smartfit.components.CustomButton
+import com.example.smartfit.components.CustomOnlineStateIndicator
 import com.example.smartfit.components.CustomProfilePictureFrame
 import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.Heading2
@@ -85,6 +86,7 @@ fun GroupTrainingLobby(
     onUnFollowButtonClick: (String) -> Unit,
     onFollowButtonClick: (String) -> Unit,
     setTrainingState: (Int) -> Unit, //0 - initial, 1 - start and send to screens, 2 - pause, 3 - resume, 4 - end
+    isBLEConnected: Int,
     onDeleteClick: (Boolean) -> Unit,
     onUserClick: (String) -> Unit,
     onEndGroupTrainingClick: (GroupTraining) -> Unit,
@@ -212,20 +214,23 @@ fun GroupTrainingLobby(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Heading1("Skupinovy trening")
-                            if (chosenGroupTraining.name.isNotEmpty()) {
-                                Spacer(Modifier.padding(3.dp))
-
-                                Heading2(
-                                    "(${chosenGroupTraining.name})",
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
                         }
 
 
                     },
                     actions = {
-                        Row {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            CustomOnlineStateIndicator(
+                                onClick = { },
+                                indicatorColor = when (isBLEConnected) {
+                                    0 -> MaterialTheme.colorScheme.error
+                                    1 -> Color.Yellow
+                                    2 -> Color.Green
+                                    else -> MaterialTheme.colorScheme.error
+                                },
+                                size = 13.dp
+                            )
+                            Spacer(Modifier.padding(5.dp))
                             IconButton(
                                 onClick = { fullscreenQrState.value = true },
                                 enabled = chosenGroupTraining.trainingState == 0
@@ -352,8 +357,20 @@ fun GroupTrainingLobby(
                     Column {
 
 
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        Column(
+                            Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+
                             Heading1(trainingList[chosenGroupTraining.trainingIndex].name)
+                            if (chosenGroupTraining.name.isNotEmpty()) {
+                                Spacer(Modifier.padding(3.dp))
+
+                                Heading2(
+                                    chosenGroupTraining.name,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
                         }
                         Spacer(Modifier.padding(3.dp))
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
@@ -366,7 +383,7 @@ fun GroupTrainingLobby(
                                 .fillMaxSize()
                                 .padding(bottom = 15.dp)
                                 .background(
-                                    MaterialTheme.colorScheme.surfaceDim,
+                                    MaterialTheme.colorScheme.surfaceContainerLow,
                                     shape = RoundedCornerShape(30.dp)
                                 )
                             //.padding(16.dp)
@@ -492,7 +509,7 @@ fun GroupTrainingLobbyPreview() {
             id = "04zGShmrMuJ0OekUfoR4",
             numberOfParticipants = 2,
             trainingDetails = "Toto su detaily treningu",
-            trainingState = 1
+            trainingState = 0
         ),
         onDeleteClick = {},
         currentUser = User(
@@ -545,6 +562,7 @@ fun GroupTrainingLobbyPreview() {
         chosenUserFollowing = emptyList(),
         onUnFollowButtonClick = {},
         onFollowButtonClick = {},
-        onUserClick = {}
+        onUserClick = {},
+        isBLEConnected = 0
     )
 }

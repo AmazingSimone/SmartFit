@@ -767,7 +767,8 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                             ).show()
                         }
                     }
-                }
+                },
+                isBLEConnected = bleConnectionState
             )
         }
 
@@ -791,18 +792,26 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                 foundGroupTraining = foundGroupTraining.value,
                 foundTrainer = foundTrainer.value,
                 onConfirmation = { groupTrainingId ->
-                    firebaseViewModel.viewModelScope.launch {
-                        if (firebaseViewModel.addCurrentUserToGroupTraining(groupTrainingId)) {
-                            firebaseViewModel.setMyCurrentGroupTraining(
-                                firebaseViewModel.getGroupTrainingData(
-                                    groupTrainingId
-                                ) ?: GroupTraining()
-                            )
-                            firebaseViewModel.fetchAllParticipantsOfTraining(groupTrainingId)
-                            navController.navigate(Screens.GROUP_TRAINING_LOBBY.name) {
-                                popUpTo(0) { inclusive = true }
+                    if (bleConnectionState > 1) {
+                        firebaseViewModel.viewModelScope.launch {
+                            if (firebaseViewModel.addCurrentUserToGroupTraining(groupTrainingId)) {
+                                firebaseViewModel.setMyCurrentGroupTraining(
+                                    firebaseViewModel.getGroupTrainingData(
+                                        groupTrainingId
+                                    ) ?: GroupTraining()
+                                )
+                                firebaseViewModel.fetchAllParticipantsOfTraining(groupTrainingId)
+                                navController.navigate(Screens.GROUP_TRAINING_LOBBY.name) {
+                                    popUpTo(0) { inclusive = true }
+                                }
                             }
                         }
+                    } else {
+                        Toast.makeText(
+                            navController.context,
+                            "Skontroluj pripojenie zariadenia",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             )
