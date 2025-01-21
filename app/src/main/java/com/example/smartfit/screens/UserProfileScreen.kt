@@ -1,5 +1,7 @@
 package com.example.smartfit.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.Heading1
@@ -28,6 +29,7 @@ import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
 import com.example.smartfit.data.frameColors
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 
@@ -82,7 +84,6 @@ fun UserProfileScreen(
         },
 
     ) { innerPadding ->
-        val padding: Dp = 8.dp
         Surface(modifier = Modifier.padding(innerPadding)) {
 
             Box(
@@ -119,6 +120,7 @@ fun UserProfileScreen(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun UserProfilePreview() {

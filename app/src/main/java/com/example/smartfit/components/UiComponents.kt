@@ -222,7 +222,7 @@ fun CustomOutlinedTextInput(
         modifier = modifier
             .fillMaxWidth()
             .focusRequester(currentFocusRequester),
-        value = if (value.isNotEmpty()) value else textValue.value,
+        value = value.ifEmpty { textValue.value },
         onValueChange = {
             textValue.value = it
             onTextChanged(it)
@@ -708,7 +708,7 @@ fun CustomProfileInfoTable(
                     .padding(horizontal = 8.dp)
             )
 
-            Heading3(avgCountOfSteps.toString())
+            Heading3(avgCountOfSteps)
         }
 
         Row(
@@ -723,7 +723,7 @@ fun CustomProfileInfoTable(
                     .padding(horizontal = 8.dp)
             )
 
-            Heading3(avgBurnedCalories.toString())
+            Heading3(avgBurnedCalories)
         }
 
         Row(
@@ -786,7 +786,7 @@ fun ProfileInfoContent(
 
     val totalCountOfSteps = if (trainingsThisWeek.isNotEmpty()) {
         val totalSteps = trainingsThisWeek.sumOf { it.steps }
-        "${totalSteps}"
+        "$totalSteps"
     } else {
         "N/A"
     }
@@ -812,7 +812,7 @@ fun ProfileInfoContent(
     ) {
 
         CustomProfilePictureFrame(
-            pictureUrl = recievedUser.profilePicUrl.toString(),
+            pictureUrl = recievedUser.profilePicUrl,
             editOption = editOption,
             enabled = enabled,
             frameColor = Color(frameColors[recievedUser.color]),
@@ -821,7 +821,7 @@ fun ProfileInfoContent(
         )
         Spacer(Modifier.padding(padding))
 
-        HeadlineText(recievedUser.displayName ?: "")
+        HeadlineText(recievedUser.displayName)
 
         Spacer(Modifier.padding(padding - 6.dp))
 
@@ -853,7 +853,7 @@ fun ProfileInfoContent(
 
             Spacer(Modifier.padding(padding - 6.dp))
 
-            NormalText(recievedUser.bio ?: "")
+            NormalText(recievedUser.bio)
 
         }
 
@@ -1158,11 +1158,11 @@ fun CustomInfoCardFromDevice(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     HeadlineText(
-                        if (data.equals("0") || data.equals("0.0")) "--" else data.toString(),
+                        text = if (data == "0" || data == "0.0") "--" else data,
                         fontWeight = FontWeight.Bold
                     )
                     if (goal > 0) HeadlineText(
-                        " / ${goal}",
+                        " / $goal",
                         fontWeight = FontWeight.Bold
                     )
                     HeadlineText(unit, fontWeight = FontWeight.Bold)
@@ -1282,7 +1282,7 @@ fun CustomTrainingInfoCardWithDate(
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Heading1(
-                                    LocalTime.ofSecondOfDay((training.trainingDuration / 1000).toLong())
+                                    LocalTime.ofSecondOfDay((training.trainingDuration / 1000))
                                         .format(DateTimeFormatter.ofPattern("HH:mm:ss")),
                                     //timeLength.toString(),
                                     color = MaterialTheme.colorScheme.tertiary
@@ -1474,7 +1474,7 @@ fun CustomGroupTrainingParticipantsDetailsCard(
 
     ) {
 
-        Column() {
+        Column {
 
             Row(modifier = modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 CustomProfilePictureFrame(
@@ -1735,6 +1735,7 @@ fun CustomGroupTrainingParticipantsDetailsCard(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomBottomModalSheet(

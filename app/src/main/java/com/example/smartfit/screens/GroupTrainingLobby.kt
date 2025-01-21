@@ -2,8 +2,10 @@ package com.example.smartfit.screens
 
 //import android.graphics.Color
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,16 +41,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomBottomModalSheet
 import com.example.smartfit.components.CustomButton
@@ -72,6 +71,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupTrainingLobby(
@@ -98,7 +98,6 @@ fun GroupTrainingLobby(
     var groupTraining by remember { mutableStateOf(chosenGroupTraining) }
 
 
-    val context = LocalContext.current
     var qrBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
     val fullscreenQrState = remember { mutableStateOf(false) }
@@ -108,7 +107,6 @@ fun GroupTrainingLobby(
 
     //
     val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
     //
 
@@ -343,7 +341,6 @@ fun GroupTrainingLobby(
 
         ) { innerPadding ->
 
-            val padding: Dp = 8.dp
             Surface(modifier = Modifier.padding(innerPadding)) {
 
 
@@ -495,6 +492,7 @@ fun GroupTrainingLobby(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 @Preview
 fun GroupTrainingLobbyPreview() {

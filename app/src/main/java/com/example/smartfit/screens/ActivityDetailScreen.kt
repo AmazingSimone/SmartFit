@@ -171,7 +171,7 @@ fun ActivityDetailScreen(
                             )
                         )
                         Heading1(
-                            LocalTime.ofSecondOfDay((training.trainingDuration / 1000).toLong())
+                            LocalTime.ofSecondOfDay((training.trainingDuration / 1000))
                                 .format(DateTimeFormatter.ofPattern("HH:mm:ss"))
                         )
                     }

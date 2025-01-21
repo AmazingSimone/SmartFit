@@ -77,11 +77,11 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
             }
 
             else -> {
-                Toast.makeText(
-                    navController.context,
-                    "Pripojte zariadenie",
-                    Toast.LENGTH_SHORT
-                ).show()
+//                Toast.makeText(
+//                    navController.context,
+//                    "Pripojte zariadenie",
+//                    Toast.LENGTH_SHORT
+//                ).show()
             }
         }
     }
@@ -100,7 +100,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
 
             val listOfTrainings by firebaseViewModel.sharedUserTrainingsState.collectAsStateWithLifecycle()
 
-            val bleConnectionState by bleClient.stateOfDevice.collectAsStateWithLifecycle()
+            //val bleConnectionState by bleClient.stateOfDevice.collectAsStateWithLifecycle()
 
             val bleData by bleClient.data.collectAsStateWithLifecycle()
             Log.d("AHOJBLE", "$bleData")
@@ -402,7 +402,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
             ActivityDetailScreen(
                 training = training[indexOfChosenTraining],
                 trainerDetails = {
-                    var trainer: User? = null
+                    var trainer: User?
 //                    firebaseViewModel.viewModelScope.launch {
 //                        trainer = firebaseViewModel.getUserData(firebaseViewModel.getGroupTrainingData(training[indexOfChosenTraining].id)?.trainerId ?: "")
 //                    }
@@ -415,14 +415,14 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                     trainer
                 },
                 listOfParticipantsIdsOfGroupTraining = { trainingId ->
-                    var participants = emptyList<String>()
+                    var participants: List<String>
                     runBlocking {
                         participants = firebaseViewModel.getParticipantsOfGroupTraining(trainingId)
                     }
                     participants
                 },
                 onRequestParticipantInfo = { userId ->
-                    var user = User()
+                    var user: User
 
                     runBlocking {
                         user = firebaseViewModel.getUserData(userId) ?: User()
@@ -432,7 +432,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                     user
                 },
                 onRequestParticipantTrainingInfo = { userId ->
-                    var userTrainingData = Training()
+                    var userTrainingData: Training
                     runBlocking {
                         userTrainingData = firebaseViewModel.getTrainingData(
                             training[indexOfChosenTraining].id,
