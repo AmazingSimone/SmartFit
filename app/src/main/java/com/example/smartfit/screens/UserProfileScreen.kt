@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,7 +33,7 @@ import com.example.smartfit.data.frameColors
 
 fun UserProfileScreen(
     onEditClick: () -> Unit,
-    onCloseClick: () -> Unit,
+    onBackClick: () -> Unit,
     onSignOutClick: () -> Unit,
     onUnFollowButtonClick: (String) -> Unit,
     onFollowButtonClick: (String) -> Unit,
@@ -51,9 +51,12 @@ fun UserProfileScreen(
                 title = {
                     if (recievedUser == loggedInUser) Heading1("Tvoj profil")
                 },
-                actions = {
-                    IconButton(onClick = { onCloseClick() }) {
-                        Icon(imageVector = Icons.Filled.Close, contentDescription = "Close")
+                navigationIcon = {
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back icon"
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -121,7 +124,7 @@ fun UserProfileScreen(
 fun UserProfilePreview() {
     UserProfileScreen(
         onEditClick = {},
-        onCloseClick = {},
+        onBackClick = {},
         onSignOutClick = {},
         recievedUser = User(displayName = "Simon Bartanus", bio = "Hej"),
         loggedInUser = null,

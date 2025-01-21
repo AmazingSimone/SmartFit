@@ -218,7 +218,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                 followedUsersList = chosenUserFollowing.value,
                 loggedInUser = sharedSignedInUser,
                 onEditClick = { navController.navigate(Screens.EDIT_PROFILE.name) },
-                onCloseClick = { navController.popBackStack() },
+                onBackClick = { navController.popBackStack() },
                 onSignOutClick = {
 
                     firebaseViewModel.signOut()
