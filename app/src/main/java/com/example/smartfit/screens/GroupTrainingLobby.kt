@@ -125,36 +125,36 @@ fun GroupTrainingLobby(
     }
 
     LaunchedEffect(chosenGroupTraining.id) {
-        val writer = QRCodeWriter()
-        val bitMatrix = writer.encode(chosenGroupTraining.id, BarcodeFormat.QR_CODE, 512, 512)
-        val width = bitMatrix.width
-        val height = bitMatrix.height
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
-        for (x in 0 until width) {
-            for (y in 0 until height) {
-                bitmap.setPixel(
-                    x,
-                    y,
-                    if (bitMatrix.get(
-                            x,
-                            y
-                        )
-                    ) android.graphics.Color.BLACK else android.graphics.Color.WHITE
-                )
+        if (chosenGroupTraining.id.isNotEmpty()) {
+            val writer = QRCodeWriter()
+            val bitMatrix = writer.encode(chosenGroupTraining.id, BarcodeFormat.QR_CODE, 512, 512)
+            val width = bitMatrix.width
+            val height = bitMatrix.height
+            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    bitmap.setPixel(
+                        x,
+                        y,
+                        if (bitMatrix.get(
+                                x,
+                                y
+                            )
+                        ) android.graphics.Color.BLACK else android.graphics.Color.WHITE
+                    )
+                }
             }
-        }
-        qrBitmap = bitmap
+            qrBitmap = bitmap
 
-
-        if (currentUser.id == chosenGroupTraining.trainerId) {
-            fullscreenQrState.value = true
-        }
-
-        while (groupTraining.trainingState != 4) {
-            withContext(Dispatchers.IO) {
-                onCheckAllTrainingInfo()
+            if (currentUser.id == chosenGroupTraining.trainerId) {
+                fullscreenQrState.value = true
             }
-            //delay(1000)
+
+            while (groupTraining.trainingState != 4) {
+                withContext(Dispatchers.IO) {
+                    onCheckAllTrainingInfo()
+                }
+            }
         }
     }
 
