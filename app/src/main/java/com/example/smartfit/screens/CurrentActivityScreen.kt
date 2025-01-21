@@ -107,11 +107,11 @@ fun CurrentActivityScreen(
                 kadencia = if (stopWatch.getTimeMillis() <= 0L) {
                     "0"
                 } else {
-                    val timeInSeconds = stopWatch.getTimeMillis() / 1000
-                    if (timeInSeconds == 0L) {
+                    val timeInMinutes = (stopWatch.getTimeMillis() / 60000.0)
+                    if (timeInMinutes == 0.0) {
                         "0"
                     } else {
-                        ((nrfData.kroky.toInt() / timeInSeconds) * 60).toInt().toString()
+                        ((nrfData.kroky.toInt() / timeInMinutes)).toInt().toString()
                     }
                 }
             )
@@ -201,8 +201,8 @@ fun CurrentActivityScreen(
             )
         },
         bottomBar = {
-            if ((groupTraining.value?.trainingState ?: 0) == 0) {
-                Row() {
+            Row() {
+                if ((groupTraining.value?.trainingState ?: 0) == 0) {
                     if (isRunning.value) {
                         CustomButton(
                             modifier = Modifier
@@ -256,6 +256,8 @@ fun CurrentActivityScreen(
                         buttonText = "Dokoncit"
                     )
 
+                } else {
+                    Heading1("")
                 }
             }
 
@@ -286,7 +288,7 @@ fun CurrentActivityPreview() {
     CurrentActivityScreen(
         createdTraining = Training("Beh", Icons.Default.DirectionsRun),
         onEndTraining = {},
-        chosenGroupTraining = GroupTraining(),
+        chosenGroupTraining = GroupTraining(trainingState = 0),
         onCheckAllTrainingInfo = {},
         nrfData = NrfData(),
         participant = User(),
