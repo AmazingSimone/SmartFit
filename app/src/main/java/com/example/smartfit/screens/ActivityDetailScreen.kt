@@ -223,13 +223,20 @@ fun ActivityDetailScreen(
                     } else {
 
                         Column(Modifier.fillMaxSize()) {
+//                            CustomTrainingInfoDisplayCard(
+//                                modifier = Modifier
+//                                    .fillMaxWidth()
+//                                    .weight(1f),
+//                                title = "Cas",
+//                                data = LocalTime.ofSecondOfDay((training.trainingDuration / 1000).toLong())
+//                                    .format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+//                            )
                             CustomTrainingInfoDisplayCard(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .weight(1f),
-                                title = "Cas",
-                                data = LocalTime.ofSecondOfDay((training.trainingDuration / 1000).toLong())
-                                    .format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+                                title = "Kroky",
+                                data = userInfluxData.value.kroky
                             )
                             Spacer(Modifier.padding(5.dp))
                             Row(Modifier.weight(1f)) {
@@ -247,8 +254,8 @@ fun ActivityDetailScreen(
                                         .fillMaxSize()
                                         .weight(1f),
                                     title = "Priemerny Srdcovy tep",
-                                    data = "${userInfluxData.value.tepMin} - ${userInfluxData.value.tepMax}",
-                                    unit = "t/m"
+                                    data = userInfluxData.value.avgTep,
+                                    unit = "t/min"
                                 )
                             }
                             //pocet krokov za minutu
@@ -268,9 +275,31 @@ fun ActivityDetailScreen(
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .weight(1f),
-                                    title = "Priemerna Rychlost",
+                                    title = "Maximalny srdcovy tep",
+                                    data = userInfluxData.value.tepMax,
+                                    unit = "t/min"
+                                )
+                            }
+                            Spacer(Modifier.padding(5.dp))
+
+                            Row(Modifier.weight(1f)) {
+                                CustomTrainingInfoDisplayCard(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .weight(1f),
+                                    title = "Priemerna rychlost",
                                     data = userInfluxData.value.avgRychlost,
                                     unit = "km/h"
+                                )
+
+                                Spacer(Modifier.padding(5.dp))
+                                CustomTrainingInfoDisplayCard(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .weight(1f),
+                                    title = "Priemerna saturacia",
+                                    data = userInfluxData.value.avgSaturacia,
+                                    unit = "%"
                                 )
                             }
                             Spacer(Modifier.padding(5.dp))
@@ -293,6 +322,7 @@ fun ActivityDetailScreen(
                                     unit = "°C"
                                 )
                             }
+                            Spacer(Modifier.padding(5.dp))
                         }
                     }
                 }
@@ -329,33 +359,33 @@ fun ActivityDetailPreview() {
             isGroupTraining = false
         ),
         listOfParticipantsIdsOfGroupTraining = {
-            //listOf("MZ6M79VA9zetdUHX4NtgRE6UDzx2")
-            emptyList()
+            listOf("MZ6M79VA9zetdUHX4NtgRE6UDzx2")
+            //emptyList()
         },
         onRequestParticipantInfo = {
-            null
-//            User(
-//                id = "MZ6M79VA9zetdUHX4NtgRE6UDzx2",
-//                displayName = "Simon Bartanus",
-//                profilePicUrl = "https://lh3.googleusercontent.com/a/ACg8ocIlxeLUaG-f883-a5lmUuQaqHiiaeuouQnzFf-SZFIND2HBCLf3=s96-c",
-//                bio = "Toto je uzastne bio",
-//                color = 1
-//            )
+//            null
+            User(
+                id = "MZ6M79VA9zetdUHX4NtgRE6UDzx2",
+                displayName = "Simon Bartanus",
+                profilePicUrl = "https://lh3.googleusercontent.com/a/ACg8ocIlxeLUaG-f883-a5lmUuQaqHiiaeuouQnzFf-SZFIND2HBCLf3=s96-c",
+                bio = "Toto je uzastne bio",
+                color = 1
+            )
         },
         onRequestParticipantTrainingInfo = {
-            null
-//            trainingList[0].copy(
-//                trainingDuration = 7363,
-//                timeDateOfTraining = 1732746897,
-//                avgSpeed = 0F,
-//                burnedCalories = 0F,
-//                avgHeartRate = 0,
-//                avgTempo = 0,
-//                steps = 0,
-//                trainingTemperature = 0,
-//                isGroupTraining = true,
-//                id = "pYqROgvqtzWm5cYskr1Z"
-//            )
+//            null
+            trainingList[0].copy(
+                trainingDuration = 7363,
+                timeDateOfTraining = 1732746897,
+
+                burnedCalories = 0,
+
+
+                steps = 0,
+
+                isGroupTraining = true,
+                id = "pYqROgvqtzWm5cYskr1Z"
+            )
         },
         //onTrainerClick = {},
         onParticipantClick = {},

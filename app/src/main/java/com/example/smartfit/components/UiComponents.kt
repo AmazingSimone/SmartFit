@@ -1488,8 +1488,147 @@ fun CustomGroupTrainingParticipantsDetailsCard(
             }
             if (training != null) {
                 HorizontalDivider()
+                Column(
+                    Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = Modifier.height(IntrinsicSize.Min),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Box(
+                            modifier = Modifier.weight(1f),
+                            contentAlignment = Alignment.Center
+                        ) {
+
+                            Column(
+                                Modifier.padding(8.dp),
+                                horizontalAlignment = horizontalAlignment
+                            ) {
+                                NormalText("Kroky")
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Heading1(
+                                        influxData?.kroky ?: "",
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                HorizontalDivider()
                 Box {
                     Column {
+                        Row(
+                            modifier = Modifier.height(IntrinsicSize.Min),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+
+                                Column(
+                                    Modifier.padding(8.dp),
+                                    horizontalAlignment = horizontalAlignment
+                                ) {
+                                    NormalText("Prejdena vzdialenost")
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Heading1(
+                                            influxData?.vzdialenost ?: "",
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Heading1(
+                                            "m",
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
+                                    }
+                                }
+                            }
+                            VerticalDivider(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .width(1.dp)
+                            )
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    Modifier.padding(8.dp),
+                                    horizontalAlignment = horizontalAlignment
+                                ) {
+                                    NormalText("Priemerny Srdcovy tep")
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Heading1(
+                                            influxData?.avgTep ?: "",
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Heading1(
+                                            "t/min",
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
+                                    }
+                                }
+                            }
+
+                        }
+                        HorizontalDivider()
+                        Row(
+                            modifier = Modifier.height(IntrinsicSize.Min),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    Modifier.padding(8.dp),
+                                    horizontalAlignment = horizontalAlignment
+                                ) {
+                                    NormalText("Priemerna kadencia")
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Heading1(
+                                            influxData?.avgKadencia ?: "",
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Heading1(
+                                            "kr/min",
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
+                                    }
+                                }
+                            }
+                            VerticalDivider(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .width(1.dp)
+                            )
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    Modifier.padding(8.dp),
+                                    horizontalAlignment = horizontalAlignment
+                                ) {
+                                    NormalText("Maximalny srdcovy tep")
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Heading1(
+                                            influxData?.tepMax ?: "",
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Heading1(
+                                            "t/min",
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
+                                    }
+                                }
+                            }
+
+                        }
+                        HorizontalDivider()
                         Row(
                             modifier = Modifier.height(IntrinsicSize.Min),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -1528,6 +1667,30 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                                     Modifier.padding(8.dp),
                                     horizontalAlignment = horizontalAlignment
                                 ) {
+                                    NormalText("Priemerna saturacia")
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Heading1(
+                                            influxData?.avgSaturacia ?: "",
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Heading1("%", color = MaterialTheme.colorScheme.secondary)
+                                    }
+                                }
+                            }
+                        }
+                        HorizontalDivider()
+                        Row(
+                            modifier = Modifier.height(IntrinsicSize.Min),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Box(
+                                modifier = Modifier.weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    Modifier.padding(8.dp),
+                                    horizontalAlignment = horizontalAlignment
+                                ) {
                                     NormalText("Spalene kalorie")
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Heading1(
@@ -1539,79 +1702,6 @@ fun CustomGroupTrainingParticipantsDetailsCard(
                                             color = MaterialTheme.colorScheme.secondary
                                         )
                                     }
-                                }
-                            }
-
-                        }
-                        HorizontalDivider()
-                        Row(
-                            modifier = Modifier.height(IntrinsicSize.Min),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Box(
-                                modifier = Modifier.weight(1f),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(
-                                    Modifier.padding(8.dp),
-                                    horizontalAlignment = horizontalAlignment
-                                ) {
-                                    NormalText("Srdcovy tep")
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Heading1(
-                                            "${influxData?.tepMin} - ${influxData?.tepMax}",
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                        Heading1("t/m", color = MaterialTheme.colorScheme.secondary)
-                                    }
-                                }
-                            }
-                            VerticalDivider(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .width(1.dp)
-                            )
-                            Box(
-                                modifier = Modifier.weight(1f),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(
-                                    Modifier.padding(8.dp),
-                                    horizontalAlignment = horizontalAlignment
-                                ) {
-                                    NormalText("Priemerne tempo")
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Heading1(
-                                            influxData?.avgKadencia ?: "",
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                        Heading1(
-                                            "kr/min",
-                                            color = MaterialTheme.colorScheme.secondary
-                                        )
-                                    }
-                                }
-                            }
-
-                        }
-                        HorizontalDivider()
-                        Row(
-                            modifier = Modifier.height(IntrinsicSize.Min),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Box(
-                                modifier = Modifier.weight(1f),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(
-                                    Modifier.padding(8.dp),
-                                    horizontalAlignment = horizontalAlignment
-                                ) {
-                                    NormalText("Kroky")
-                                    Heading1(
-                                        influxData?.kroky ?: "",
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
                                 }
                             }
                             VerticalDivider(
@@ -1711,11 +1801,4 @@ fun CustomBottomModalSheet(
 @Preview(showBackground = true)
 @Composable
 fun PreviewComponents() {
-    CustomProfileInfoTable(
-        week = "17. - 22.",
-        avgTimeOfActivity = "",
-        avgCountOfSteps = "",
-        avgBurnedCalories = "",
-        favouriteTraining = ""
-    )
 }

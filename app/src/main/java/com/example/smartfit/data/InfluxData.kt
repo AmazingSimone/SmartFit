@@ -1,7 +1,7 @@
 package com.example.smartfit.data
 
 data class InfluxData(
-    val tepMin: String = "0",
+    val avgTep: String = "0",
     val tepMax: String = "0",
     val teplota: String = "0.0",
     val kroky: String = "0",
