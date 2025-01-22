@@ -56,6 +56,19 @@ class SharedFirebaseViewModel : ViewModel() {
     private val _chosenGroupTrainingParticipantsState = MutableStateFlow<List<User>>(emptyList())
     val chosenGroupTrainingParticipantsState = _chosenGroupTrainingParticipantsState.asStateFlow()
 
+    //-- GROUP PARTICIPANTS SUMMARY
+
+    private val _chosenGroupTrainingTrainer = MutableStateFlow(User())
+    val chosenGroupTrainingTrainer = _chosenGroupTrainingTrainer.asStateFlow()
+
+    private val _chosenGroupTrainingParticipants = MutableStateFlow<List<User>>(emptyList())
+    val chosenGroupTrainingParticipants = _chosenGroupTrainingParticipants.asStateFlow()
+
+    private val _chosenGroupTrainingParticipantsTrainingInfo =
+        MutableStateFlow<List<Training>>(emptyList())
+    val chosenGroupTrainingParticipantsTrainingInfo =
+        _chosenGroupTrainingParticipantsTrainingInfo.asStateFlow()
+
     //-- TRAINING
 
     private val _chosenTrainingState = MutableStateFlow(Training())
@@ -157,7 +170,7 @@ class SharedFirebaseViewModel : ViewModel() {
             val data = documentSnapshot.data
             User(
                 id = userId,
-                displayName = data?.get("displayName") as String ?: "",
+                displayName = data?.get("displayName") as String,
                 profilePicUrl = data["profilePicUrl"] as String,
                 birthDate = data["birthDate"] as Long,
                 height = (data["height"] as Number).toFloat(),
@@ -237,29 +250,19 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
-    suspend fun uploadLoggedInUserTrainingData(indexOfTraining: Int, training: Training): Boolean {
+    suspend fun uploadLoggedInUserTrainingData(training: Training): Boolean {
         return try {
-            val documentReference = if (training.id.isNotEmpty()) {
+            val documentReference =
                 firebaseFirestore.collection("users").document(firebaseAuth.currentUser?.uid ?: "")
                     .collection("trainings").document(training.id)
-            } else {
-                firebaseFirestore.collection("users").document(firebaseAuth.currentUser?.uid ?: "")
-                    .collection("trainings").document()
-            }
+
             documentReference.update(
                     mapOf(
-                        //"indexOfTraining" to indexOfTraining,
-                        ////"creatorId" to training.creatorId,
                         "trainingDuration" to training.trainingDuration,
                         "timeDateOfTraining" to training.timeDateOfTraining,
-                        ////"avgSpeed" to training.avgSpeed,
                         "burnedCalories" to training.burnedCalories,
-                        ////"avgHeartRate" to training.avgHeartRate,
-                        ////"avgTempo" to training.avgTempo,
                         "steps" to training.steps,
-                        ////"trainingTemperature" to training.trainingTemperature,
                         "isGroupTraining" to training.isGroupTraining,
-                        //"id" to training.id
                     )
                 ).await()
             true
@@ -438,6 +441,16 @@ class SharedFirebaseViewModel : ViewModel() {
 
     }
 
+    suspend fun setGroupTrainingData(groupTrainingId: String) {
+
+        _chosenGroupTrainingTrainer.value =
+            getUserData(getGroupTrainingData(groupTrainingId)?.trainerId.toString()) ?: User()
+        _chosenGroupTrainingParticipants.value = getParticipantsOfGroupTraining(groupTrainingId)
+        _chosenGroupTrainingParticipantsTrainingInfo.value =
+            getParticipantsOfGroupTrainingData(groupTrainingId)
+
+    }
+
     suspend fun getGroupTrainingData(groupTrainingId: String): GroupTraining? {
         return try {
             val documentSnapshot =
@@ -541,7 +554,7 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
-    suspend fun getParticipantsOfGroupTraining(groupTrainingId: String): List<String> {
+    private suspend fun getParticipantsOfGroupTraining(groupTrainingId: String): List<User> {
         return try {
 
             val documents = firebaseFirestore.collection("groupTrainings")
@@ -550,12 +563,32 @@ class SharedFirebaseViewModel : ViewModel() {
                 .get()
                 .await()
 
-            val participants = mutableListOf<String>()
+            val participants = mutableListOf<User>()
             for (document in documents) {
                 val userId = document.id
-                participants.add(userId)
+                getUserData(userId)?.let { participants.add(it) }
             }
             participants
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private suspend fun getParticipantsOfGroupTrainingData(groupTrainingId: String): List<Training> {
+        return try {
+
+            val documents = firebaseFirestore.collection("groupTrainings")
+                .document(groupTrainingId)
+                .collection("participants")
+                .get()
+                .await()
+
+            val groupTrainings = mutableListOf<Training>()
+            for (document in documents) {
+                val userId = document.id
+                getTrainingData(groupTrainingId, userId)?.let { groupTrainings.add(it) }
+            }
+            groupTrainings
         } catch (e: Exception) {
             emptyList()
         }

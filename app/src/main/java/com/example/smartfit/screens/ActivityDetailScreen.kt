@@ -3,6 +3,7 @@ package com.example.smartfit.screens
 import android.os.Build
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,10 +43,10 @@ import com.example.smartfit.components.CustomGroupTrainingParticipantsDetailsCar
 import com.example.smartfit.components.CustomTrainingInfoDisplayCard
 import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.Heading2
+import com.example.smartfit.components.NormalText
 import com.example.smartfit.data.InfluxData
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
-import com.example.smartfit.data.trainingList
 import com.example.smartfit.influx.InfluxClient
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -59,11 +60,10 @@ fun ActivityDetailScreen(
     loggedInUser: User,
     loggedInUserfollowedUsersList: List<User> = emptyList(),
     training: Training,
-    trainerDetails: () -> User? = { null },
-    listOfParticipantsIdsOfGroupTraining: suspend (String) -> List<String> = { emptyList() },
-    onRequestParticipantInfo: suspend (String) -> User? = { null },
-    onRequestParticipantTrainingInfo: suspend (String) -> Training? = { null },
-    //onTrainerClick: (String) -> Unit,
+    onRequestGroupTrainingData: (String) -> Unit,
+    trainerDetails: User? = null,
+    listOfParticipantsOfGroupTraining: List<User> = emptyList(),
+    listOfParticipantsTrainingData: List<Training> = emptyList(),
     onParticipantClick: (String) -> Unit,
     chosenParticipant: User = User(),
     chosenParticipantCompletedTrainings: List<Training> = emptyList(),
@@ -74,47 +74,46 @@ fun ActivityDetailScreen(
 ) {
 
     val influxClient = remember { InfluxClient() }
-
-    val groupTrainingParticipantsIds = remember { mutableStateOf(emptyList<String>()) }
     val trainer = remember { mutableStateOf(User()) }
     val isLoading = remember { mutableStateOf(true) }
-
     val userInfluxData = remember { mutableStateOf(InfluxData()) }
-
-    val sheetState = rememberModalBottomSheetState()
-    var showBottomSheet by remember { mutableStateOf(false) }
-
-
-    val policy = ThreadPolicy.Builder().permitAll().build()
-    StrictMode.setThreadPolicy(policy)
-
-    LaunchedEffect(Unit) {
-        userInfluxData.value = influxClient.fetchInfluxData(loggedInUser.id, training.id)
-        influxClient.closeConnection()
-    }
-
     val participants = remember { mutableStateListOf<User>() }
     val participantsInfluxData = remember { mutableStateListOf<InfluxData>() }
     val participantsTrainings = remember { mutableStateListOf<Training>() }
 
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+    val policy = ThreadPolicy.Builder().permitAll().build()
+    StrictMode.setThreadPolicy(policy)
+
+
     if (training.isGroupTraining) {
-
-
         LaunchedEffect(Unit) {
-            groupTrainingParticipantsIds.value = listOfParticipantsIdsOfGroupTraining(training.id)
-            trainer.value = trainerDetails() ?: User()
-            //isLoading.value = false
+            onRequestGroupTrainingData(training.id)
+        }
 
-            groupTrainingParticipantsIds.value.forEach { participantId ->
-                val participant = onRequestParticipantInfo(participantId) ?: User()
-                val participantTraining =
-                    onRequestParticipantTrainingInfo(participantId) ?: Training()
-                val participantInfluxData = influxClient.fetchInfluxData(participantId, training.id)
-                participants.add(participant)
-                participantsInfluxData.add(participantInfluxData)
-                participantsTrainings.add(participantTraining)
+        LaunchedEffect(listOfParticipantsOfGroupTraining) {
+            trainer.value = trainerDetails ?: User()
+
+            if (listOfParticipantsOfGroupTraining.isNotEmpty()) {
+                participants.addAll(listOfParticipantsOfGroupTraining)
             }
-            influxClient.closeConnection()
+            participants.forEach { participant ->
+                val participantInfluxData =
+                    influxClient.fetchInfluxData(participant.id, training.id)
+                participantsInfluxData.add(participantInfluxData)
+            }
+            if (listOfParticipantsTrainingData.isNotEmpty()) {
+                participantsTrainings.addAll(listOfParticipantsTrainingData)
+            }
+            if (participants.isNotEmpty() && participantsInfluxData.isNotEmpty()) {
+                isLoading.value = false
+            }
+        }
+    } else {
+        LaunchedEffect(Unit) {
+            userInfluxData.value = influxClient.fetchInfluxData(loggedInUser.id, training.id)
             isLoading.value = false
         }
     }
@@ -140,50 +139,52 @@ fun ActivityDetailScreen(
         }
     ) { innerPadding ->
         Surface(modifier = Modifier.padding(innerPadding)) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 20.dp),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                Column {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Heading1(
-                            LocalDateTime.ofEpochSecond(
-                                training.timeDateOfTraining,
-                                0,
-                                ZoneOffset.UTC
-                            ).format(
-                                DateTimeFormatter.ofPattern(
-                                    if (LocalDateTime.now().year != LocalDateTime.ofEpochSecond(
-                                            training.timeDateOfTraining,
-                                            0,
-                                            ZoneOffset.UTC
-                                        ).year
-                                    ) "E, d.M.yyyy" else "E, d.M"
+            if (isLoading.value) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Log.d("AHOJ", "nacitavam")
+                    CircularProgressIndicator()
+                }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    Column {
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Heading1(
+                                LocalDateTime.ofEpochSecond(
+                                    training.timeDateOfTraining,
+                                    0,
+                                    ZoneOffset.UTC
+                                ).format(
+                                    DateTimeFormatter.ofPattern(
+                                        if (LocalDateTime.now().year != LocalDateTime.ofEpochSecond(
+                                                training.timeDateOfTraining,
+                                                0,
+                                                ZoneOffset.UTC
+                                            ).year
+                                        ) "E, d.M.yyyy" else "E, d.M"
+                                    )
                                 )
                             )
-                        )
-                        Heading1(
-                            LocalTime.ofSecondOfDay((training.trainingDuration / 1000))
-                                .format(DateTimeFormatter.ofPattern("HH:mm:ss"))
-                        )
-                    }
+                            Heading1(
+                                LocalTime.ofSecondOfDay((training.trainingDuration / 1000))
+                                    .format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+                            )
+                        }
 
-                    if (training.isGroupTraining) {
+                        if (training.isGroupTraining) {
 
-                        Heading2("Trener:")
-                        if (isLoading.value) {
-                            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                CircularProgressIndicator()
-                            }
-                        } else {
+                            Heading2("Trener:")
+
                             CustomGroupTrainingParticipantsDetailsCard(
                                 trainer.value,
                                 onCardClick = {
@@ -192,37 +193,35 @@ fun ActivityDetailScreen(
                                     onParticipantClick(trainer.value.id)
                                 }
                             )
-                        }
-                        Spacer(Modifier.padding(8.dp))
 
-                        LazyColumn {
-                            itemsIndexed(participants) { index, participant ->
+                            Spacer(Modifier.padding(8.dp))
 
-                                if (isLoading.value) {
-                                    Box(
-                                        Modifier.fillMaxWidth(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CircularProgressIndicator()
+                            LazyColumn {
+                                if (participants.isNotEmpty()) {
+                                    itemsIndexed(participants) { index, participant ->
+                                        CustomGroupTrainingParticipantsDetailsCard(
+                                            participant = participant,
+                                            influxData = participantsInfluxData.getOrNull(index)
+                                                ?: InfluxData(),
+                                            training = participantsTrainings.getOrNull(index)
+                                                ?: Training(),
+                                            onCardClick = {
+                                                showBottomSheet = true
+                                                onParticipantClick(participant.id)
+                                            }
+                                        )
+                                        Spacer(Modifier.padding(8.dp))
                                     }
                                 } else {
-                                    CustomGroupTrainingParticipantsDetailsCard(
-                                        participant = participant,
-                                        influxData = participantsInfluxData[index],
-                                        training = participantsTrainings[index],
-                                        onCardClick = {
-                                            showBottomSheet = true
-                                            onParticipantClick(participant.id)
-                                        }
-                                    )
+                                    item {
+                                        NormalText("No participants available")
+                                    }
                                 }
-                                Spacer(Modifier.padding(8.dp))
                             }
-                        }
 
-                    } else {
+                        } else {
 
-                        Column(Modifier.fillMaxSize()) {
+                            Column(Modifier.fillMaxSize()) {
 //                            CustomTrainingInfoDisplayCard(
 //                                modifier = Modifier
 //                                    .fillMaxWidth()
@@ -231,102 +230,104 @@ fun ActivityDetailScreen(
 //                                data = LocalTime.ofSecondOfDay((training.trainingDuration / 1000).toLong())
 //                                    .format(DateTimeFormatter.ofPattern("HH:mm:ss"))
 //                            )
-                            CustomTrainingInfoDisplayCard(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                title = "Kroky",
-                                data = userInfluxData.value.kroky
-                            )
-                            Spacer(Modifier.padding(5.dp))
-                            Row(Modifier.weight(1f)) {
                                 CustomTrainingInfoDisplayCard(
                                     modifier = Modifier
-                                        .fillMaxSize()
+                                        .fillMaxWidth()
                                         .weight(1f),
-                                    title = "Prejdena Vzdialenost",
-                                    data = userInfluxData.value.vzdialenost,
-                                    unit = "m"
+                                    title = "Kroky",
+                                    data = userInfluxData.value.kroky
                                 )
                                 Spacer(Modifier.padding(5.dp))
-                                CustomTrainingInfoDisplayCard(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .weight(1f),
-                                    title = "Priemerny Srdcovy tep",
-                                    data = userInfluxData.value.avgTep,
-                                    unit = "t/min"
-                                )
-                            }
-                            //pocet krokov za minutu
-                            Spacer(Modifier.padding(5.dp))
-                            Row(Modifier.weight(1f)) {
-                                CustomTrainingInfoDisplayCard(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .weight(1f),
-                                    title = "Priemerna Kadencia",
-                                    data = userInfluxData.value.avgKadencia,
-                                    unit = "kr/min"
-                                )
+                                Row(Modifier.weight(1f)) {
+                                    CustomTrainingInfoDisplayCard(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .weight(1f),
+                                        title = "Prejdena Vzdialenost",
+                                        data = userInfluxData.value.vzdialenost,
+                                        unit = "m"
+                                    )
+                                    Spacer(Modifier.padding(5.dp))
+                                    CustomTrainingInfoDisplayCard(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .weight(1f),
+                                        title = "Priemerny Srdcovy tep",
+                                        data = userInfluxData.value.avgTep,
+                                        unit = "t/min"
+                                    )
+                                }
+                                //pocet krokov za minutu
+                                Spacer(Modifier.padding(5.dp))
+                                Row(Modifier.weight(1f)) {
+                                    CustomTrainingInfoDisplayCard(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .weight(1f),
+                                        title = "Priemerna Kadencia",
+                                        data = userInfluxData.value.avgKadencia,
+                                        unit = "kr/min"
+                                    )
 
+                                    Spacer(Modifier.padding(5.dp))
+                                    CustomTrainingInfoDisplayCard(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .weight(1f),
+                                        title = "Maximalny srdcovy tep",
+                                        data = userInfluxData.value.tepMax,
+                                        unit = "t/min"
+                                    )
+                                }
                                 Spacer(Modifier.padding(5.dp))
-                                CustomTrainingInfoDisplayCard(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .weight(1f),
-                                    title = "Maximalny srdcovy tep",
-                                    data = userInfluxData.value.tepMax,
-                                    unit = "t/min"
-                                )
-                            }
-                            Spacer(Modifier.padding(5.dp))
 
-                            Row(Modifier.weight(1f)) {
-                                CustomTrainingInfoDisplayCard(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .weight(1f),
-                                    title = "Priemerna rychlost",
-                                    data = userInfluxData.value.avgRychlost,
-                                    unit = "km/h"
-                                )
+                                Row(Modifier.weight(1f)) {
+                                    CustomTrainingInfoDisplayCard(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .weight(1f),
+                                        title = "Priemerna rychlost",
+                                        data = userInfluxData.value.avgRychlost,
+                                        unit = "km/h"
+                                    )
 
+                                    Spacer(Modifier.padding(5.dp))
+                                    CustomTrainingInfoDisplayCard(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .weight(1f),
+                                        title = "Priemerna saturacia",
+                                        data = userInfluxData.value.avgSaturacia,
+                                        unit = "%"
+                                    )
+                                }
                                 Spacer(Modifier.padding(5.dp))
-                                CustomTrainingInfoDisplayCard(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .weight(1f),
-                                    title = "Priemerna saturacia",
-                                    data = userInfluxData.value.avgSaturacia,
-                                    unit = "%"
-                                )
-                            }
-                            Spacer(Modifier.padding(5.dp))
-                            Row(Modifier.weight(1f)) {
-                                CustomTrainingInfoDisplayCard(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .weight(1f),
-                                    title = "Spalene kalorie",
-                                    data = userInfluxData.value.spaleneKalorie,
-                                    unit = "kcal"
-                                )
+                                Row(Modifier.weight(1f)) {
+                                    CustomTrainingInfoDisplayCard(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .weight(1f),
+                                        title = "Spalene kalorie",
+                                        data = userInfluxData.value.spaleneKalorie,
+                                        unit = "kcal"
+                                    )
+                                    Spacer(Modifier.padding(5.dp))
+                                    CustomTrainingInfoDisplayCard(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .weight(1f),
+                                        title = "Teplota",
+                                        data = userInfluxData.value.teplota,
+                                        unit = "°C"
+                                    )
+                                }
                                 Spacer(Modifier.padding(5.dp))
-                                CustomTrainingInfoDisplayCard(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .weight(1f),
-                                    title = "Teplota",
-                                    data = userInfluxData.value.teplota,
-                                    unit = "°C"
-                                )
                             }
-                            Spacer(Modifier.padding(5.dp))
                         }
                     }
                 }
             }
+
         }
         if (showBottomSheet) {
 
@@ -350,45 +351,45 @@ fun ActivityDetailScreen(
 @Preview
 @Composable
 fun ActivityDetailPreview() {
-    ActivityDetailScreen(
-        onBackClick = {},
-        training = trainingList[0].copy(
-            id = "KmkDqINeWhmtx1ipJyIN",
-            trainingDuration = 7363,
-            timeDateOfTraining = 1732746897,
-            isGroupTraining = false
-        ),
-        listOfParticipantsIdsOfGroupTraining = {
-            listOf("MZ6M79VA9zetdUHX4NtgRE6UDzx2")
-            //emptyList()
-        },
-        onRequestParticipantInfo = {
-//            null
-            User(
-                id = "MZ6M79VA9zetdUHX4NtgRE6UDzx2",
-                displayName = "Simon Bartanus",
-                profilePicUrl = "https://lh3.googleusercontent.com/a/ACg8ocIlxeLUaG-f883-a5lmUuQaqHiiaeuouQnzFf-SZFIND2HBCLf3=s96-c",
-                bio = "Toto je uzastne bio",
-                color = 1
-            )
-        },
-        onRequestParticipantTrainingInfo = {
-//            null
-            trainingList[0].copy(
-                trainingDuration = 7363,
-                timeDateOfTraining = 1732746897,
-
-                burnedCalories = 0,
-
-
-                steps = 0,
-
-                isGroupTraining = true,
-                id = "pYqROgvqtzWm5cYskr1Z"
-            )
-        },
-        //onTrainerClick = {},
-        onParticipantClick = {},
-        loggedInUser = User()
-    )
+//    ActivityDetailScreen(
+//        onBackClick = {},
+//        training = trainingList[0].copy(
+//            id = "KmkDqINeWhmtx1ipJyIN",
+//            trainingDuration = 7363,
+//            timeDateOfTraining = 1732746897,
+//            isGroupTraining = false
+//        ),
+//        listOfParticipantsIdsOfGroupTraining = {
+//            listOf("MZ6M79VA9zetdUHX4NtgRE6UDzx2")
+//            //emptyList()
+//        },
+//        onRequestParticipantInfo = {
+////            null
+//            User(
+//                id = "MZ6M79VA9zetdUHX4NtgRE6UDzx2",
+//                displayName = "Simon Bartanus",
+//                profilePicUrl = "https://lh3.googleusercontent.com/a/ACg8ocIlxeLUaG-f883-a5lmUuQaqHiiaeuouQnzFf-SZFIND2HBCLf3=s96-c",
+//                bio = "Toto je uzastne bio",
+//                color = 1
+//            )
+//        },
+//        onRequestParticipantTrainingInfo = {
+////            null
+//            trainingList[0].copy(
+//                trainingDuration = 7363,
+//                timeDateOfTraining = 1732746897,
+//
+//                burnedCalories = 0,
+//
+//
+//                steps = 0,
+//
+//                isGroupTraining = true,
+//                id = "pYqROgvqtzWm5cYskr1Z"
+//            )
+//        },
+//        //onTrainerClick = {},
+//        onParticipantClick = {},
+//        loggedInUser = User()
+//    )
 }

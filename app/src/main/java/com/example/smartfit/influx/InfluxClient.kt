@@ -1,7 +1,6 @@
 package com.example.smartfit.influx
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.smartfit.BuildConfig
 import com.example.smartfit.data.InfluxData
@@ -76,22 +75,6 @@ class InfluxClient {
         withContext(Dispatchers.IO) {
             val queryApi = influxDBClientKotlin.getQueryKotlinApi()
 
-            val minValuesDeferred = async {
-                val minValues = mutableMapOf<String, Any>()
-                val fluxQueryMin = """from(bucket: "${BuildConfig.INFLUX_BUCKET}")
-                |> range(start: 0)
-                |> filter(fn: (r) => r["_measurement"] == "training")
-                |> filter(fn: (r) => r["userId"] == "$userId")
-                |> filter(fn: (r) => r["trainingId"] == "$trainingId")
-                |> filter(fn: (r) => r["_field"] == "tep" or r["_field"] == "rychlost")
-                |> group(columns: ["_field"])
-                |> min()"""
-                queryApi.query(fluxQueryMin).consumeAsFlow().collect { record ->
-                    minValues[record.values["_field"].toString()] = record.values["_value"]!!
-                }
-                minValues
-            }
-
             val maxValuesDeferred = async {
                 val maxValues = mutableMapOf<String, Any>()
                 val fluxQueryMax = """from(bucket: "${BuildConfig.INFLUX_BUCKET}")
@@ -122,16 +105,13 @@ class InfluxClient {
                             avgRychlost = record.values["_value"].toString().toFloat().toInt()
                                 .toString()
                         )
-
                         "kadencia" -> influxData = influxData.copy(
                             avgKadencia = record.values["_value"].toString().toFloat().toInt()
                                 .toString()
                         )
-
                         "saturacia" -> influxData = influxData.copy(
                             avgSaturacia = record.values["_value"].toString()
                         )
-
                         "teplota" -> influxData = influxData.copy(
                             teplota = String.format(
                                 Locale.US,
@@ -139,7 +119,6 @@ class InfluxClient {
                                 record.values["_value"].toString().toFloat()
                             )
                         )
-
                         "tep" -> influxData = influxData.copy(
                             avgTep = record.values["_value"].toString().toFloat().toInt().toString()
                         )
@@ -160,11 +139,9 @@ class InfluxClient {
                         "vzdialenost" -> influxData = influxData.copy(
                             vzdialenost = record.values["_value"].toString()
                         )
-
                         "spaleneKalorie" -> influxData = influxData.copy(
                             spaleneKalorie = record.values["_value"].toString()
                         )
-
                         "kroky" -> influxData = influxData.copy(
                             kroky = record.values["_value"].toString()
                         )
@@ -190,7 +167,6 @@ class InfluxClient {
 
         withContext(Dispatchers.IO) {
             influxDBClientKotlin.use {
-                Log.d("AHOJ", " data ${nrfData.toString()}")
                 val writeApi = influxDBClientKotlin.getWriteKotlinApi()
                 val mem = InfluxTrainingMeasurement(
                     userId = userId,
@@ -207,7 +183,6 @@ class InfluxClient {
                 )
                 writeApi.writeMeasurement(mem, WritePrecision.NS)
 
-                Log.d("AHOJ", "influx write ${mem.toString()}")
             }
         }
 

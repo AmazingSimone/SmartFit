@@ -28,7 +28,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.smartfit.R
 import com.example.smartfit.ble_device.BLEClient
 import com.example.smartfit.data.GroupTraining
-import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
 import com.example.smartfit.data.trainingList
 import com.example.smartfit.firebase.signin.SharedFirebaseViewModel
@@ -301,7 +300,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
 
         composable("${Screens.CURRENT_ACTIVITY.name}/{indexOfTraining}") { backStackEntry ->
 
-            val participantOfTraining by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle() 
+            val participantOfTraining by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
             val chosenGroupTraining by firebaseViewModel.chosenGroupTrainingState.collectAsStateWithLifecycle()
             val chosenTraining by firebaseViewModel.chosenTrainingState.collectAsStateWithLifecycle()
             val bleData by bleClient.data.collectAsStateWithLifecycle()
@@ -324,7 +323,6 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                     } else {
                         firebaseViewModel.viewModelScope.launch {
                             if (firebaseViewModel.uploadLoggedInUserTrainingData(
-                                    indexOfChosenTraining,
                                     it
                                 )
                             ) {
@@ -399,64 +397,27 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                 firebaseViewModel.chosenUserFollowingState.collectAsStateWithLifecycle()
             val sharedSignedInUserFollowing by firebaseViewModel.sharedUserFollowingState.collectAsStateWithLifecycle()
 
+            val groupTrainingTrainer by firebaseViewModel.chosenGroupTrainingTrainer.collectAsStateWithLifecycle()
+            val chosenGroupTrainingParticipants by firebaseViewModel.chosenGroupTrainingParticipants.collectAsStateWithLifecycle()
+            val chosenGroupTrainingParticipantsTrainingInfo by firebaseViewModel.chosenGroupTrainingParticipantsTrainingInfo.collectAsStateWithLifecycle()
+
             ActivityDetailScreen(
                 training = training[indexOfChosenTraining],
-                trainerDetails = {
-                    var trainer: User?
-//                    firebaseViewModel.viewModelScope.launch {
-//                        trainer = firebaseViewModel.getUserData(firebaseViewModel.getGroupTrainingData(training[indexOfChosenTraining].id)?.trainerId ?: "")
-//                    }
-                    runBlocking {
-                        trainer = firebaseViewModel.getUserData(
-                            firebaseViewModel.getGroupTrainingData(training[indexOfChosenTraining].id)?.trainerId
-                                ?: ""
-                        )
+                trainerDetails = groupTrainingTrainer,
+                onRequestGroupTrainingData = { groupTrainingId ->
+                    firebaseViewModel.viewModelScope.launch {
+                        firebaseViewModel.setGroupTrainingData(groupTrainingId)
                     }
-                    trainer
                 },
-                listOfParticipantsIdsOfGroupTraining = { trainingId ->
-                    var participants: List<String>
-                    runBlocking {
-                        participants = firebaseViewModel.getParticipantsOfGroupTraining(trainingId)
-                    }
-                    participants
-                },
-                onRequestParticipantInfo = { userId ->
-                    var user: User
-
-                    runBlocking {
-                        user = firebaseViewModel.getUserData(userId) ?: User()
-                        user = user.copy(id = userId)
-                    }
-
-                    user
-                },
-                onRequestParticipantTrainingInfo = { userId ->
-                    var userTrainingData: Training
-                    runBlocking {
-                        userTrainingData = firebaseViewModel.getTrainingData(
-                            training[indexOfChosenTraining].id,
-                            userId
-                        ) ?: Training()
-
-                    }
-                    userTrainingData
-
-                },
+                listOfParticipantsOfGroupTraining = chosenGroupTrainingParticipants,
+                listOfParticipantsTrainingData = chosenGroupTrainingParticipantsTrainingInfo,
                 onBackClick = {
                     navController.navigateUp()
                 },
-//                onTrainerClick = { trainerId ->
-//                    firebaseViewModel.viewModelScope.launch {
-//                        firebaseViewModel.chooseUser(trainerId)
-//                    }
-//                    navController.navigate(Screens.USER_PROFILE.name)
-//                },
                 onParticipantClick = { participantId ->
                     firebaseViewModel.viewModelScope.launch {
                         firebaseViewModel.chooseUser(participantId)
                     }
-                    //navController.navigate(Screens.USER_PROFILE.name)
                 },
                 chosenParticipant = chosenUser.value,
                 chosenParticipantCompletedTrainings = chosenUserCompletedTrainings.value,
@@ -648,7 +609,6 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                                     groupTraining,
                                     groupTraining.id
                                 ).isNotEmpty() && firebaseViewModel.uploadLoggedInUserTrainingData(
-                                    groupTraining.trainingIndex,
                                     trainingList[groupTraining.trainingIndex].copy(
                                         trainingDuration = groupTraining.trainingDuration,
                                         timeDateOfTraining = groupTraining.timeDateOfTraining,
@@ -680,6 +640,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                 },
                 allTrainingParticipants = chosenGroupTrainingParticipants,
                 onCheckAllTrainingInfo = {
+                    //TODO runblocking vsade odstranit
                     runBlocking {
                         firebaseViewModel.fetchGroupTrainingData(chosenGroupTraining.id)
                         firebaseViewModel.fetchAllParticipantsOfTraining(chosenGroupTraining.id)
