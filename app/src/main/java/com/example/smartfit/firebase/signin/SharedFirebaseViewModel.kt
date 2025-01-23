@@ -129,7 +129,7 @@ class SharedFirebaseViewModel : ViewModel() {
 
     // --- FIRESTORE
 
-    suspend fun doesUserExist(id: String): Boolean {
+    private suspend fun doesUserExist(id: String): Boolean {
         return firebaseFirestore.collection("users").document(id).get().await().exists()
     }
 
@@ -271,7 +271,7 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
-    suspend fun getTrainingData(trainingId: String, userId: String): Training? {
+    private suspend fun getTrainingData(trainingId: String, userId: String): Training? {
         //val firestore = FirebaseFirestore.getInstance()
         val documentSnapshot =
             firebaseFirestore.collection("users").document(userId).collection("trainings")
@@ -300,7 +300,7 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
-    suspend fun getAllUserTrainings(userId: String): List<Training> {
+    private suspend fun getAllUserTrainings(userId: String): List<Training> {
         if (userId == "") return emptyList()
         val trainings = mutableListOf<Training>()
         val documents =
@@ -351,7 +351,7 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
-    suspend fun getAllUserFollowing(userId: String): List<User> {
+    private suspend fun getAllUserFollowing(userId: String): List<User> {
         if (userId == "") return emptyList()
         val followedUsers = mutableListOf<User>()
         val documents =

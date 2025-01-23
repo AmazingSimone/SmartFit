@@ -17,12 +17,8 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.example.smartfit.data.NrfData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
@@ -30,7 +26,6 @@ import java.util.concurrent.atomic.AtomicLong
 class BLEClient(private val context: Context) {
 
     companion object {
-        const val DEVICE_ADDRESS = "CC:6E:21:A1:D5:0D"
         val SERVICE_UUID: UUID = UUID.fromString("12345678-1234-1234-1234-123456789abc")
         val CHARACTERISTIC_UUID: UUID = UUID.fromString("87654321-4321-4321-4321-210987654321")
     }
@@ -49,23 +44,19 @@ class BLEClient(private val context: Context) {
     private val _stateOfDevice = MutableStateFlow(0) //0 - disconnected, 1 - connected, 2 - ready
     val stateOfDevice = _stateOfDevice.asStateFlow()
 
-    private var isReading: Boolean = false
-
-    private var coroutineScope = CoroutineScope(Dispatchers.Default)
-
     private lateinit var scanCallback: ScanCallback
 
-    private var step_distance: Float = 85.0F
+    private var stepDistance: Float = 85.0F
     private var caloriesPerStep: Float = 0.04F
 
 
-    fun startScan(callback: (BluetoothDevice) -> Unit) {
+    fun startScan() {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.BLUETOOTH_SCAN
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Log.e("AHOJBLE", "Permission BLUETOOTH_SCAN not granted")
+//            Log.e("AHOJBLE", "Permission BLUETOOTH_SCAN not granted")
             return
         }
         scanCallback = object : ScanCallback() {
@@ -86,7 +77,7 @@ class BLEClient(private val context: Context) {
                 Manifest.permission.BLUETOOTH_SCAN
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Log.e("AHOJBLE", "Permission BLUETOOTH_SCAN not granted")
+//            Log.e("AHOJBLE", "Permission BLUETOOTH_SCAN not granted")
             return
         }
         bluetoothAdapter?.bluetoothLeScanner?.stopScan(scanCallback)
@@ -103,7 +94,6 @@ class BLEClient(private val context: Context) {
             Log.e("AHOJBLE", "Permission BLUETOOTH_CONNECT not granted")
             return
         }
-        Log.e("AHOJBLE", "pred $bluetoothGatt")
         bluetoothGatt = device.connectGatt(context, false, object : BluetoothGattCallback() {
             override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
                 if (newState == BluetoothGatt.STATE_CONNECTED) {
@@ -128,7 +118,7 @@ class BLEClient(private val context: Context) {
             override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
                 super.onServicesDiscovered(gatt, status)
                 if (status == BluetoothGatt.GATT_SUCCESS) {
-                    val service = gatt?.getService(SERVICE_UUID)
+                    val service = gatt.getService(SERVICE_UUID)
                     if (service != null) {
                         _stateOfDevice.value = 2
                         val characteristic = service.getCharacteristic(CHARACTERISTIC_UUID)
@@ -158,20 +148,6 @@ class BLEClient(private val context: Context) {
                 }
             }
 
-            override fun onCharacteristicRead(
-                gatt: BluetoothGatt,
-                characteristic: BluetoothGattCharacteristic,
-                status: Int
-            ) {
-                if (status == BluetoothGatt.GATT_SUCCESS) {
-//                    Log.i(
-//                        "AHOJBLE",
-//                        "onRead ${getParsedToObject(characteristic.value?.toString(Charsets.UTF_8) ?: "")}"
-//                    )
-                    //_data.value = getParsedToObject(characteristic.value?.toString(Charsets.UTF_8) ?: "")
-                }
-            }
-
             override fun onCharacteristicWrite(
                 gatt: BluetoothGatt,
                 characteristic: BluetoothGattCharacteristic,
@@ -190,13 +166,6 @@ class BLEClient(private val context: Context) {
                 val currentTime = System.currentTimeMillis()
                 if (currentTime - lastUpdateTime.get() >= debouncePeriod) {
                     lastUpdateTime.set(currentTime)
-//                    coroutineScope.launch {
-////                        val parsedData = withContext(Dispatchers.Default) {
-////                            getParsedToObject(characteristic?.value?.toString(Charsets.UTF_8) ?: "")
-////                            Log.i("AHOJBLE", "onChanged ${getParsedToObject(characteristic?.value?.toString(Charsets.UTF_8) ?: "")}")
-////                        }
-//                    }
-                    Log.d("AHOJBLE", "changed: ${characteristic?.value?.toString(Charsets.UTF_8)}")
 
                     _data.value =
                         getParsedToObject(characteristic?.value?.toString(Charsets.UTF_8) ?: "")
@@ -206,40 +175,13 @@ class BLEClient(private val context: Context) {
     }
 
     fun resetCharacteristic() {
-        Log.e("AHOJBLE", "v reset $bluetoothGatt")
 
         Log.e("AHOJBLE", "VNUTRI RESET")
         val value = "999;999;999;999".toByteArray(Charsets.UTF_8)
         writeCharacteristic(value)
     }
 
-    fun startReading() {
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.BLUETOOTH_CONNECT
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.e("AHOJBLE", "Permission BLUETOOTH_CONNECT not granted")
-            return
-        }
-        bluetoothGatt?.let { gatt ->
-            val service: BluetoothGattService? = gatt.getService(SERVICE_UUID)
-            val characteristic: BluetoothGattCharacteristic? =
-                service?.getCharacteristic(CHARACTERISTIC_UUID)
-            isReading = true
-
-            coroutineScope.launch {
-                while (isReading) {
-                    gatt.readCharacteristic(characteristic)
-                    delay(30000)
-                }
-            }
-            //gatt.readCharacteristic(characteristic)
-
-        }
-    }
-
-    fun writeCharacteristic(value: ByteArray) {
+    private fun writeCharacteristic(value: ByteArray) {
         Log.e("AHOJBLE", "VNUTRI WRITE")
         if (ActivityCompat.checkSelfPermission(
                 context,
@@ -318,7 +260,7 @@ class BLEClient(private val context: Context) {
             teplota = String.format(Locale.US, "%.1f", parts[1].toFloat()),
             kroky = parts[2],
             saturacia = parts[3],
-            vzdialenost = ((step_distance / 100) * parts[2].toFloat()).toInt().toString(),
+            vzdialenost = ((stepDistance / 100) * parts[2].toFloat()).toInt().toString(),
             spaleneKalorie = (caloriesPerStep * parts[2].toFloat()).toInt().toString()
         )
     }

@@ -67,15 +67,15 @@ fun DeviceScreen(
                 dialogContent = {
                     if (bleListOfDevices?.isNotEmpty() == true) {
                         LazyColumn {
-                            items(bleListOfDevices ?: emptyList()) { device ->
+                            items(bleListOfDevices) { device ->
                                 ListItem(
                                     headlineContent = {
                                         NormalText(device.device.name ?: "Nezname zariadenie")
                                     },
                                     modifier = Modifier.clickable {
-                                        bleClient?.connectToDevice(device.device)
+                                        bleClient.connectToDevice(device.device)
                                         //selectedDeviceName.value = device.device.name ?: "Neznámé zařízení"
-                                        bleClient?.stopScan()
+                                        bleClient.stopScan()
                                         openAlertDialog.value = false
                                     },
                                     supportingContent = {
@@ -89,7 +89,7 @@ fun DeviceScreen(
                                     },
                                     colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                                 )
-                                if (device != bleListOfDevices?.lastOrNull()) {
+                                if (device != bleListOfDevices.lastOrNull()) {
                                     HorizontalDivider()
                                 }
                             }
@@ -151,7 +151,7 @@ fun DeviceScreen(
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CustomLargeIconButton(
                             onClick = {
-                                bleClient.startScan { }
+                                bleClient.startScan()
 
                                 openAlertDialog.value = true
                             },
