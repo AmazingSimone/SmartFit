@@ -2,7 +2,6 @@ package com.example.smartfit.navigation
 
 import QrReaderScreen
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -43,6 +42,7 @@ import com.example.smartfit.screens.TrainingHistoryScreen
 import com.example.smartfit.screens.UserProfileScreen
 import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -102,7 +102,6 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
             //val bleConnectionState by bleClient.stateOfDevice.collectAsStateWithLifecycle()
 
             val bleData by bleClient.data.collectAsStateWithLifecycle()
-            Log.d("AHOJBLE", "$bleData")
 
             if (isLoading) {
                 Box(
@@ -344,8 +343,10 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                     navController.navigate(Screens.HOME.name) {
                         popUpTo(0) { inclusive = true }
                     }
+                    firebaseViewModel.setMyCurrentGroupTraining(GroupTraining())
+
                 },
-                chosenGroupTraining = chosenGroupTraining,
+                chosenGroupTraining = if (chosenGroupTraining == GroupTraining()) null else chosenGroupTraining,
                 onCheckAllTrainingInfo = {
 
                     runBlocking {
@@ -596,6 +597,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
 
                     if (groupTraining.trainingDuration < 5000) {
                         firebaseViewModel.viewModelScope.launch {
+                            delay(5000)
                             firebaseViewModel.removeGroupTraining(groupTraining.id)
                         }
                         Toast.makeText(

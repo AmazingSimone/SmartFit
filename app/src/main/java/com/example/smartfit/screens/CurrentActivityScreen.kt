@@ -1,13 +1,12 @@
 package com.example.smartfit.screens
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DirectionsRun
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -51,8 +50,7 @@ fun CurrentActivityScreen(
     onCheckAllTrainingInfo: () -> Unit = {},
     onCreateTraining: (String) -> Unit,
     onEndTraining: (Training) -> Unit,
-    nrfData: NrfData,
-    //onGroupTrainingEnd: (Training) -> Unit,
+    nrfData: NrfData
 ) {
 
     val training = remember { mutableStateOf(createdTraining) }
@@ -73,75 +71,69 @@ fun CurrentActivityScreen(
         BuildConfig.INFLUX_BUCKET
     )
 
-
+    LaunchedEffect(chosenGroupTraining) {
+        groupTraining.value = chosenGroupTraining
+    }
     LaunchedEffect(createdTraining) {
         training.value = createdTraining
     }
+    LaunchedEffect(nrfData) {
 
-    //TODO Skus lepsie spravit
+        if (stopWatch.getTimeMillis() >= 5000 && !isTrainingCreated.value) {
+            onCreateTraining(groupTraining.value?.id ?: "")
+            isTrainingCreated.value = true
+        }
+
+        data.value = nrfData
+
+        data.value = data.value.copy(
+            rychlost = ((nrfData.vzdialenost.replace(",", ".")
+                .toDouble() / (stopWatch.getTimeMillis() / 1000)) * 3.6).toInt().toString(),
+        )
+
+        data.value = data.value.copy(
+            kadencia = if (stopWatch.getTimeMillis() <= 0L) {
+                "0"
+            } else {
+                val timeInMinutes = (stopWatch.getTimeMillis() / 60000.0)
+                if (timeInMinutes == 0.0) {
+                    "0"
+                } else {
+                    ((nrfData.kroky.toInt() / timeInMinutes)).toInt().toString()
+                }
+            }
+        )
+
+        if (training.value.id.isNotEmpty()) {
+            withContext(Dispatchers.IO) {
+                influxDBClientKotlin.use {
+                    val writeApi = influxDBClientKotlin.getWriteKotlinApi()
+                    val mem = InfluxTrainingMeasurement(
+                        userId = participant.id,
+                        trainingId = createdTraining.id,
+                        tep = data.value.tep.toInt(),
+                        teplota = data.value.teplota.replace(",", ".").toDouble(),
+                        kroky = data.value.kroky.toInt(),
+                        kadencia = data.value.kadencia.toInt(),
+                        spaleneKalorie = data.value.spaleneKalorie.toInt(),
+                        vzdialenost = data.value.vzdialenost.replace(",", ".").toInt(),
+                        saturacia = data.value.saturacia.replace(",", ".").toDouble(),
+                        rychlost = data.value.rychlost.toInt(),
+                        time = Instant.now()
+                    )
+                    writeApi.writeMeasurement(mem, WritePrecision.NS)
+                }
+            }
+        }
+    }
+
     if (chosenGroupTraining != null) {
         LaunchedEffect(chosenGroupTraining.id) {
             while ((groupTraining.value?.trainingState ?: 4) != 4) {
                 withContext(Dispatchers.IO) {
                     onCheckAllTrainingInfo()
                 }
-                //delay(1000)
             }
-        }
-
-        LaunchedEffect(nrfData) {
-
-            if (stopWatch.getTimeMillis() >= 5000 && !isTrainingCreated.value) {
-                onCreateTraining(groupTraining.value?.id ?: "")
-                isTrainingCreated.value = true
-            }
-
-            data.value = nrfData
-
-            data.value = data.value.copy(
-                rychlost = ((nrfData.vzdialenost.replace(",", ".")
-                    .toDouble() / (stopWatch.getTimeMillis() / 1000)) * 3.6).toInt().toString(),
-            )
-
-            data.value = data.value.copy(
-                kadencia = if (stopWatch.getTimeMillis() <= 0L) {
-                    "0"
-                } else {
-                    val timeInMinutes = (stopWatch.getTimeMillis() / 60000.0)
-                    if (timeInMinutes == 0.0) {
-                        "0"
-                    } else {
-                        ((nrfData.kroky.toInt() / timeInMinutes)).toInt().toString()
-                    }
-                }
-            )
-
-            if (training.value.id.isNotEmpty()) {
-                withContext(Dispatchers.IO) {
-                    influxDBClientKotlin.use {
-                        Log.d("AHOJ", " data ${nrfData.toString()}")
-                        val writeApi = influxDBClientKotlin.getWriteKotlinApi()
-                        val mem = InfluxTrainingMeasurement(
-                            userId = participant.id,
-                            trainingId = createdTraining.id,
-                            tep = data.value.tep.toInt(),
-                            teplota = data.value.teplota.replace(",", ".").toDouble(),
-                            kroky = data.value.kroky.toInt(),
-                            kadencia = data.value.kadencia.toInt(),
-                            spaleneKalorie = data.value.spaleneKalorie.toInt(),
-                            vzdialenost = data.value.vzdialenost.replace(",", ".").toInt(),
-                            saturacia = data.value.saturacia.replace(",", ".").toDouble(),
-                            rychlost = data.value.rychlost.toInt(),
-                            time = Instant.now()
-                        )
-                        writeApi.writeMeasurement(mem, WritePrecision.NS)
-
-                        Log.d("AHOJ", "influx write ${mem.toString()}")
-                    }
-                }
-            }
-
-
         }
 
         LaunchedEffect(chosenGroupTraining.trainingState) {
@@ -189,6 +181,11 @@ fun CurrentActivityScreen(
                 }
             }
         }
+    } else {
+        LaunchedEffect(Unit) {
+            stopWatch.start()
+            isRunning.value = stopWatch.isRunning()
+        }
     }
 
 
@@ -201,7 +198,7 @@ fun CurrentActivityScreen(
             )
         },
         bottomBar = {
-            Row() {
+            Row {
                 if ((groupTraining.value?.trainingState ?: 0) == 0) {
                     if (isRunning.value) {
                         CustomButton(
@@ -244,9 +241,6 @@ fun CurrentActivityScreen(
                                 training.value.copy(burnedCalories = nrfData.spaleneKalorie.toInt())
                             training.value = training.value.copy(steps = nrfData.kroky.toInt())
 
-
-                            Log.d("AHOJ", "end of training ${training.toString()}")
-
                             influxDBClientKotlin.close()
 
                             onEndTraining(training.value)
@@ -286,7 +280,7 @@ fun CurrentActivityScreen(
 @Composable
 fun CurrentActivityPreview() {
     CurrentActivityScreen(
-        createdTraining = Training("Beh", Icons.Default.DirectionsRun),
+        createdTraining = Training("Beh", Icons.AutoMirrored.Filled.DirectionsRun),
         onEndTraining = {},
         chosenGroupTraining = GroupTraining(trainingState = 0),
         onCheckAllTrainingInfo = {},
