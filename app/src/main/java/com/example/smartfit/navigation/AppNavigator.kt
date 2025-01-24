@@ -134,7 +134,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                     onActivityClick = {
                         when (bleConnectionState) {
                             2 -> {
-                                bleClient.resetCharacteristic()
+
                                 navController.navigate("${Screens.CURRENT_ACTIVITY.name}/${it}")
                             }
 
@@ -364,6 +364,7 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                         )
                     }
                 },
+                onStartTraining = { bleClient.resetCharacteristic() },
             )
         }
 

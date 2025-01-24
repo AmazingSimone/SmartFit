@@ -49,6 +49,7 @@ fun CurrentActivityScreen(
     chosenGroupTraining: GroupTraining? = null,
     onCheckAllTrainingInfo: () -> Unit = {},
     onCreateTraining: (String) -> Unit,
+    onStartTraining: () -> Unit,
     onEndTraining: (Training) -> Unit,
     nrfData: NrfData
 ) {
@@ -144,6 +145,7 @@ fun CurrentActivityScreen(
                 }
 
                 1 -> {
+                    onStartTraining()
                     stopWatch.start()
                     isRunning.value = stopWatch.isRunning()
                 }
@@ -183,6 +185,7 @@ fun CurrentActivityScreen(
         }
     } else {
         LaunchedEffect(Unit) {
+            onStartTraining()
             stopWatch.start()
             isRunning.value = stopWatch.isRunning()
         }
@@ -288,5 +291,6 @@ fun CurrentActivityPreview() {
         participant = User(),
         onCreateTraining = {},
         indexOfTraining = 0,
+        onStartTraining = {},
     )
 }

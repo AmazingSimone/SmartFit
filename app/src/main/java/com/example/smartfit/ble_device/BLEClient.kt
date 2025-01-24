@@ -250,7 +250,6 @@ class BLEClient(private val context: Context) {
         bluetoothGatt = null
         _stateOfDevice.value = 0
         _listOfBleDevices.value = mutableListOf()
-        Log.e("AHOJBLE", "NA KONCI DISCONNECT")
     }
 
     private fun getParsedToObject(input: String): NrfData {
