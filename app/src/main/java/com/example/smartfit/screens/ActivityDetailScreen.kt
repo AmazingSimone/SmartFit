@@ -3,7 +3,6 @@ package com.example.smartfit.screens
 import android.os.Build
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -141,7 +140,6 @@ fun ActivityDetailScreen(
         Surface(modifier = Modifier.padding(innerPadding)) {
             if (isLoading.value) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Log.d("AHOJ", "nacitavam")
                     CircularProgressIndicator()
                 }
             } else {
@@ -331,7 +329,6 @@ fun ActivityDetailScreen(
         }
         if (showBottomSheet) {
 
-            //TODO tu nemusim realne posielat plny list doslova userov ktorych sleduje a treningov staci cisla taktiez aj v lobby
             CustomBottomModalSheet(
                 sheetState = sheetState,
                 onDismissRequest = { showBottomSheet = false },
