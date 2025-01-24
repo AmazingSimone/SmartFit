@@ -27,7 +27,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,7 +52,7 @@ fun TrainingHistoryScreen(
     onActivityClick: (Int) -> Unit
 ) {
 
-    val isLoading = remember { mutableStateOf(true) }
+    val isLoading = rememberSaveable { mutableStateOf(true) }
 
     LaunchedEffect(listOfTrainings) {
         if (listOfTrainings.isNotEmpty()) {
@@ -98,39 +98,37 @@ fun TrainingHistoryScreen(
                     if (listOfTrainings.isNotEmpty()) {
                         LazyColumn {
                             val groupedTrainings = listOfTrainings.groupBy {
-                                LocalDate.ofEpochDay(it.timeDateOfTraining / (24 * 60 * 60)).with(
-                                    DayOfWeek.MONDAY
-                                )
+                                LocalDate.ofEpochDay(it.timeDateOfTraining / (24 * 60 * 60))
+                                    .with(DayOfWeek.MONDAY)
                             }
 
-                            groupedTrainings.forEach { (week, trainings) ->
+                            groupedTrainings.entries.withIndex().forEach { (index, entry) ->
+                                val (week, trainingsThisWeek) = entry
                                 item {
-
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Heading2(
-                                            if (week == LocalDate.now()
-                                                    .with(DayOfWeek.MONDAY)
-                                            ) "Tento tyzden" else "Tyzden od ${
-                                                week.format(
-                                                    DateTimeFormatter.ofPattern(
-                                                        "dd.MM.yyyy"
+                                            if (week == LocalDate.now().with(DayOfWeek.MONDAY))
+                                                "Tento tyzden"
+                                            else
+                                                "Tyzden od ${
+                                                    week.format(
+                                                        DateTimeFormatter.ofPattern(
+                                                            "dd.MM.yyyy"
+                                                        )
                                                     )
-                                                )
-                                            }"
+                                                }"
                                         )
-                                        NormalText("Pocet aktivit ${trainings.size}")
+                                        NormalText("Pocet aktivit ${trainingsThisWeek.size}")
                                     }
                                     Spacer(modifier = Modifier.height(8.dp))
                                 }
-                                items(trainings.sortedByDescending { it.timeDateOfTraining }) { training ->
-
+                                items(trainingsThisWeek.sortedByDescending { it.timeDateOfTraining }) { training ->
                                     CustomTrainingInfoCardWithDate(
                                         modifier = Modifier.clickable {
-
                                             onActivityClick(listOfTrainings.indexOf(training))
                                         },
                                         training = training
@@ -138,7 +136,7 @@ fun TrainingHistoryScreen(
                                     Spacer(modifier = Modifier.height(8.dp))
                                 }
 
-                                if (trainings.size > 1) {
+                                if (index < groupedTrainings.size - 1) {
                                     item {
                                         HorizontalDivider()
                                         Spacer(modifier = Modifier.height(8.dp))
