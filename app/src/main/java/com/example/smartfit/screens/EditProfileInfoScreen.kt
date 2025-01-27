@@ -2,7 +2,6 @@ package com.example.smartfit.screens
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,12 +45,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomButton
-import com.example.smartfit.components.CustomDateOutlineInput
 import com.example.smartfit.components.CustomOutlinedTextInput
 import com.example.smartfit.components.CustomSwitch
+import com.example.smartfit.components.DatePickerModal
 import com.example.smartfit.components.Heading1
 import com.example.smartfit.components.Heading2
 import com.example.smartfit.components.NormalText
+import com.example.smartfit.components.convertMillisToDate
 import com.example.smartfit.data.User
 import com.example.smartfit.data.frameColors
 
@@ -63,9 +65,38 @@ fun EditProfileInfoScreen(
     recievedUser: User
 ) {
 
-    //var currentUser: User? = recievedUser
     var currentUser by remember { mutableStateOf(recievedUser) }
 
+    var selectedColorIndex by rememberSaveable { mutableIntStateOf(currentUser.color) }
+
+    var selectedDate by rememberSaveable { mutableStateOf<Long?>(currentUser.birthDate) }
+    var showModal by rememberSaveable { mutableStateOf(false) }
+
+    val weightValue = rememberSaveable {
+        mutableStateOf(currentUser.weight.toString())
+    }
+
+    val heightValue = rememberSaveable {
+        mutableStateOf(currentUser.height.toString())
+    }
+
+    val activityGoalValue = rememberSaveable {
+        mutableStateOf(currentUser.activityGoal)
+    }
+
+    val stepsGoalValue = rememberSaveable {
+        mutableStateOf(currentUser.stepsGoal)
+    }
+
+    val caloriesGoalValue = rememberSaveable {
+        mutableStateOf(currentUser.caloriesGoal)
+    }
+
+    val bioValue = rememberSaveable {
+        mutableStateOf(currentUser.bio)
+    }
+
+    val isTrainer = rememberSaveable { mutableStateOf(currentUser.isTrainer) }
 
     Scaffold(
         topBar = {
@@ -88,10 +119,39 @@ fun EditProfileInfoScreen(
             CustomButton(
                 modifier = Modifier.padding(20.dp),
                 onClick = {
-                    onSaveClick(currentUser)
-                    Log.d("AHOJ", "save $currentUser")
+                    onSaveClick(
+                        currentUser.copy(
+                            color = selectedColorIndex,
+                            birthDate = selectedDate ?: 0L,
+                            weight = weightValue.value.toFloatOrNull() ?: 0F,
+                            height = heightValue.value.toFloatOrNull() ?: 0F,
+                            activityGoal = activityGoalValue.value,
+                            stepsGoal = stepsGoalValue.value,
+                            caloriesGoal = caloriesGoalValue.value,
+                            bio = bioValue.value
+                        )
+                    )
                 },
-                enabled = (currentUser != recievedUser) && (currentUser.activityGoal.toInt() != 0 && currentUser.stepsGoal.toInt() != 0 && currentUser.caloriesGoal.toInt() != 0),
+                enabled =
+                recievedUser.let {
+
+                    it.color != selectedColorIndex ||
+                            it.birthDate != selectedDate ||
+                            it.weight != weightValue.value.toFloatOrNull() ||
+                            it.height != heightValue.value.toFloatOrNull() ||
+                            it.activityGoal != activityGoalValue.value ||
+                            it.stepsGoal != stepsGoalValue.value ||
+                            it.caloriesGoal != caloriesGoalValue.value ||
+                            it.bio != bioValue.value
+                } &&
+                        (
+                                selectedDate != null &&
+                                        weightValue.value != "" && weightValue.value != "0" &&
+                                        heightValue.value != "" && heightValue.value != "0" &&
+                                        activityGoalValue.value != "" && activityGoalValue.value != "0" &&
+                                        stepsGoalValue.value != "" && stepsGoalValue.value != "0" &&
+                                        caloriesGoalValue.value != "" && caloriesGoalValue.value != "0"),
+                //enabled = (currentUser != recievedUser) && (currentUser.activityGoal.toInt() != 0 && currentUser.stepsGoal.toInt() != 0 && currentUser.caloriesGoal.toInt() != 0),
                 buttonText = "Ulozit zmeny"
             )
         }
@@ -99,16 +159,6 @@ fun EditProfileInfoScreen(
     ) { paddingValues ->
 
         val (nameFR, surnameFR, birthDateFR, weightFR, heightFR, activityGoal, stepsGoal, caloriesGoal, bioFR) = remember { FocusRequester.createRefs() }
-
-        var selectedColorIndex by remember { mutableIntStateOf(currentUser.color) }
-        val colors = listOf(
-            MaterialTheme.colorScheme.secondaryContainer,
-            Color.Blue,
-            Color.Red,
-            Color.Yellow,
-            Color.Magenta,
-            Color.Green
-        )
 
         Surface {
 
@@ -125,13 +175,7 @@ fun EditProfileInfoScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-
                     Spacer(Modifier.padding(40.dp))
-
-//                    CustomProfilePictureFrame(
-//                        frameColor = colors[selectedColorIndex],
-//                        frameSize = 150.dp
-//                    )
 
                     Row(
                         modifier = Modifier.fillMaxWidth()
@@ -148,14 +192,12 @@ fun EditProfileInfoScreen(
 
                         val size: Dp = 50.dp
 
-                        //colors
                         frameColors.forEachIndexed { index, color ->
 
                             if (index != 0) {
                                 Box(modifier = Modifier
                                     .clickable {
                                         selectedColorIndex = index
-                                        //selectedColor = color
                                         currentUser = currentUser.copy(color = selectedColorIndex)
                                     }) {
                                     Box(
@@ -188,33 +230,37 @@ fun EditProfileInfoScreen(
                         onTextChanged = { }
                     )
 
-//                    CustomOutlinedTextInput(
-//                        currentFocusRequester = surnameFR,
-//                        onNext = { birthDateFR.requestFocus() },
-//                        keyBoardType = KeyboardType.Text,
-//                        label = "Priezvisko",
-//                        enterButtonAction = ImeAction.Next,
-//                        onTextChanged = { }
-//                    )
                     Spacer(Modifier.padding(8.dp))
 
-                    CustomDateOutlineInput(
+                    CustomOutlinedTextInput(
                         currentFocusRequester = birthDateFR,
+                        value = (if (selectedDate != 0L) convertMillisToDate(
+                            selectedDate ?: currentUser.birthDate
+                        ) else ""),
                         label = "Datum",
-                        defaultDate = currentUser.birthDate,
-                        //if (currentUser?.birthDate == 0L) LocalDateTime.now().toEpochSecond(java.time.ZoneOffset.UTC) * 1000 else currentUser?.birthDate ?: LocalDateTime.now().toEpochSecond(java.time.ZoneOffset.UTC),
-
-                        onDateChanged = {
-                            currentUser = currentUser.copy(birthDate = it ?: 0L)
-                            //currentUser = currentUser?.copy(birthDate = it)
-                        }
+                        readOnly = true,
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {
+                                    showModal = true
+                                }
+                            ) {
+                                Icon(Icons.Default.DateRange, contentDescription = "Select date")
+                            }
+                        },
+                        onTextChanged = { }
                     )
+                    if (showModal) {
+                        DatePickerModal(
+                            onDateSelected = {
+                                selectedDate = it
+                            },
+                            onDismiss = { showModal = false }
+                        )
+                    }
+
                     Spacer(Modifier.padding(8.dp))
 
-                    //TODO na toto bude pravdepodobne treba viewmodel
-                    val weightValue = remember {
-                        mutableStateOf(currentUser.weight.toString())
-                    }
                     CustomOutlinedTextInput(
                         currentFocusRequester = weightFR,
                         onNext = { heightFR.requestFocus() },
@@ -223,15 +269,12 @@ fun EditProfileInfoScreen(
                         value = if (weightValue.value == "0.0") "0" else weightValue.value,
                         onTextChanged = {
                             weightValue.value = it.replace(",", ".")
-                            currentUser = currentUser.copy(weight = it.toFloatOrNull() ?: 0F)
                         },
                         enterButtonAction = ImeAction.Next,
                         suffix = { NormalText("kg") }
                     )
                     Spacer(Modifier.padding(8.dp))
-                    val heightValue = remember {
-                        mutableStateOf(currentUser.height.toString())
-                    }
+
                     CustomOutlinedTextInput(
                         currentFocusRequester = heightFR,
                         onNext = { activityGoal.requestFocus() },
@@ -240,15 +283,12 @@ fun EditProfileInfoScreen(
                         value = if (heightValue.value == "0.0") "0" else heightValue.value,
                         onTextChanged = {
                             heightValue.value = it.replace(",", ".")
-                            currentUser = currentUser.copy(height = it.toFloatOrNull() ?: 0F)
                         },
                         enterButtonAction = ImeAction.Next,
                         suffix = { NormalText("cm") }
                     )
                     Spacer(Modifier.padding(8.dp))
-                    val activityGoalValue = remember {
-                        mutableStateOf(currentUser.activityGoal)
-                    }
+
                     CustomOutlinedTextInput(
                         currentFocusRequester = activityGoal,
                         onNext = { stepsGoal.requestFocus() },
@@ -257,8 +297,6 @@ fun EditProfileInfoScreen(
                         value = activityGoalValue.value,
                         onTextChanged = {
                             activityGoalValue.value = it.filter { char -> char.isDigit() }
-                            currentUser =
-                                currentUser.copy(activityGoal = if (activityGoalValue.value.isEmpty()) "0" else activityGoalValue.value)
                         },
                         enterButtonAction = ImeAction.Next,
                         suffix = { NormalText("min.") },
@@ -270,9 +308,7 @@ fun EditProfileInfoScreen(
                         }
                     )
                     Spacer(Modifier.padding(3.dp))
-                    val stepsGoalValue = remember {
-                        mutableStateOf(currentUser.stepsGoal)
-                    }
+
                     CustomOutlinedTextInput(
                         currentFocusRequester = stepsGoal,
                         onNext = { caloriesGoal.requestFocus() },
@@ -281,8 +317,6 @@ fun EditProfileInfoScreen(
                         value = stepsGoalValue.value,
                         onTextChanged = {
                             stepsGoalValue.value = it.filter { char -> char.isDigit() }
-                            currentUser =
-                                currentUser.copy(stepsGoal = if (stepsGoalValue.value.isEmpty()) "0" else stepsGoalValue.value)
                         },
                         enterButtonAction = ImeAction.Next,
                         isError = (stepsGoalValue.value.toIntOrNull() ?: 0) <= 0,
@@ -293,9 +327,7 @@ fun EditProfileInfoScreen(
                         }
                     )
                     Spacer(Modifier.padding(3.dp))
-                    val caloriesGoalValue = remember {
-                        mutableStateOf(currentUser.caloriesGoal)
-                    }
+
                     CustomOutlinedTextInput(
                         currentFocusRequester = caloriesGoal,
                         onNext = { bioFR.requestFocus() },
@@ -304,8 +336,6 @@ fun EditProfileInfoScreen(
                         value = caloriesGoalValue.value,
                         onTextChanged = {
                             caloriesGoalValue.value = it.filter { char -> char.isDigit() }
-                            currentUser =
-                                currentUser.copy(caloriesGoal = if (caloriesGoalValue.value.isEmpty()) "0" else caloriesGoalValue.value)
                         },
                         enterButtonAction = ImeAction.Next,
                         suffix = { NormalText("kcal") },
@@ -325,18 +355,18 @@ fun EditProfileInfoScreen(
                         maxLines = 5,
                         singleLine = false,
                         label = "Bio",
-                        value = currentUser.bio,
+                        value = bioValue.value,
                         onTextChanged = {
-                            currentUser = currentUser.copy(bio = it)
+                            bioValue.value = it
                         },
                         enterButtonAction = ImeAction.Done
                     )
                     Spacer(Modifier.padding(8.dp))
                     CustomSwitch(
                         text = "Profil trenera",
-                        defaultPosition = remember { mutableStateOf(currentUser.isTrainer) }.value,
+                        defaultPosition = isTrainer.value,
                         onSwitchChange = {
-                            currentUser = currentUser.copy(isTrainer = it)
+                            isTrainer.value = it
                         }
                     )
                     Spacer(Modifier.padding(paddingValues))
