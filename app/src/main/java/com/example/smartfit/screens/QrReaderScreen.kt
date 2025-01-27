@@ -1,4 +1,5 @@
 import android.Manifest
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -9,20 +10,36 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.concurrent.futures.await
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.smartfit.components.CustomAlertDialogGroupTraining
+import com.example.smartfit.components.Heading1
 import com.example.smartfit.data.GroupTraining
 import com.example.smartfit.data.User
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -39,14 +56,16 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun QrReaderScreen(
     onResult: (String) -> Unit,
     onConfirmation: (String) -> Unit,
     foundGroupTraining: GroupTraining = GroupTraining(),
-    foundTrainer: User = User()
+    foundTrainer: User = User(),
+    onBackClick: () -> Unit
 ) {
     val context = LocalContext.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
@@ -63,11 +82,6 @@ fun QrReaderScreen(
         cameraProvider = cameraProviderFuture.await()
     }
 
-
-//    if ((foundTrainer != User()) && (foundGroupTraining != GroupTraining())) {
-//        Log.d("ahoj", "tu som: $foundGroupTraining, $foundTrainer")
-//        openAlertDialog.value = true
-//    }
     when {
         openAlertDialog.value -> {
             CustomAlertDialogGroupTraining(
@@ -86,27 +100,56 @@ fun QrReaderScreen(
     }
 
     if (permissionState.status.isGranted) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            cameraProvider?.let { provider ->
-                AndroidView(factory = { ctx ->
-                    val previewView = PreviewView(ctx)
-                    val preview = Preview.Builder().build().also {
-                        it.surfaceProvider = previewView.surfaceProvider
+
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Heading1("Qr kod skener")
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { onBackClick() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back icon"
+                            )
+                        }
                     }
-                    val imageAnalyzer = ImageAnalysis.Builder().build().also {
-                        it.setAnalyzer(cameraExecutor, QrCodeAnalyzer { result ->
-                            onResult(result)
-                            openAlertDialog.value = true
-                        })
-                    }
-                    provider.bindToLifecycle(
-                        lifecycleOwner,
-                        cameraSelector,
-                        preview,
-                        imageAnalyzer
-                    )
-                    previewView
-                }, modifier = Modifier.fillMaxSize())
+                )
+            }
+
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                    .padding(horizontal = 15.dp, vertical = 60.dp)
+                    .padding(innerPadding)
+                    .clip(RoundedCornerShape(150.dp))
+            ) {
+                cameraProvider?.let { provider ->
+                    AndroidView(factory = { ctx ->
+                        val previewView = PreviewView(ctx)
+                        val preview = Preview.Builder().build().also {
+                            it.surfaceProvider = previewView.surfaceProvider
+                        }
+                        val imageAnalyzer = ImageAnalysis.Builder().build().also {
+                            it.setAnalyzer(cameraExecutor, QrCodeAnalyzer { result ->
+                                onResult(result)
+                                openAlertDialog.value = true
+                            })
+                        }
+                        provider.bindToLifecycle(
+                            lifecycleOwner,
+                            cameraSelector,
+                            preview,
+                            imageAnalyzer
+                        )
+                        previewView
+                    }, modifier = Modifier.fillMaxSize())
+                }
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Heading1("Nasmeruj kameru na qr kod", color = Color.White.copy(alpha = 0.4f))
+                }
             }
         }
     } else {

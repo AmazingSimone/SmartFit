@@ -779,6 +779,9 @@ fun AppNavigator(
                             Toast.LENGTH_SHORT
                         ).show()
                     }
+                },
+                onBackClick = {
+                    navController.navigateUp()
                 }
             )
         }
