@@ -1,6 +1,8 @@
 package com.example.smartfit.screens
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.le.ScanResult
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,19 +32,19 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.smartfit.ble_device.BLEClient
 import com.example.smartfit.components.CustomAlertDialog
 import com.example.smartfit.components.CustomButton
 import com.example.smartfit.components.CustomLargeIconButton
 import com.example.smartfit.components.CustomOnlineStateIndicator
 import com.example.smartfit.components.Heading1
+import com.example.smartfit.components.HeadlineText
 import com.example.smartfit.components.NormalText
 
 @SuppressLint("MissingPermission")
@@ -50,12 +52,13 @@ import com.example.smartfit.components.NormalText
 @Composable
 fun DeviceScreen(
     bleClient: BLEClient? = null,
+    bleConnectionState: Int,
+    bleListOfDevices: List<ScanResult>?,
+    bleConnectedDevice: BluetoothDevice?,
     onBackClick: () -> Unit,
     onDisconnectClick: () -> Unit
 ) {
-    val openAlertDialog = remember { mutableStateOf(false) }
-    val bleConnectionState = bleClient?.stateOfDevice?.collectAsStateWithLifecycle()?.value
-    val bleListOfDevices = bleClient?.listOfBleDevices?.collectAsStateWithLifecycle()?.value
+    val openAlertDialog = rememberSaveable { mutableStateOf(false) }
 
     when {
         openAlertDialog.value -> {
@@ -76,9 +79,8 @@ fun DeviceScreen(
                                         NormalText(device.device.name ?: "Nezname zariadenie")
                                     },
                                     modifier = Modifier.clickable {
-                                        bleClient.connectToDevice(device.device)
-                                        //selectedDeviceName.value = device.device.name ?: "Neznámé zařízení"
-                                        bleClient.stopScan()
+                                        bleClient?.connectToDevice(device.device)
+                                        bleClient?.stopScan()
                                         openAlertDialog.value = false
                                     },
                                     supportingContent = {
@@ -154,7 +156,7 @@ fun DeviceScreen(
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CustomLargeIconButton(
                             onClick = {
-                                bleClient.startScan()
+                                bleClient?.startScan()
 
                                 openAlertDialog.value = true
                             },
@@ -167,17 +169,16 @@ fun DeviceScreen(
                         icon = Icons.Filled.Watch
                     )
                     Spacer(Modifier.padding(8.dp))
-                    //HeadlineText(selectedDeviceName.value)
+                    HeadlineText(bleConnectedDevice?.name.toString())
+                    NormalText("(${bleConnectedDevice?.address.toString()})")
                     Spacer(Modifier.padding(8.dp))
                     CustomOnlineStateIndicator(
                         text = when (bleConnectionState) {
-                            0 -> "Offline"
                             1 -> "Pripajanie"
                             2 -> "Pripraveny"
                             else -> "Disconnected"
                         },
                         indicatorColor = when (bleConnectionState) {
-                            0 -> MaterialTheme.colorScheme.error
                             1 -> Color.Yellow
                             2 -> Color.Green
                             else -> MaterialTheme.colorScheme.error
@@ -197,7 +198,10 @@ fun DeviceScreenPreview() {
     DeviceScreen(
         onBackClick = {},
         bleClient = null,
-        onDisconnectClick = {}
+        onDisconnectClick = {},
+        bleConnectionState = 0,
+        bleListOfDevices = emptyList(),
+        bleConnectedDevice = null
     )
 
 }

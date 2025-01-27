@@ -15,15 +15,15 @@ import android.bluetooth.le.ScanResult
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import com.example.smartfit.data.NrfData
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.example.smartfit.firebase.signin.SharedFirebaseViewModel
 import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
 
-class BLEClient(private val context: Context) {
+class BLEClient(private val context: Context, private val viewModel: SharedFirebaseViewModel) {
 
     companion object {
         val SERVICE_UUID: UUID = UUID.fromString("12345678-1234-1234-1234-123456789abc")
@@ -35,14 +35,7 @@ class BLEClient(private val context: Context) {
     private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
     private var bluetoothGatt: BluetoothGatt? = null
 
-    private val _listOfBleDevices = MutableStateFlow<List<ScanResult>>(emptyList())
-    val listOfBleDevices = _listOfBleDevices.asStateFlow()
-
-    private val _data = MutableStateFlow(NrfData())
-    val data = _data.asStateFlow()
-
-    private val _stateOfDevice = MutableStateFlow(0) //0 - disconnected, 1 - connected, 2 - ready
-    val stateOfDevice = _stateOfDevice.asStateFlow()
+    private val listOfBleDevices = mutableStateOf<List<ScanResult>>(emptyList())
 
     private lateinit var scanCallback: ScanCallback
 
@@ -56,15 +49,17 @@ class BLEClient(private val context: Context) {
                 Manifest.permission.BLUETOOTH_SCAN
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-//            Log.e("AHOJBLE", "Permission BLUETOOTH_SCAN not granted")
+            Log.e("AHOJBLE", "Permission BLUETOOTH_SCAN not granted")
             return
         }
         scanCallback = object : ScanCallback() {
             @SuppressLint("MissingPermission")
             override fun onScanResult(callbackType: Int, result: ScanResult) {
-                if (_listOfBleDevices.value.none { it.device.address == result.device.address }) {
-                    _listOfBleDevices.value += result
+                if (listOfBleDevices.value.none { it.device.address == result.device.address }) {
+                    listOfBleDevices.value += result
                 }
+                viewModel.setListOfDevices(listOfBleDevices.value)
+
             }
         }
         bluetoothAdapter?.bluetoothLeScanner?.startScan(scanCallback)
@@ -77,7 +72,7 @@ class BLEClient(private val context: Context) {
                 Manifest.permission.BLUETOOTH_SCAN
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-//            Log.e("AHOJBLE", "Permission BLUETOOTH_SCAN not granted")
+            Log.e("AHOJBLE", "Permission BLUETOOTH_SCAN not granted")
             return
         }
         bluetoothAdapter?.bluetoothLeScanner?.stopScan(scanCallback)
@@ -99,7 +94,8 @@ class BLEClient(private val context: Context) {
                 if (newState == BluetoothGatt.STATE_CONNECTED) {
                     Log.i("AHOJBLE", "Connected to GATT server.")
                     Log.e("AHOJBLE", "$bluetoothGatt")
-                    _stateOfDevice.value = 1
+                    viewModel.setBleState(1)
+                    viewModel.setBleConnectedDevice(device)
                     if (ActivityCompat.checkSelfPermission(
                             context,
                             Manifest.permission.BLUETOOTH_CONNECT
@@ -109,7 +105,7 @@ class BLEClient(private val context: Context) {
                     }
                 } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
                     Log.i("AHOJBLE", "Disconnected from GATT server.")
-                    _stateOfDevice.value = 0
+                    viewModel.setBleState(0)
                 }
             }
 
@@ -120,7 +116,7 @@ class BLEClient(private val context: Context) {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     val service = gatt.getService(SERVICE_UUID)
                     if (service != null) {
-                        _stateOfDevice.value = 2
+                        viewModel.setBleState(2)
                         val characteristic = service.getCharacteristic(CHARACTERISTIC_UUID)
 
                         if (ActivityCompat.checkSelfPermission(
@@ -140,7 +136,7 @@ class BLEClient(private val context: Context) {
                             Log.e("AHOJBLE", "Permission BLUETOOTH_CONNECT not granted")
                         }
                     } else {
-                        _stateOfDevice.value = 1
+                        viewModel.setBleState(1)
                         Log.w("AHOJBLE", "Service not found")
                     }
                 } else {
@@ -167,16 +163,17 @@ class BLEClient(private val context: Context) {
                 if (currentTime - lastUpdateTime.get() >= debouncePeriod) {
                     lastUpdateTime.set(currentTime)
 
-                    _data.value =
-                        getParsedToObject(characteristic?.value?.toString(Charsets.UTF_8) ?: "")
+                    viewModel.setBleData(
+                        getParsedToObject(
+                            characteristic?.value?.toString(Charsets.UTF_8) ?: ""
+                        )
+                    )
                 }
             }
         })
     }
 
     fun resetCharacteristic() {
-
-        Log.e("AHOJBLE", "VNUTRI RESET")
         val value = "999;999;999;999".toByteArray(Charsets.UTF_8)
         writeCharacteristic(value)
     }
@@ -195,11 +192,6 @@ class BLEClient(private val context: Context) {
         val gatt = bluetoothGatt
         if (gatt == null) {
             Log.e("AHOJBLE", "bluetoothGatt is null")
-            return
-        }
-
-        if (_stateOfDevice.value != 2) {
-            Log.e("AHOJBLE", "Device is not ready")
             return
         }
 
@@ -244,12 +236,14 @@ class BLEClient(private val context: Context) {
             Log.e("AHOJBLE", "Permission BLUETOOTH_CONNECT not granted")
             return
         }
-        _data.value = NrfData()
         bluetoothGatt?.disconnect()
         bluetoothGatt?.close()
         bluetoothGatt = null
-        _stateOfDevice.value = 0
-        _listOfBleDevices.value = mutableListOf()
+
+        viewModel.setBleData(NrfData())
+        viewModel.setBleConnectedDevice(null)
+        viewModel.setBleState(0)
+        viewModel.setListOfDevices(mutableListOf())
     }
 
     private fun getParsedToObject(input: String): NrfData {

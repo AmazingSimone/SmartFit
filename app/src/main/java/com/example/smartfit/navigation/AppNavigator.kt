@@ -2,6 +2,7 @@ package com.example.smartfit.navigation
 
 import QrReaderScreen
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,40 +47,33 @@ import kotlinx.coroutines.runBlocking
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppNavigator(navController: NavHostController = rememberNavController(), bleClient: BLEClient) {
+fun AppNavigator(
+    navController: NavHostController = rememberNavController(),
+    bleClient: BLEClient,
+    firebaseViewModel: SharedFirebaseViewModel
+) {
 
     GoogleAuthProvider.create(credentials = GoogleAuthCredentials(serverId = stringResource(R.string.default_web_client_id)))
 
-    val firebaseViewModel = viewModel<SharedFirebaseViewModel>()
     firebaseViewModel.getCurrentUserDataFromFirebase()
 
-    val bleConnectionState by bleClient.stateOfDevice.collectAsStateWithLifecycle()
+    val bleConnectionState by firebaseViewModel.bleState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(bleConnectionState) {
-        when (bleConnectionState) {
-            2 -> {
-                Toast.makeText(
-                    navController.context,
-                    "Zariadenie je pripravene",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+    when (bleConnectionState) {
+        2 -> {
+            Toast.makeText(
+                navController.context,
+                "Zariadenie je pripravene",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
 
-            1 -> {
-                Toast.makeText(
-                    navController.context,
-                    "Zariadenie sa pripaja",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-            else -> {
-//                Toast.makeText(
-//                    navController.context,
-//                    "Pripojte zariadenie",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-            }
+        1 -> {
+            Toast.makeText(
+                navController.context,
+                "Zariadenie sa pripaja",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -99,9 +91,12 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
 
             val listOfTrainings by firebaseViewModel.sharedUserTrainingsState.collectAsStateWithLifecycle()
 
-            //val bleConnectionState by bleClient.stateOfDevice.collectAsStateWithLifecycle()
+            //val bleConnectionState by firebaseViewModel.bleState.collectAsStateWithLifecycle()
 
-            val bleData by bleClient.data.collectAsStateWithLifecycle()
+            val bleConnectionState by firebaseViewModel.bleState.collectAsStateWithLifecycle()
+            Log.d("AHOJBLE", "BLE state in home: $bleConnectionState")
+
+            val bleData by firebaseViewModel.bleData.collectAsStateWithLifecycle()
 
             if (isLoading) {
                 Box(
@@ -302,7 +297,8 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
             val participantOfTraining by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
             val chosenGroupTraining by firebaseViewModel.chosenGroupTrainingState.collectAsStateWithLifecycle()
             val chosenTraining by firebaseViewModel.chosenTrainingState.collectAsStateWithLifecycle()
-            val bleData by bleClient.data.collectAsStateWithLifecycle()
+            val bleData by firebaseViewModel.bleData.collectAsStateWithLifecycle()
+
 
             //TODO preco tam je getString
             val indexOfChosenTraining =
@@ -568,6 +564,9 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
             val chosenUserFollowing =
                 firebaseViewModel.chosenUserFollowingState.collectAsStateWithLifecycle()
 
+            val bleConnectionState by firebaseViewModel.bleState.collectAsStateWithLifecycle()
+            Log.d("AHOJBLE", "BLE state in lobby: $bleConnectionState")
+
             GroupTrainingLobby(
                 chosenGroupTraining = chosenGroupTraining,
                 onDeleteClick = { isListOfParticipantsEmpty ->
@@ -741,6 +740,9 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
             val foundGroupTraining = remember { mutableStateOf(GroupTraining()) }
             val foundTrainer = remember { mutableStateOf(User()) }
 
+            val bleConnectionState by firebaseViewModel.bleState.collectAsStateWithLifecycle()
+            Log.d("AHOJBLE", "BLE state in qr: $bleConnectionState")
+
             QrReaderScreen(
 
                 onResult = { groupTrainingIdResult ->
@@ -783,6 +785,10 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
 
         composable(Screens.DEVICE_SCREEN.name) {
 
+            val bleConnectionState by firebaseViewModel.bleState.collectAsStateWithLifecycle()
+            val bleListOfDevices by firebaseViewModel.bleListOfDevices.collectAsStateWithLifecycle()
+            val bleConnectedDevice by firebaseViewModel.bleConnectedDevice.collectAsStateWithLifecycle()
+
             DeviceScreen(
                 bleClient = bleClient,
                 onBackClick = {
@@ -794,7 +800,10 @@ fun AppNavigator(navController: NavHostController = rememberNavController(), ble
                         "Zariadenie je odpojene",
                         Toast.LENGTH_SHORT
                     ).show()
-                }
+                },
+                bleConnectionState = bleConnectionState,
+                bleListOfDevices = bleListOfDevices,
+                bleConnectedDevice = bleConnectedDevice
             )
         }
     }

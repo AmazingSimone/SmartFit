@@ -16,7 +16,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.smartfit.ble_device.BLEClient
+import com.example.smartfit.firebase.signin.SharedFirebaseViewModel
 import com.example.smartfit.navigation.AppNavigator
 import com.example.smartfit.ui.theme.SmartFitTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -33,8 +35,10 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         //enableEdgeToEdge()
-        bleClient = BLEClient(this)
+
         setContent {
+            val firebaseViewModel = viewModel<SharedFirebaseViewModel>()
+            bleClient = BLEClient(this, firebaseViewModel)
             SmartFitTheme {
                 val permissionsToRequest = arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
@@ -98,7 +102,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                AppNavigator(bleClient = bleClient)
+                AppNavigator(bleClient = bleClient, firebaseViewModel = firebaseViewModel)
 
 
             }

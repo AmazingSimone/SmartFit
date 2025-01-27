@@ -1,10 +1,14 @@
 package com.example.smartfit.firebase.signin
 
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.le.ScanResult
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.smartfit.data.GroupTraining
+import com.example.smartfit.data.NrfData
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
 import com.example.smartfit.data.trainingList
@@ -92,6 +96,19 @@ class SharedFirebaseViewModel : ViewModel() {
         SharingStarted.WhileSubscribed(5000L),
         false
     )
+
+    //--BLE DEVICE STATE
+    private val _bleState = MutableStateFlow(0) // Initial state
+    val bleState = _bleState.asStateFlow()
+
+    private val _bleConnectedDevice = MutableStateFlow<BluetoothDevice?>(null) // Initial state
+    val bleConnectedDevice = _bleConnectedDevice.asStateFlow()
+
+    private val _bleListOfDevices = MutableStateFlow<List<ScanResult>?>(null)
+    val bleListOfDevices = _bleListOfDevices.asStateFlow()
+
+    private val _bleData = MutableStateFlow(NrfData())
+    val bleData = _bleData.asStateFlow()
 
     fun getCurrentUserDataFromFirebase() {
 
@@ -594,5 +611,22 @@ class SharedFirebaseViewModel : ViewModel() {
         }
     }
 
+    fun setBleState(state: Int) {
+        _bleState.value = state
+        Log.d("AHOJBLE", "BLE state updated to ${bleState.value}")
+    }
+
+    fun setListOfDevices(listOfDevices: List<ScanResult>) {
+        _bleListOfDevices.value = listOfDevices
+        Log.d("AHOJBLE", "BLE list of devices updated to ${bleListOfDevices.value?.size}")
+    }
+
+    fun setBleData(bleData: NrfData) {
+        _bleData.value = bleData
+    }
+
+    fun setBleConnectedDevice(bleDevice: BluetoothDevice?) {
+        _bleConnectedDevice.value = bleDevice
+    }
 }
 
