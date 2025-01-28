@@ -4,9 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -74,9 +77,7 @@ fun NavigationUpAndBottomBar(
     val navBarUnselectedIcons =
         listOf(Icons.Outlined.Home, Icons.Outlined.FavoriteBorder, Icons.Outlined.PersonOutline)
 
-    Surface(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    Surface {
 
         Scaffold(
             topBar = {
@@ -85,7 +86,10 @@ fun NavigationUpAndBottomBar(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp),
+                        .padding(10.dp)
+                        .padding(
+                            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+                        ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -99,40 +103,46 @@ fun NavigationUpAndBottomBar(
                             horizontalArrangement = Arrangement.SpaceAround,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            if (selectedItem == 0) {
-                                CustomOnlineStateIndicator(
-                                    onClick = { onDeviceIndicatorClick() },
-                                    indicatorColor = when (isBLEConnected) {
-                                        0 -> MaterialTheme.colorScheme.error
-                                        1 -> Color.Yellow
-                                        2 -> Color.Green
-                                        else -> MaterialTheme.colorScheme.error
-                                    }
-                                )
-                                Spacer(Modifier.padding(horizontal = 5.dp))
-                                CustomProfilePictureFrame(
-                                    pictureUrl = recievedUser.profilePicUrl.toString(),
-                                    frameColor = Color(frameColors[recievedUser.color]),
-                                    onClick = { onProfilePictureClick(recievedUser.id) },
-                                    enabled = true
-                                )
-                            } else if (selectedItem == 1) {
-                                CustomIconButton(
-                                    onClick = { onHistoryClick() },
-                                    icon = Icons.Filled.History,
-                                    size = 40.dp
-                                )
-                                //Icon(imageVector = Icons.Filled.History, contentDescription = "History icon")
-                                Spacer(Modifier.padding(horizontal = 5.dp))
-                                CustomIconButton(
-                                    onClick = { onQrCodeClick() },
-                                    icon = Icons.Filled.QrCodeScanner
-                                )
-                            } else {
-                                CustomIconButton(
-                                    onClick = { onSearchClick() },
-                                    icon = Icons.Filled.Search
-                                )
+                            when (selectedItem) {
+                                0 -> {
+                                    CustomOnlineStateIndicator(
+                                        onClick = { onDeviceIndicatorClick() },
+                                        indicatorColor = when (isBLEConnected) {
+                                            0 -> MaterialTheme.colorScheme.error
+                                            1 -> Color.Yellow
+                                            2 -> Color.Green
+                                            else -> MaterialTheme.colorScheme.error
+                                        }
+                                    )
+                                    Spacer(Modifier.padding(horizontal = 5.dp))
+                                    CustomProfilePictureFrame(
+                                        pictureUrl = recievedUser.profilePicUrl,
+                                        frameColor = Color(frameColors[recievedUser.color]),
+                                        onClick = { onProfilePictureClick(recievedUser.id) },
+                                        enabled = true
+                                    )
+                                }
+
+                                1 -> {
+                                    CustomIconButton(
+                                        onClick = { onHistoryClick() },
+                                        icon = Icons.Filled.History,
+                                        size = 40.dp
+                                    )
+                                    //Icon(imageVector = Icons.Filled.History, contentDescription = "History icon")
+                                    Spacer(Modifier.padding(horizontal = 5.dp))
+                                    CustomIconButton(
+                                        onClick = { onQrCodeClick() },
+                                        icon = Icons.Filled.QrCodeScanner
+                                    )
+                                }
+
+                                else -> {
+                                    CustomIconButton(
+                                        onClick = { onSearchClick() },
+                                        icon = Icons.Filled.Search
+                                    )
+                                }
                             }
                         }
                     }
