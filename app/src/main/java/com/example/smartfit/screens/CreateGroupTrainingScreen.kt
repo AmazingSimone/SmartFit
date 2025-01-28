@@ -11,6 +11,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -87,7 +90,7 @@ fun CreateGroupTrainingScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.9f)
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
                 )
             )
         },
@@ -144,12 +147,16 @@ fun CreateGroupTrainingScreen(
                         onTextChanged = { nameValue.value = it },
                         supportingText = {
                             NormalText("Nepovinne")
+                        },
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.Edit,
+                                contentDescription = "Training name icon"
+                            )
                         }
                     )
 
-                    Spacer(Modifier.padding(8.dp))
-
-
+                    Spacer(Modifier.padding(6.dp))
 
                     ExposedDropdownMenuBox(
                         expanded = expanded,
@@ -191,7 +198,7 @@ fun CreateGroupTrainingScreen(
                     }
 
 
-                    Spacer(Modifier.padding(8.dp))
+                    Spacer(Modifier.padding(12.dp))
 
                     val maxUsersString = remember {
                         mutableStateOf("0")
@@ -206,8 +213,16 @@ fun CreateGroupTrainingScreen(
                             maxUsersString.value = it
                             maxUsersValue.intValue = it.toIntOrNull() ?: 0
                         },
-                        enterButtonAction = ImeAction.Default
+                        enterButtonAction = ImeAction.Default,
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.People,
+                                contentDescription = "People count icon"
+                            )
+                        }
                     )
+
+                    Spacer(Modifier.padding(12.dp))
 
                     CustomOutlinedTextInput(
                         currentFocusRequester = detailsOfTraining,
@@ -220,8 +235,15 @@ fun CreateGroupTrainingScreen(
                         supportingText = {
                             NormalText("Nepovinne")
                         },
-                        maxLines = 10,
-                        minLines = 10
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.EditNote,
+                                contentDescription = "Training details icon"
+                            )
+                        },
+                        singleLine = false,
+                        maxLines = 6,
+                        minLines = 6
                     )
 
                     Spacer(Modifier.padding(paddingValues))

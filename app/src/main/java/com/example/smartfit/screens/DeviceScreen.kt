@@ -128,7 +128,7 @@ fun DeviceScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.9f)
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
                 )
             )
         },
