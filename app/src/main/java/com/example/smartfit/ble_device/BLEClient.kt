@@ -14,6 +14,8 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
@@ -38,10 +40,32 @@ class BLEClient(private val context: Context, private val viewModel: SharedFireb
     private val listOfBleDevices = mutableStateOf<List<ScanResult>>(emptyList())
 
     private lateinit var scanCallback: ScanCallback
+    private val handler = Handler(Looper.getMainLooper())
+
 
     private var stepDistance: Float = 85.0F
     private var caloriesPerStep: Float = 0.04F
 
+    init {
+        initializeScanCallback()
+    }
+
+    private fun initializeScanCallback() {
+        scanCallback = object : ScanCallback() {
+            @SuppressLint("MissingPermission")
+            override fun onScanResult(callbackType: Int, result: ScanResult) {
+                if (listOfBleDevices.value.none { it.device.address == result.device.address }) {
+                    listOfBleDevices.value += result
+                }
+                viewModel.setListOfDevices(listOfBleDevices.value)
+                Log.d("AHOJBLE", "Device found: ${result.device.name}")
+            }
+
+            override fun onScanFailed(errorCode: Int) {
+                Log.e("AHOJBLE", "Scan failed with error code: $errorCode")
+            }
+        }
+    }
 
     fun startScan() {
         if (ActivityCompat.checkSelfPermission(
@@ -52,21 +76,11 @@ class BLEClient(private val context: Context, private val viewModel: SharedFireb
             Log.e("AHOJBLE", "Permission BLUETOOTH_SCAN not granted")
             return
         }
-        scanCallback = object : ScanCallback() {
-            @SuppressLint("MissingPermission")
-            override fun onScanResult(callbackType: Int, result: ScanResult) {
-                if (listOfBleDevices.value.none { it.device.address == result.device.address }) {
-                    listOfBleDevices.value += result
-                }
-                viewModel.setListOfDevices(listOfBleDevices.value)
-
-            }
-        }
         bluetoothAdapter?.bluetoothLeScanner?.startScan(scanCallback)
+        handler.postDelayed({ stopScan() }, 10000)
     }
 
-    fun stopScan(
-    ) {
+    fun stopScan() {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.BLUETOOTH_SCAN
@@ -75,7 +89,12 @@ class BLEClient(private val context: Context, private val viewModel: SharedFireb
             Log.e("AHOJBLE", "Permission BLUETOOTH_SCAN not granted")
             return
         }
-        bluetoothAdapter?.bluetoothLeScanner?.stopScan(scanCallback)
+        if (::scanCallback.isInitialized) {
+            bluetoothAdapter?.bluetoothLeScanner?.stopScan(scanCallback)
+            Log.d("AHOJBLE", "stop scan")
+        } else {
+            Log.e("AHOJBLE", "scanCallback is not initialized")
+        }
     }
 
     fun connectToDevice(

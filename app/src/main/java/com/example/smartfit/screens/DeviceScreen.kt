@@ -32,7 +32,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -58,7 +58,7 @@ fun DeviceScreen(
     onBackClick: () -> Unit,
     onDisconnectClick: () -> Unit
 ) {
-    val openAlertDialog = rememberSaveable { mutableStateOf(false) }
+    val openAlertDialog = remember { mutableStateOf(false) }
 
     when {
         openAlertDialog.value -> {
@@ -119,7 +119,6 @@ fun DeviceScreen(
                 title = { Heading1("Pridaj zariadenie") },
                 navigationIcon = {
                     IconButton(onClick = {
-                        bleClient?.stopScan()
                         onBackClick()
                     }) {
                         Icon(
