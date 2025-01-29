@@ -5,6 +5,12 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -82,7 +89,38 @@ fun AppNavigator(
         startDestination = if (firebaseViewModel.isSignedIn()) Screens.HOME.name else Screens.LOGIN.name
     ) {
 
-        composable(Screens.HOME.name) {
+        val enterTransition: @JvmSuppressWildcards AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
+            {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Up,
+                    tween(250)
+                )
+            }
+
+        val exitTransition: @JvmSuppressWildcards AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
+            {
+
+                fadeOut(animationSpec = tween(250), targetAlpha = 1f)
+            }
+
+        val popEnterTransition: @JvmSuppressWildcards AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
+            {
+                fadeIn(animationSpec = tween(250), initialAlpha = 1f)
+            }
+
+        val popExitTransition: @JvmSuppressWildcards AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
+            {
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Down,
+                    tween(250)
+                )
+            }
+
+        composable(
+            route = Screens.HOME.name,
+            popEnterTransition = popEnterTransition,
+            enterTransition = popEnterTransition
+        ) {
             val isLoading by firebaseViewModel.isLoading.collectAsStateWithLifecycle()
 
             val sharedUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
@@ -193,7 +231,13 @@ fun AppNavigator(
             )
         }
 
-        composable(Screens.USER_PROFILE.name) {
+        composable(
+            route = Screens.USER_PROFILE.name,
+            popExitTransition = popExitTransition,
+            exitTransition = exitTransition,
+            enterTransition = enterTransition,
+            popEnterTransition = popEnterTransition
+        ) {
 
             val sharedSignedInUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
             val sharedSignedInUserFollowing by firebaseViewModel.sharedUserFollowingState.collectAsStateWithLifecycle()
@@ -259,7 +303,12 @@ fun AppNavigator(
             )
         }
 
-        composable(Screens.EDIT_PROFILE.name) {
+        composable(
+            route = Screens.EDIT_PROFILE.name,
+            enterTransition = enterTransition,
+            popExitTransition = popExitTransition
+
+        ) {
             val sharedUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
 
             EditProfileInfoScreen(
@@ -292,7 +341,11 @@ fun AppNavigator(
             )
         }
 
-        composable("${Screens.CURRENT_ACTIVITY.name}/{indexOfTraining}") { backStackEntry ->
+        composable(
+            route = "${Screens.CURRENT_ACTIVITY.name}/{indexOfTraining}",
+            popExitTransition = popExitTransition,
+            enterTransition = enterTransition
+        ) { backStackEntry ->
 
             val participantOfTraining by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
             val chosenGroupTraining by firebaseViewModel.chosenGroupTrainingState.collectAsStateWithLifecycle()
@@ -366,7 +419,13 @@ fun AppNavigator(
             )
         }
 
-        composable(Screens.HISTORY.name) {
+        composable(
+            route = Screens.HISTORY.name,
+            exitTransition = exitTransition,
+            popExitTransition = popExitTransition,
+            enterTransition = enterTransition,
+            popEnterTransition = popEnterTransition
+        ) {
 
             val userTrainings by firebaseViewModel.sharedUserTrainingsState.collectAsStateWithLifecycle()
 
@@ -381,7 +440,11 @@ fun AppNavigator(
             )
         }
 
-        composable("${Screens.ACTIVIY_DETAIL.name}/{indexOfTrainingDetail}") { backStackEntry ->
+        composable(
+            route = "${Screens.ACTIVIY_DETAIL.name}/{indexOfTrainingDetail}",
+            popExitTransition = popExitTransition,
+            enterTransition = enterTransition
+        ) { backStackEntry ->
 
             val indexOfChosenTraining =
                 backStackEntry.arguments?.getString("indexOfTrainingDetail")?.toIntOrNull() ?: 0
@@ -463,7 +526,10 @@ fun AppNavigator(
             )
         }
 
-        composable(Screens.SEARCH.name) {
+        composable(
+            route = Screens.SEARCH.name,
+            popEnterTransition = popEnterTransition,
+        ) {
 
             val loggedInUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
             val searchResults by firebaseViewModel.searchResults.collectAsStateWithLifecycle()
@@ -529,7 +595,11 @@ fun AppNavigator(
             )
         }
 
-        composable("${Screens.CREATE_GROUP_TRAINING.name}/{trainerId}") { navBackStackEntry ->
+        composable(
+            route = "${Screens.CREATE_GROUP_TRAINING.name}/{trainerId}",
+            popExitTransition = popExitTransition,
+            enterTransition = enterTransition
+        ) { navBackStackEntry ->
 
             val trainerId = navBackStackEntry.arguments?.getString("trainerId") ?: ""
 
@@ -552,7 +622,11 @@ fun AppNavigator(
             )
         }
 
-        composable(Screens.GROUP_TRAINING_LOBBY.name) {
+        composable(
+            route = Screens.GROUP_TRAINING_LOBBY.name,
+            popExitTransition = popExitTransition,
+            enterTransition = popEnterTransition
+        ) {
 
             val chosenGroupTraining by firebaseViewModel.chosenGroupTrainingState.collectAsStateWithLifecycle()
             val currentLoggedInUser by firebaseViewModel.sharedUserState.collectAsStateWithLifecycle()
@@ -743,7 +817,11 @@ fun AppNavigator(
             )
         }
 
-        composable(Screens.QR_READER_SCREEN.name) {
+        composable(
+            route = Screens.QR_READER_SCREEN.name,
+            popExitTransition = popExitTransition,
+            enterTransition = enterTransition
+        ) {
 
             val foundGroupTraining = remember { mutableStateOf(GroupTraining()) }
             val foundTrainer = remember { mutableStateOf(User()) }
@@ -794,7 +872,11 @@ fun AppNavigator(
             )
         }
 
-        composable(Screens.DEVICE_SCREEN.name) {
+        composable(
+            route = Screens.DEVICE_SCREEN.name,
+            popExitTransition = popExitTransition,
+            enterTransition = enterTransition
+        ) {
 
             val bleConnectionState by firebaseViewModel.bleState.collectAsStateWithLifecycle()
             val bleListOfDevices by firebaseViewModel.bleListOfDevices.collectAsStateWithLifecycle()
