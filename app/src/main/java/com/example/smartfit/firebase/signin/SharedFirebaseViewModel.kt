@@ -7,11 +7,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.smartfit.components.StopWatch
 import com.example.smartfit.data.GroupTraining
 import com.example.smartfit.data.NrfData
 import com.example.smartfit.data.Training
 import com.example.smartfit.data.User
 import com.example.smartfit.data.trainingList
+import com.example.smartfit.influx.InfluxClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +31,8 @@ class SharedFirebaseViewModel : ViewModel() {
 
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firebaseFirestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val stopWatch = StopWatch()
+    private val influxDBClientKotlin = InfluxClient()
 
     //--LOGGED IN USER
 
@@ -109,6 +113,16 @@ class SharedFirebaseViewModel : ViewModel() {
 
     private val _bleData = MutableStateFlow(NrfData())
     val bleData = _bleData.asStateFlow()
+
+    //-- STOPWATCH
+
+    private val _stopWatchState = MutableStateFlow(stopWatch)
+    val stopWatchState = _stopWatchState.asStateFlow()
+
+    //-- INFLUX
+
+    private val _influxClientState = MutableStateFlow(influxDBClientKotlin)
+    val influxClientState = _influxClientState.asStateFlow()
 
     fun getCurrentUserDataFromFirebase() {
 

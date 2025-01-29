@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,12 +52,12 @@ fun CurrentActivityScreen(
     onCreateTraining: (String) -> Unit,
     onStartTraining: () -> Unit,
     onEndTraining: (Training) -> Unit,
+    stopWatch: StopWatch,
     nrfData: NrfData
 ) {
 
     val training = remember { mutableStateOf(createdTraining) }
-    val stopWatch = remember { StopWatch() }
-    val isRunning = remember { mutableStateOf(stopWatch.isRunning()) }
+    val isRunning = rememberSaveable { mutableStateOf(stopWatch.isRunning()) }
     val timeDateOfTraining = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
 
     val groupTraining = remember { mutableStateOf(chosenGroupTraining) }
@@ -64,6 +65,8 @@ fun CurrentActivityScreen(
     val data = remember { mutableStateOf(nrfData) }
 
     val isTrainingCreated = remember { mutableStateOf(false) }
+
+    val hasTrainingStarted = rememberSaveable { mutableStateOf(false) }
 
     val influxDBClientKotlin = InfluxDBClientKotlinFactory.create(
         BuildConfig.INFLUX_URL,
@@ -184,10 +187,13 @@ fun CurrentActivityScreen(
             }
         }
     } else {
-        LaunchedEffect(Unit) {
-            onStartTraining()
-            stopWatch.start()
-            isRunning.value = stopWatch.isRunning()
+        if (!hasTrainingStarted.value) {
+            LaunchedEffect(Unit) {
+                onStartTraining()
+                stopWatch.start()
+                isRunning.value = stopWatch.isRunning()
+                hasTrainingStarted.value = true
+            }
         }
     }
 
@@ -292,5 +298,6 @@ fun CurrentActivityPreview() {
         onCreateTraining = {},
         indexOfTraining = 0,
         onStartTraining = {},
+        stopWatch = StopWatch(),
     )
 }

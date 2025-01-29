@@ -6,6 +6,12 @@ import android.os.Build
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -88,6 +94,7 @@ fun GroupTrainingLobby(
     onCheckAllTrainingInfo: () -> Unit,
     onUnFollowButtonClick: (String) -> Unit,
     onFollowButtonClick: (String) -> Unit,
+    stopWatch: StopWatch,
     setTrainingState: (Int) -> Unit, //0 - initial, 1 - start and send to screens, 2 - pause, 3 - resume, 4 - end
     isBLEConnected: Int,
     onDeleteClick: (Boolean) -> Unit,
@@ -95,7 +102,8 @@ fun GroupTrainingLobby(
     onEndGroupTrainingClick: (GroupTraining) -> Unit,
     onRemoveUserFromTrainingClick: (String) -> Unit,
     onSendUserToHomeScreen: () -> Unit,
-    onSendAllUsers: (Int) -> Unit
+    onSendAllUsers: (Int) -> Unit,
+    influxDBClientKotlin: InfluxClient
 ) {
 
     var groupTraining by remember { mutableStateOf(chosenGroupTraining) }
@@ -103,10 +111,9 @@ fun GroupTrainingLobby(
 
     var qrBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
-    val fullscreenQrState = remember { mutableStateOf(false) }
+    val fullscreenQrState = rememberSaveable { mutableStateOf(false) }
 
-    val stopWatch = remember { StopWatch() }
-    val isStopWatchRunning = remember { mutableStateOf(stopWatch.isRunning()) }
+    val isStopWatchRunning = rememberSaveable { mutableStateOf(stopWatch.isRunning()) }
 
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -114,12 +121,20 @@ fun GroupTrainingLobby(
     val policy = ThreadPolicy.Builder().permitAll().build()
     StrictMode.setThreadPolicy(policy)
 
-    val influxDBClientKotlin = remember { InfluxClient() }
-
     val chosenParticipant = remember { mutableStateOf("") }
     val chosenUserNrfData = remember { mutableStateOf(NrfData()) }
 
     val showAlertDialog = rememberSaveable { mutableStateOf(false) }
+
+    val infiniteTransition = rememberInfiniteTransition()
+    val animatedIndicatorColor by infiniteTransition.animateColor(
+        initialValue = Color.Red,
+        targetValue = Color.Red.copy(alpha = 0.5f),
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
 
     LaunchedEffect(allTrainingParticipants) {
         if (!allTrainingParticipants.contains(currentUser) && currentUser.id != chosenGroupTraining.trainerId) {
@@ -149,7 +164,7 @@ fun GroupTrainingLobby(
             }
             qrBitmap = bitmap
 
-            if (currentUser.id == chosenGroupTraining.trainerId) {
+            if (currentUser.id == chosenGroupTraining.trainerId && chosenGroupTraining.trainingState == 0) {
                 fullscreenQrState.value = true
             }
 
@@ -426,8 +441,15 @@ fun GroupTrainingLobby(
                                                             tint = MaterialTheme.colorScheme.error
                                                         )
                                                     }
-                                                }
+                                                } else if (currentUser.id == groupTraining.trainerId) {
 
+                                                    CustomOnlineStateIndicator(
+                                                        onClick = { },
+                                                        indicatorColor = animatedIndicatorColor,
+                                                        text = "Zive data",
+                                                        size = 10.dp
+                                                    )
+                                                }
                                             },
                                             colors = ListItemDefaults.colors(containerColor = Color.Transparent)
 
@@ -571,6 +593,8 @@ fun GroupTrainingLobbyPreview() {
         onUnFollowButtonClick = {},
         onFollowButtonClick = {},
         onUserClick = {},
-        isBLEConnected = 0
+        isBLEConnected = 0,
+        stopWatch = StopWatch(),
+        influxDBClientKotlin = InfluxClient()
     )
 }

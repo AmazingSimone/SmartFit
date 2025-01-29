@@ -299,6 +299,7 @@ fun AppNavigator(
             val chosenTraining by firebaseViewModel.chosenTrainingState.collectAsStateWithLifecycle()
             val bleData by firebaseViewModel.bleData.collectAsStateWithLifecycle()
 
+            val stopWatch by firebaseViewModel.stopWatchState.collectAsStateWithLifecycle()
 
             //TODO preco tam je getString
             val indexOfChosenTraining =
@@ -361,6 +362,7 @@ fun AppNavigator(
                     }
                 },
                 onStartTraining = { bleClient.resetCharacteristic() },
+                stopWatch = stopWatch,
             )
         }
 
@@ -564,6 +566,10 @@ fun AppNavigator(
             val chosenUserFollowing =
                 firebaseViewModel.chosenUserFollowingState.collectAsStateWithLifecycle()
 
+            val stopWatch by firebaseViewModel.stopWatchState.collectAsStateWithLifecycle()
+
+            val influxClient by firebaseViewModel.influxClientState.collectAsStateWithLifecycle()
+
             val bleConnectionState by firebaseViewModel.bleState.collectAsStateWithLifecycle()
             Log.d("AHOJBLE", "BLE state in lobby: $bleConnectionState")
 
@@ -731,7 +737,9 @@ fun AppNavigator(
                         }
                     }
                 },
-                isBLEConnected = bleConnectionState
+                isBLEConnected = bleConnectionState,
+                stopWatch = stopWatch,
+                influxDBClientKotlin = influxClient
             )
         }
 

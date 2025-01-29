@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.bluetooth)
+    implementation(libs.androidx.material.icons.core.android)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
