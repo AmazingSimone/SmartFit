@@ -143,6 +143,7 @@ fun CurrentActivityScreen(
         LaunchedEffect(chosenGroupTraining.trainingState) {
             when (chosenGroupTraining.trainingState) {
                 0 -> {
+                    stopWatch.reset()
                     stopWatch.start()
                     isRunning.value = stopWatch.isRunning()
                 }
@@ -178,7 +179,6 @@ fun CurrentActivityScreen(
                     training.value = training.value.copy(steps = nrfData.kroky.toInt())
 
                     training.value = training.value.copy(isGroupTraining = true)
-                    //training.value = training.value.copy(id = groupTraining.value?.id ?: "")
 
                     influxDBClientKotlin.close()
 
@@ -189,6 +189,7 @@ fun CurrentActivityScreen(
     } else {
         if (!hasTrainingStarted.value) {
             LaunchedEffect(Unit) {
+                stopWatch.reset()
                 onStartTraining()
                 stopWatch.start()
                 isRunning.value = stopWatch.isRunning()
