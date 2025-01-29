@@ -740,21 +740,21 @@ fun ProfileInfoContent(
         val totalDurationMillis = trainingsThisWeek.sumOf { it.trainingDuration }
         "${totalDurationMillis / 60000}min"
     } else {
-        "N/A"
+        "0"
     }
 
     val totalCountOfSteps = if (trainingsThisWeek.isNotEmpty()) {
         val totalSteps = trainingsThisWeek.sumOf { it.steps }
         "$totalSteps"
     } else {
-        "N/A"
+        "0"
     }
 
     val totalBurnedCalories = if (trainingsThisWeek.isNotEmpty()) {
         val totalCalories = trainingsThisWeek.sumOf { it.burnedCalories }
         "${totalCalories}kcal"
     } else {
-        "N/A"
+        "0"
     }
 
     val favouriteTraining = if (trainingsThisWeek.isNotEmpty()) {
