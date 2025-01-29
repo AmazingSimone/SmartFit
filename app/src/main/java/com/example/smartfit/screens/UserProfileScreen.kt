@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -17,6 +19,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,6 +52,18 @@ fun UserProfileScreen(
 
     ) {
 
+    val isLoading = rememberSaveable { mutableStateOf(true) }
+
+    LaunchedEffect(
+        recievedUser,
+        followedUsersList,
+        completedtrainingsList,
+        loggedInUser,
+        loggedInUserfollowedUsersList
+    ) {
+        isLoading.value = recievedUser == User() || loggedInUser == User()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -73,47 +90,61 @@ fun UserProfileScreen(
         },
         bottomBar = {
             if (recievedUser == loggedInUser) {
-                CustomButton(
-                    modifier = Modifier.padding(20.dp),
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    textColor = MaterialTheme.colorScheme.onErrorContainer,
-                    onClick = { onSignOutClick() },
-                    buttonText = "Odhlasit sa"
-                )
+                BottomAppBar(
+                    containerColor = if (recievedUser.color != 0)
+                        Color(frameColors[recievedUser.color]).copy(
+                            alpha = 0.07f
+                        )
+                    else
+                        MaterialTheme.colorScheme.background
+                ) {
+                    CustomButton(
+                        modifier = Modifier.padding(20.dp),
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        textColor = MaterialTheme.colorScheme.onErrorContainer,
+                        onClick = { onSignOutClick() },
+                        buttonText = "Odhlasit sa"
+                    )
+                }
             }
         },
 
     ) { innerPadding ->
         Surface(modifier = Modifier.padding(innerPadding)) {
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    //.padding(horizontal = 20.dp)
-                    .background(
-                        if (recievedUser.color != 0)
-                            Color(frameColors[recievedUser.color]).copy(
-                                alpha = 0.07f
-                            )
-                        else
-                            MaterialTheme.colorScheme.background
-                    ),
-                contentAlignment = Alignment.TopCenter
-            ) {
+            if (isLoading.value) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            if (recievedUser.color != 0)
+                                Color(frameColors[recievedUser.color]).copy(
+                                    alpha = 0.07f
+                                )
+                            else
+                                MaterialTheme.colorScheme.background
+                        ),
+                    contentAlignment = Alignment.TopCenter
+                ) {
 
-                if (loggedInUser != null) {
-                    ProfileInfoContent(
-                        onEditClick = onEditClick,
-                        onUnFollowButtonClick = onUnFollowButtonClick,
-                        onFollowButtonClick = onFollowButtonClick,
-                        recievedUser = recievedUser,
-                        followedUsersList = followedUsersList,
-                        completedtrainingsList = completedtrainingsList,
-                        loggedInUser = loggedInUser,
-                        loggedInUserfollowedUsersList = loggedInUserfollowedUsersList,
-                        enabled = loggedInUser.id == recievedUser.id,
-                        editOption = loggedInUser.id == recievedUser.id
-                    )
+                    if (loggedInUser != null) {
+                        ProfileInfoContent(
+                            onEditClick = onEditClick,
+                            onUnFollowButtonClick = onUnFollowButtonClick,
+                            onFollowButtonClick = onFollowButtonClick,
+                            recievedUser = recievedUser,
+                            followedUsersList = followedUsersList,
+                            completedtrainingsList = completedtrainingsList,
+                            loggedInUser = loggedInUser,
+                            loggedInUserfollowedUsersList = loggedInUserfollowedUsersList,
+                            enabled = loggedInUser.id == recievedUser.id,
+                            editOption = loggedInUser.id == recievedUser.id
+                        )
+                    }
                 }
             }
         }
@@ -129,7 +160,7 @@ fun UserProfilePreview() {
         onBackClick = {},
         onSignOutClick = {},
         recievedUser = User(displayName = "Simon Bartanus", bio = "Hej"),
-        loggedInUser = null,
+        loggedInUser = User(displayName = "Simon Bartanus", bio = "Hej"),
         onUnFollowButtonClick = {},
         onFollowButtonClick = {},
         followedUsersList = emptyList(),
