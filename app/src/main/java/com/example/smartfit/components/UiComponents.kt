@@ -825,13 +825,13 @@ fun ProfileInfoContent(
 
                     CustomButton(
                         onClick = { onUnFollowButtonClick(recievedUser.id) },
-                        buttonText = "Sledujes"
+                        buttonText = "Sledujes",
+                        outlined = true
                     )
                 } else {
                     CustomButton(
                         onClick = { onFollowButtonClick(recievedUser.id) },
-                        buttonText = "Zacat sledovat",
-                        outlined = true
+                        buttonText = "Zacat sledovat"
                     )
                 }
                 Spacer(Modifier.padding(padding))
