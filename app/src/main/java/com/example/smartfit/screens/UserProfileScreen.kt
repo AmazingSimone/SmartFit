@@ -1,6 +1,7 @@
 package com.example.smartfit.screens
 
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -53,6 +54,10 @@ fun UserProfileScreen(
     ) {
 
     val isLoading = rememberSaveable { mutableStateOf(true) }
+
+    BackHandler {
+        onBackClick()
+    }
 
     LaunchedEffect(
         recievedUser,

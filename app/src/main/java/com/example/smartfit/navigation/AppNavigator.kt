@@ -255,10 +255,14 @@ fun AppNavigator(
                 followedUsersList = chosenUserFollowing.value,
                 loggedInUser = sharedSignedInUser,
                 onEditClick = { navController.navigate(Screens.EDIT_PROFILE.name) },
-                onBackClick = { navController.popBackStack() },
+                onBackClick = {
+                    navController.popBackStack()
+                    firebaseViewModel.resetChosenUser()
+                },
                 onSignOutClick = {
 
                     firebaseViewModel.signOut()
+                    firebaseViewModel.resetChosenUser()
                     navController.navigate(Screens.LOGIN.name) {
                         popUpTo(0) { inclusive = true }
                     }

@@ -226,6 +226,12 @@ class SharedFirebaseViewModel : ViewModel() {
 
     }
 
+    fun resetChosenUser() {
+        _chosenUserState.value = User()
+        _chosenUserTrainingsState.value = emptyList()
+        _chosenUserFollowingState.value = emptyList()
+    }
+
     suspend fun uploadUserData(user: User): Boolean {
         return try {
             firebaseFirestore.collection("users").document(user.id).update(
