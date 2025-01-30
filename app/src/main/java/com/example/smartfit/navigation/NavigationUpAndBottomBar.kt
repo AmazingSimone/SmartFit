@@ -23,6 +23,7 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -39,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.smartfit.components.CustomIconButton
@@ -149,12 +151,20 @@ fun NavigationUpAndBottomBar(
                 }
             },
             floatingActionButton = {
-                if (selectedItem == 1 && recievedUser.isTrainer)
-                    ExtendedFloatingActionButton(
-                        onClick = { onFAButtonClick(recievedUser.id) },
-                        icon = { Icon(Icons.Filled.Add, "Add group training icon") },
-                        text = { Text(text = "Vytvorit skupinovy trening") },
-                    )
+                if (selectedItem == 1 && recievedUser.isTrainer) {
+                    if (LocalConfiguration.current.screenWidthDp > 600) {
+                        ExtendedFloatingActionButton(
+                            onClick = { onFAButtonClick(recievedUser.id) },
+                            icon = { Icon(Icons.Filled.Add, "Add group training icon") },
+                            text = { Text(text = "Vytvorit skupinovy trening") },
+                        )
+                    } else {
+                        FloatingActionButton(
+                            onClick = { onFAButtonClick(recievedUser.id) },
+                            content = { Icon(Icons.Filled.Add, "Add group training icon") }
+                        )
+                    }
+                }
             },
 
             bottomBar = {
