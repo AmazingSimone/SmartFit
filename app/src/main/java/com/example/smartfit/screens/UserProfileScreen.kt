@@ -94,7 +94,6 @@ fun UserProfileScreen(
             )
         },
         bottomBar = {
-            if (recievedUser == loggedInUser) {
                 BottomAppBar(
                     containerColor = if (recievedUser.color != 0)
                         Color(frameColors[recievedUser.color]).copy(
@@ -103,15 +102,16 @@ fun UserProfileScreen(
                     else
                         MaterialTheme.colorScheme.background
                 ) {
-                    CustomButton(
-                        modifier = Modifier.padding(20.dp),
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        textColor = MaterialTheme.colorScheme.onErrorContainer,
-                        onClick = { onSignOutClick() },
-                        buttonText = "Odhlasit sa"
-                    )
+                    if (recievedUser == loggedInUser) {
+                        CustomButton(
+                            modifier = Modifier.padding(20.dp),
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            textColor = MaterialTheme.colorScheme.onErrorContainer,
+                            onClick = { onSignOutClick() },
+                            buttonText = "Odhlasit sa"
+                        )
+                    }
                 }
-            }
         },
 
     ) { innerPadding ->
