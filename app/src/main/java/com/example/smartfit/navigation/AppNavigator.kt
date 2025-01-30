@@ -30,12 +30,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.smartfit.MainViewModel
 import com.example.smartfit.R
 import com.example.smartfit.ble_device.BLEClient
 import com.example.smartfit.data.GroupTraining
 import com.example.smartfit.data.User
 import com.example.smartfit.data.trainingList
-import com.example.smartfit.firebase.signin.SharedFirebaseViewModel
 import com.example.smartfit.screens.ActivityDetailScreen
 import com.example.smartfit.screens.CreateGroupTrainingScreen
 import com.example.smartfit.screens.CurrentActivityScreen
@@ -57,7 +57,7 @@ import kotlinx.coroutines.runBlocking
 fun AppNavigator(
     navController: NavHostController = rememberNavController(),
     bleClient: BLEClient,
-    firebaseViewModel: SharedFirebaseViewModel
+    firebaseViewModel: MainViewModel
 ) {
 
     GoogleAuthProvider.create(credentials = GoogleAuthCredentials(serverId = stringResource(R.string.default_web_client_id)))

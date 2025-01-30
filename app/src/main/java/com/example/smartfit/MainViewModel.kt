@@ -1,4 +1,4 @@
-package com.example.smartfit.firebase.signin
+package com.example.smartfit
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 
-class SharedFirebaseViewModel : ViewModel() {
+class MainViewModel : ViewModel() {
 
     //--INSTANCES
 

@@ -19,13 +19,13 @@ import android.os.Looper
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
+import com.example.smartfit.MainViewModel
 import com.example.smartfit.data.NrfData
-import com.example.smartfit.firebase.signin.SharedFirebaseViewModel
 import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
 
-class BLEClient(private val context: Context, private val viewModel: SharedFirebaseViewModel) {
+class BLEClient(private val context: Context, private val viewModel: MainViewModel) {
 
     companion object {
         val SERVICE_UUID: UUID = UUID.fromString("12345678-1234-1234-1234-123456789abc")

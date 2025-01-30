@@ -12,7 +12,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.smartfit.ble_device.BLEClient
-import com.example.smartfit.firebase.signin.SharedFirebaseViewModel
 import com.example.smartfit.navigation.AppNavigator
 import com.example.smartfit.ui.theme.SmartFitTheme
 
@@ -35,7 +34,7 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
-            val firebaseViewModel = viewModel<SharedFirebaseViewModel>()
+            val firebaseViewModel = viewModel<MainViewModel>()
             bleClient = BLEClient(this, firebaseViewModel)
             SmartFitTheme {
 
